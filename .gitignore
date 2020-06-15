@@ -1,0 +1,19 @@
+## macOS
+.DS_Store
+
+## Swift Package Manager & XCode
+Packages/
+Package.pins
+Package.resolved
+
+*.xcodeproj
+xcuserdata/
+.build
+.swiftpm
+
+## Local Assets
+/Assets
+
+## Local Dev. Resources
+/DEVLOG.md
+/Dev
