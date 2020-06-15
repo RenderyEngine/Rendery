@@ -13,11 +13,11 @@ extension Mesh {
 
     // Create the vertex data of a rectangle with the specified dimensions.
     let vertexData: [Float] = [
-      // Positions  // Texcoords  // Normals
-      lx, gy, 0.0,  0.0, 1.0,     0.0, 0.0, 1.0, // top left
-      lx, ly, 0.0,  0.0, 0.0,     0.0, 0.0, 1.0, // bottom left
-      gx, ly, 0.0,  1.0, 0.0,     0.0, 0.0, 1.0, // bottom right
-      gx, gy, 0.0,  1.0, 1.0,     0.0, 0.0, 1.0, // top right
+      // Positions  // Normals    // UVs
+      lx, gy, 0.0,  0.0, 0.0, 1.0,  0.0, 1.0, // top left
+      lx, ly, 0.0,  0.0, 0.0, 1.0,  0.0, 0.0, // bottom left
+      gx, ly, 0.0,  0.0, 0.0, 1.0,  1.0, 0.0, // bottom right
+      gx, gy, 0.0,  0.0, 0.0, 1.0,  1.0, 1.0, // top right
     ]
 
     // Assign each vertex to its index in the vertex data.
@@ -38,36 +38,31 @@ extension Mesh {
 
     // Create the vertex data of a cube with the specified dimensions.
     let vertexData: [Float] = [
-      // Positions  // Texcoords  // Normals
-      lx, gy, gz,   0.0, 1.0,      0.0,  0.0,  1.0, // front nw
-      lx, ly, gz,   0.0, 1.0,      0.0,  0.0,  1.0, // front sw
-      gx, ly, gz,   0.0, 1.0,      0.0,  0.0,  1.0, // front se
-      gx, gy, gz,   0.0, 1.0,      0.0,  0.0,  1.0, // front ne
-
-      gx, gy, gz,   0.0, 1.0,      1.0,  0.0,  0.0, // right nw
-      gx, ly, gz,   0.0, 1.0,      1.0,  0.0,  0.0, // front sw
-      gx, ly, lz,   0.0, 1.0,      1.0,  0.0,  0.0, // front se
-      gx, gy, lz,   0.0, 1.0,      1.0,  0.0,  0.0, // front ne
-
-      gx, gy, lz,   0.0, 1.0,      0.0,  0.0, -1.0, // back nw
-      gx, ly, lz,   0.0, 1.0,      0.0,  0.0, -1.0, // back sw
-      lx, ly, lz,   0.0, 1.0,      0.0,  0.0, -1.0, // back se
-      lx, gy, lz,   0.0, 1.0,      0.0,  0.0, -1.0, // back ne
-
-      lx, gy, lz,   0.0, 1.0,     -1.0,  0.0,  0.0, // left nw
-      lx, ly, lz,   0.0, 1.0,     -1.0,  0.0,  0.0, // left sw
-      lx, ly, gz,   0.0, 1.0,     -0.0,  0.0,  0.0, // left ne
-      lx, gy, gz,   0.0, 1.0,     -0.0,  0.0,  0.0, // left se
-
-      lx, ly, gz,   0.0, 1.0,      0.0, -1.0,  0.0, // bottom nw
-      lx, ly, lz,   0.0, 1.0,      0.0, -1.0,  0.0, // bottom sw
-      gx, ly, lz,   0.0, 1.0,      0.0, -1.0,  0.0, // bottom se
-      gx, ly, gz,   0.0, 1.0,      0.0, -1.0,  0.0, // bottom ne
-
-      lx, gy, lz,   0.0, 1.0,      0.0,  1.0,  0.0, // top nw
-      lx, gy, gz,   0.0, 1.0,      0.0,  1.0,  0.0, // top sw
-      gx, gy, gz,   0.0, 1.0,      0.0,  1.0,  0.0, // top se
-      gx, gy, lz,   0.0, 1.0,      0.0,  1.0,  0.0, // top ne
+      // Positions  // Normals        // UVs
+      lx, gy, gz,   0.0,  0.0,  1.0,  0.0, 1.0, // front nw
+      lx, ly, gz,   0.0,  0.0,  1.0,  0.0, 1.0, // front sw
+      gx, ly, gz,   0.0,  0.0,  1.0,  0.0, 1.0, // front se
+      gx, gy, gz,   0.0,  0.0,  1.0,  0.0, 1.0, // front ne
+      gx, gy, gz,   1.0,  0.0,  0.0,  0.0, 1.0, // right nw
+      gx, ly, gz,   1.0,  0.0,  0.0,  0.0, 1.0, // front sw
+      gx, ly, lz,   1.0,  0.0,  0.0,  0.0, 1.0, // front se
+      gx, gy, lz,   1.0,  0.0,  0.0,  0.0, 1.0, // front ne
+      gx, gy, lz,   0.0,  0.0, -1.0,  0.0, 1.0, // back nw
+      gx, ly, lz,   0.0,  0.0, -1.0,  0.0, 1.0, // back sw
+      lx, ly, lz,   0.0,  0.0, -1.0,  0.0, 1.0, // back se
+      lx, gy, lz,   0.0,  0.0, -1.0,  0.0, 1.0, // back ne
+      lx, gy, lz,   1.0,  0.0,  0.0,  0.0, 1.0, // left nw
+      lx, ly, lz,   1.0,  0.0,  0.0,  0.0, 1.0, // left sw
+      lx, ly, gz,   0.0,  0.0,  0.0,  0.0, 1.0, // left ne
+      lx, gy, gz,   0.0,  0.0,  0.0,  0.0, 1.0, // left se
+      lx, ly, gz,   0.0, -1.0,  0.0,  0.0, 1.0, // bottom nw
+      lx, ly, lz,   0.0, -1.0,  0.0,  0.0, 1.0, // bottom sw
+      gx, ly, lz,   0.0, -1.0,  0.0,  0.0, 1.0, // bottom se
+      gx, ly, gz,   0.0, -1.0,  0.0,  0.0, 1.0, // bottom ne
+      lx, gy, lz,   0.0,  1.0,  0.0,  0.0, 1.0, // top nw
+      lx, gy, gz,   0.0,  1.0,  0.0,  0.0, 1.0, // top sw
+      gx, gy, gz,   0.0,  1.0,  0.0,  0.0, 1.0, // top se
+      gx, gy, lz,   0.0,  1.0,  0.0,  0.0, 1.0, // top ne
     ]
 
     // Assign each vertex to its index in the vertex data.
@@ -100,19 +95,19 @@ extension Mesh {
       componentType: Float.self,
       shaderLocation: 0)
 
-    let texcoords = VertexAttributeDescriptor(
-      offset: 3 * MemoryLayout<Float>.stride,
-      stride: stride,
-      semantic: .textureCoordinates,
-      componentCountPerVertex: 2,
-      componentType: Float.self,
-      shaderLocation: 1)
-
     let normals = VertexAttributeDescriptor(
-      offset: 5 * MemoryLayout<Float>.stride,
+      offset: 3 * MemoryLayout<Float>.stride,
       stride: stride,
       semantic: .normal,
       componentCountPerVertex: 3,
+      componentType: Float.self,
+      shaderLocation: 1)
+
+    let texcoords = VertexAttributeDescriptor(
+      offset: 6 * MemoryLayout<Float>.stride,
+      stride: stride,
+      semantic: .textureCoordinates,
+      componentCountPerVertex: 2,
       componentType: Float.self,
       shaderLocation: 2)
 
@@ -122,7 +117,7 @@ extension Mesh {
         vertexData: Data(buffer: buffer),
         vertexCount: vertexData.count / 8,
         vertexIndices: vertexIndices,
-        attributeDescriptors: [positions, texcoords, normals])
+        attributeDescriptors: [positions, normals, texcoords])
     })
 
     // Create and return the mesh.

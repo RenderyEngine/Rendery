@@ -60,21 +60,21 @@ private extension GLSLProgram {
 private let _vertexSource = """
 #version 330 core
 layout (location = 0) in vec3 vertexPosition;
-layout (location = 1) in vec2 vertexTexcoords;
-layout (location = 2) in vec3 vertexNormal;
+layout (location = 1) in vec3 vertexNormal;
+layout (location = 2) in vec2 vertexUVs;
 
 uniform mat4 model;
 uniform mat4 mvp;
 uniform mat3 normalMatrix;
 
 out vec3 fragmentPosition;
-out vec2 fragmentTexcoords;
 out vec3 fragmentNormal;
+out vec2 fragmentUVs;
 
 void main() {
   fragmentPosition = vec3(model * vec4(vertexPosition, 1.0));
-  fragmentTexcoords = vertexTexcoords;
   fragmentNormal = normalMatrix * vertexNormal;
+  fragmentUVs = vertexUVs;
 
   gl_Position = mvp * vec4(vertexPosition, 1.0);
 }
@@ -83,8 +83,8 @@ void main() {
 private let _fragmentSource = """
 #version 330 core
 in vec3 fragmentPosition;
-in vec2 fragmentTexcoords;
 in vec3 fragmentNormal;
+in vec2 fragmentUVs;
 
 struct Light {
   bool enabled;
@@ -109,7 +109,7 @@ out vec4 finalColor;
 void main() {
   vec4 diffuse = diffuseProperty.isColor
     ? diffuseProperty.color
-    : texture(diffuseProperty.texture, fragmentTexcoords);
+    : texture(diffuseProperty.texture, fragmentUVs);
     if (diffuse.a < 0.1) {
       discard;
     }
@@ -123,7 +123,7 @@ void main() {
   if (multiplyProperty.isColor) {
     finalColor = texelColor * multiplyProperty.color;
   } else {
-    finalColor = texelColor * texture(multiplyProperty.texture, fragmentTexcoords);
+    finalColor = texelColor * texture(multiplyProperty.texture, fragmentUVs);
   }
 }
 """
