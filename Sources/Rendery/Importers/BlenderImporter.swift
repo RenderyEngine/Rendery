@@ -481,7 +481,7 @@ public class BlenderObject {
         LogManager.main.log(
           "Dismissed the member '\(objectType).\(fieldName)' while a '.blend file: " +
           "cannot handle data of type '\(fieldType.repr)'.",
-          level: .warning)
+          level: .debug)
         return nil
       }
 

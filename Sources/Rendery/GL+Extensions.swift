@@ -45,6 +45,7 @@ internal enum GL {
   static var TEXTURE_WRAP_S       : Enum { Enum(GL_TEXTURE_WRAP_S) }
   static var TEXTURE_WRAP_T       : Enum { Enum(GL_TEXTURE_WRAP_T) }
   static var TEXTURE0             : Enum { Enum(GL_TEXTURE0) }
+  static var TRUE                 : Enum { Enum(GL_TRUE) }
   static var VERTEX_SHADER        : Enum { Enum(GL_VERTEX_SHADER) }
 
 }

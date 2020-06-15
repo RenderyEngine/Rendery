@@ -235,7 +235,7 @@ public final class GLSLProgram: GraphicsResource {
 
     var success: GL.Int = 0
     glGetShaderiv(shaderID, GL.COMPILE_STATUS, &success)
-    guard success != GL.FALSE else {
+    guard success == GL.TRUE else {
       glDeleteShader(shaderID)
       throw GLSLError.compilation(shader: .vertex, message: String(cString: infoLog!))
     }
@@ -243,7 +243,7 @@ public final class GLSLProgram: GraphicsResource {
     if let log = infoLog {
       LogManager.main.log(
         "Shader compilation issued the following message: \(String(cString: log))",
-        level: .warning)
+        level: (success == GL.TRUE) ? LogLevel.warning : LogLevel.error)
     }
 
     return shaderID
@@ -271,7 +271,7 @@ public final class GLSLProgram: GraphicsResource {
 
     var success: GL.Int = 0
     glGetProgramiv(programID, GL.LINK_STATUS, &success)
-    guard success != GL.FALSE else {
+    guard success == GL.TRUE else {
       glDeleteProgram(programID)
       throw GLSLError.linking(message: String(cString: infoLog!))
     }
@@ -279,7 +279,7 @@ public final class GLSLProgram: GraphicsResource {
     if let log = infoLog {
       LogManager.main.log(
         "Shader linking issued the following message: \(String(cString: log))",
-        level: .warning)
+        level: (success == GL.TRUE) ? LogLevel.warning : LogLevel.error)
     }
 
     return programID

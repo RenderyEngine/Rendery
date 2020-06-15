@@ -72,7 +72,7 @@ public final class Window {
 
     set {
       guard !isClosed else {
-        LogManager.main.log("Ignored property change on closed window.", level: .warning)
+        LogManager.main.log("Ignored property change on closed window.", level: .debug)
         return
       }
 

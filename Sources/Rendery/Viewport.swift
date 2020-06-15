@@ -57,7 +57,7 @@ public final class Viewport {
     self.pointOfView = pointOfView ?? newScene.root3D
       .descendants(.satisfying({ node in node.camera != nil })).first
     if self.pointOfView == nil {
-      LogManager.main.log("Presented scene has no point of view.", level: .warning)
+      LogManager.main.log("Presented scene has no point of view.", level: .debug)
     }
   }
 
