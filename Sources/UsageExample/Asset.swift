@@ -1,15 +1,6 @@
 import Foundation
 import Rendery
 
-public protocol InitializableFromFile {
-
-  init?(contentsOfFile: String)
-
-}
-
-extension Rendery.Image: InitializableFromFile {
-}
-
 public final class LocalAssetProvider {
 
   public init(searchPaths: [(path: String, recursive: Bool)]) {

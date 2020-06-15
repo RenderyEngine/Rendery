@@ -22,7 +22,7 @@ import Darwin
 /// - The memory address of the block at the time it was saved.
 /// - The block's SDNA index.
 /// - The number of structures located in the block.
-public final class BlendFile {
+public final class BlendFile: InitializableFromFile {
 
   /// Initializes a `.blend` file proxy to read the specified file.
   ///
