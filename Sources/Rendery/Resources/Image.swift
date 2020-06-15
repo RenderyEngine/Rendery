@@ -1,4 +1,4 @@
-import Cstb
+import CSTBImage
 
 /// A 2D bitmap image, stored in CPU memory.
 public final class Image: TextureSource {
