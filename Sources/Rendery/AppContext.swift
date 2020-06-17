@@ -40,7 +40,7 @@ public final class AppContext {
       return nil
     }
 
-    // Configure GLFW.
+    // Configure OpenGL context.
     glfwDefaultWindowHints()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3)
@@ -63,6 +63,9 @@ public final class AppContext {
     // Set the main window the current OpenGL context, so that the user can load data onto the GPU
     // (e.g., textures, meshes, etc.). This context will be shared among all secondary windows.
     glfwMakeContextCurrent(mainWindow.handle)
+
+    // Disable V-Sync.
+    glfwSwapInterval(0)
 
     // Enable blending and specifies how OpenGL should handle transparency. This requires textures
     // to be loaded with premultiplied alpha (i.e., (αR,αG,αB,α) rather than (R,G,B,α)).
