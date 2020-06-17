@@ -1,2 +1,3 @@
+Sources/CGLFW/* linguist-vendored
 Sources/Cgltf/* linguist-vendored
-Sources/Cstb/* linguist-vendored
+Sources/CSTBImage/* linguist-vendored
