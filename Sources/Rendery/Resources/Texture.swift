@@ -11,7 +11,7 @@ public final class Texture: GraphicsResource {
   ///   - usesMipmaps: Indicates whether the texture should be generated with mipmaps.
   public init<Source>(
     source: Source,
-    wrappingMethod: WrappingMethod = .repeat,
+    wrappingMethod: (u: WrappingMethod, v: WrappingMethod) = (.repeat, .repeat),
     usesMipmaps: Bool = false
   ) where Source: TextureSource {
     self.wrappingMethod = wrappingMethod
@@ -24,17 +24,23 @@ public final class Texture: GraphicsResource {
   ///
   /// Texture coordinates are typically given within the range `0.0 ... 1.0` on both axes. This
   /// property specifies how a renderer should behave for pairs of coordinates that are outside
-  /// this range
-  public let wrappingMethod: WrappingMethod
+  /// this range on each axis.
+  public let wrappingMethod: (u: WrappingMethod, v: WrappingMethod)
 
   /// A method of texture wrapping.
   public enum WrappingMethod {
 
+    /// The texture is clamped to the mesh's borders.
+    case clampedToBorder
+
+    /// The texture is clamped to the mesh's edges.
+    case clampedToEdge
+
+    /// Similar to `repeat`, but the textured is mirrored wich each repeat.
+    case mirroredRepeat
+
     /// The texture is repeated.
     case `repeat`
-
-    /// The texture is clamped to the mesh's borders.
-    case clamped
 
   }
 
@@ -131,14 +137,8 @@ public final class Texture: GraphicsResource {
     }
 
     // Setup the texture's wrapping method.
-    let behavior: GL.Int
-    switch wrappingMethod {
-    case .repeat : behavior = GL.Int(bitPattern: GL.REPEAT)
-    case .clamped: behavior = GL.Int(bitPattern: GL.CLAMP_TO_BORDER)
-    }
-
-    glTexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, behavior)
-    glTexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, behavior)
+    glTexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.Int(wrappingMethod.u.glValue))
+    glTexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.Int(wrappingMethod.v.glValue))
 
     // Dispose of the data source.
     source = nil

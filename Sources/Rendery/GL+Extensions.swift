@@ -23,6 +23,7 @@ internal enum GL {
   static var ARRAY_BUFFER         : Enum { Enum(GL_ARRAY_BUFFER) }
   static var BLEND                : Enum { Enum(GL_BLEND) }
   static var CLAMP_TO_BORDER      : Enum { Enum(GL_CLAMP_TO_BORDER) }
+  static var CLAMP_TO_EDGE        : Enum { Enum(GL_CLAMP_TO_EDGE) }
   static var COMPILE_STATUS       : Enum { Enum(GL_COMPILE_STATUS) }
   static var DEPTH_TEST           : Enum { Enum(GL_DEPTH_TEST) }
   static var DYNAMIC_DRAW         : Enum { Enum(GL_DYNAMIC_DRAW) }
@@ -31,10 +32,13 @@ internal enum GL {
   static var FRAGMENT_SHADER      : Enum { Enum(GL_FRAGMENT_SHADER) }
   static var INFO_LOG_LENGTH      : Enum { Enum(GL_INFO_LOG_LENGTH) }
   static var LINEAR               : Enum { Enum(GL_LINEAR) }
+  static var LINES                : Enum { Enum(GL_LINES) }
   static var LINK_STATUS          : Enum { Enum(GL_LINK_STATUS) }
+  static var MIRRORED_REPEAT      : Enum { Enum(GL_MIRRORED_REPEAT) }
   static var NEAREST              : Enum { Enum(GL_NEAREST) }
   static var ONE                  : Enum { Enum(GL_ONE) }
   static var ONE_MINUS_SRC_ALPHA  : Enum { Enum(GL_ONE_MINUS_SRC_ALPHA) }
+  static var POINTS               : Enum { Enum(GL_POINTS) }
   static var REPEAT               : Enum { Enum(GL_REPEAT) }
   static var RGBA                 : Enum { Enum(GL_RGBA) }
   static var SRC_ALPHA            : Enum { Enum(GL_SRC_ALPHA) }
@@ -45,6 +49,7 @@ internal enum GL {
   static var TEXTURE_WRAP_S       : Enum { Enum(GL_TEXTURE_WRAP_S) }
   static var TEXTURE_WRAP_T       : Enum { Enum(GL_TEXTURE_WRAP_T) }
   static var TEXTURE0             : Enum { Enum(GL_TEXTURE0) }
+  static var TRIANGLES            : Enum { Enum(GL_TRIANGLES) }
   static var TRUE                 : Enum { Enum(GL_TRUE) }
   static var VERTEX_SHADER        : Enum { Enum(GL_VERTEX_SHADER) }
 
@@ -77,9 +82,32 @@ extension Mesh.PrimitiveType {
 
   internal var glValue: GL.Enum {
     switch self {
-    case .triangles: return GL.Enum(GL_TRIANGLES)
-    case .lines    : return GL.Enum(GL_LINES)
-    case .points   : return GL.Enum(GL_POINTS)
+    case .triangles: return GL.TRIANGLES
+    case .lines    : return GL.LINES
+    case .points   : return GL.POINTS
+    }
+  }
+
+}
+
+extension Texture.WrappingMethod {
+
+  internal init?(glValue: GL.Enum) {
+    switch glValue {
+    case GL.CLAMP_TO_BORDER : self = .clampedToBorder
+    case GL.CLAMP_TO_EDGE   : self = .clampedToEdge
+    case GL.MIRRORED_REPEAT : self = .mirroredRepeat
+    case GL.REPEAT          : self = .repeat
+    default                 : return nil
+    }
+  }
+
+  internal var glValue: GL.Enum {
+    switch self {
+    case .clampedToBorder : return GL.CLAMP_TO_BORDER
+    case .clampedToEdge   : return GL.CLAMP_TO_EDGE
+    case .mirroredRepeat  : return GL.MIRRORED_REPEAT
+    case .repeat          : return GL.REPEAT
     }
   }
 

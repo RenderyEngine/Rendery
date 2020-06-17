@@ -165,7 +165,9 @@ public struct Model {
     // Creates the model's material. The texture is clamped to avoid any artifacts at the texture's
     // edges, caused by interpolated border values.
     var material = Material(program: .default)
-    material.diffuse = .texture(Texture(source: image, wrappingMethod: .clamped))
+    material.diffuse = .texture(Texture(
+      source: image,
+      wrappingMethod: (u: .clampedToBorder, v: .clampedToBorder)))
 
     // Creates the model's material
     return Model(meshes: [mesh],  materials: [material])
