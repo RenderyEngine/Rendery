@@ -37,7 +37,7 @@ public struct VertexAttributeDescriptor {
     case normal
 
     /// Texture coordinate data.
-    case textureCoordinates
+    case uv
 
     /// Vertex color data.
     case color
@@ -58,5 +58,38 @@ public struct VertexAttributeDescriptor {
 
   /// The shader location to which the attributes should be bound.
   public let shaderLocation: Int
+
+  /// Creates a descriptor for position attributes with the default parameters.
+  public static func position(offset: Int, stride: Int) -> VertexAttributeDescriptor {
+    return VertexAttributeDescriptor(
+      offset: offset,
+      stride: stride,
+      semantic: .position,
+      componentCountPerVertex: 3,
+      componentType: Float.self,
+      shaderLocation: 0)
+  }
+
+  /// Creates a descriptor for normal attributes with the default parameters.
+  public static func normal(offset: Int, stride: Int) -> VertexAttributeDescriptor {
+    return VertexAttributeDescriptor(
+      offset: offset,
+      stride: stride,
+      semantic: .normal,
+      componentCountPerVertex: 3,
+      componentType: Float.self,
+      shaderLocation: 1)
+  }
+
+  /// Creates a descriptor for texture coordinate attributes with the default parameters.
+  public static func uv(offset: Int, stride: Int) -> VertexAttributeDescriptor {
+    return VertexAttributeDescriptor(
+      offset: offset,
+      stride: stride,
+      semantic: .uv,
+      componentCountPerVertex: 2,
+      componentType: Float.self,
+      shaderLocation: 2)
+  }
 
 }

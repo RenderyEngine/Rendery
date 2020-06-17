@@ -85,39 +85,17 @@ extension Mesh {
   ///   - vertexData: The mesh's vertex data.
   ///   - vertexIndices: The vertex indices.
   private static func generate(vertexData: [Float], vertexIndices: [UInt32]) -> Mesh {
-    // Define the attribute descriptors of the vertex data.
     let stride = MemoryLayout<Float>.stride * 8
-    let positions = VertexAttributeDescriptor(
-      offset: 0,
-      stride: stride,
-      semantic: .position,
-      componentCountPerVertex: 3,
-      componentType: Float.self,
-      shaderLocation: 0)
-
-    let normals = VertexAttributeDescriptor(
-      offset: 3 * MemoryLayout<Float>.stride,
-      stride: stride,
-      semantic: .normal,
-      componentCountPerVertex: 3,
-      componentType: Float.self,
-      shaderLocation: 1)
-
-    let texcoords = VertexAttributeDescriptor(
-      offset: 6 * MemoryLayout<Float>.stride,
-      stride: stride,
-      semantic: .textureCoordinates,
-      componentCountPerVertex: 2,
-      componentType: Float.self,
-      shaderLocation: 2)
-
-    // Generate a mesh source with the vertex data.
     let meshSource = vertexData.withUnsafeBufferPointer({ buffer in
       MeshData(
         vertexData: Data(buffer: buffer),
         vertexCount: vertexData.count / 8,
         vertexIndices: vertexIndices,
-        attributeDescriptors: [positions, normals, texcoords])
+        attributeDescriptors: [
+          .position(offset: 0, stride: stride),
+          .normal(offset: 3 * MemoryLayout<Float>.stride, stride: stride),
+          .uv(offset: 6 * MemoryLayout<Float>.stride, stride: stride)
+      ])
     })
 
     // Create and return the mesh.
