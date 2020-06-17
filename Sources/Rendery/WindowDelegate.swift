@@ -17,10 +17,10 @@ public protocol WindowDelegate: AnyObject {
   func windowDidLostFocus(window: Window)
 
   /// Notifies the delegate that the window recieved a key press event.
-  func windowDidReceiveKeyPress<E>(window: Window, event: E) where E: KeyboardEventProtocol
+  func windowDidReceiveKeyPress<E>(window: Window, event: E) where E: KeyEventProtocol
 
   /// Notifies the delegate that the window recieved a key release event.
-  func windowDidReceiveKeyRelease<E>(window: Window, event: E) where E: KeyboardEventProtocol
+  func windowDidReceiveKeyRelease<E>(window: Window, event: E) where E: KeyEventProtocol
 
 }
 
@@ -44,15 +44,15 @@ extension WindowDelegate {
   }
 
   public func windowDidReceiveKeyPress<E>(window: Window, event: E)
-    where E: KeyboardEventProtocol
+    where E: KeyEventProtocol
   {
-    window.nextResponder?.respondToKeyPress(with: event)
+    window.nextKeyResponder?.respondToKeyPress(with: event)
   }
 
   public func windowDidReceiveKeyRelease<E>(window: Window, event: E)
-    where E: KeyboardEventProtocol
+    where E: KeyEventProtocol
   {
-    window.nextResponder?.respondToKeyRelease(with: event)
+    window.nextKeyResponder?.respondToKeyRelease(with: event)
   }
 
 }

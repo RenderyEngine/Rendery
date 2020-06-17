@@ -213,15 +213,15 @@ public final class Window {
 
 // MARK:- Input event handling
 
-extension Window: InputResponder {
+extension Window: KeyResponder {
 
-  public var nextResponder: InputResponder? { nil }
+  public var nextKeyResponder: KeyResponder? { nil }
 
-  public func respondToKeyPress<E>(with event: E) where E: KeyboardEventProtocol {
+  public func respondToKeyPress<E>(with event: E) where E: KeyEventProtocol {
     delegate?.windowDidReceiveKeyPress(window: self, event: event)
   }
 
-  public func respondToKeyRelease<E>(with event: E) where E: KeyboardEventProtocol {
+  public func respondToKeyRelease<E>(with event: E) where E: KeyEventProtocol {
     delegate?.windowDidReceiveKeyRelease(window: self, event: event)
   }
 
@@ -269,8 +269,8 @@ private func windowFocusCallback(handle: OpaquePointer?, hasFocus: Int32) {
 ///
 /// - Parameters:
 ///   - handle: An opaque pointer to the GLFW window handle.
-///   - key: A layout-independent key token (e.g. `GLFW_KEY_A`) that designates the key. Tokens are
-///     named after the standard US keyboard layout.
+///   - key: A layout-independent key token (e.g. `GLFW_KEY_A`) that designates the key that was
+///     pressed or released. Tokens are named after the standard US keyboard layout.
 ///   - scancode: A platform (or machine)-specific code that uniquely identifies a key. It can be
 ///     used to identify keys that do not have any token value. `key` will be assigned to
 ///     `GLFW_KEY_UNKNOWN` for such keys.
@@ -297,36 +297,37 @@ private func windowKeyCallback(
     AppContext.shared.inputs.keyPressed.remove(code)
   }
 
-  // Translate the keyboard modifiers.
-  var keyboardModifiers: KeyboardModifierSet = .none
+  // Translate the key modifiers.
+  var keyModifiers: KeyModifierSet = .none
   if (modifiers & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT {
-    keyboardModifiers.insert(.shift)
+    keyModifiers.insert(.shift)
   }
   if (modifiers & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL {
-    keyboardModifiers.insert(.control)
+    keyModifiers.insert(.control)
   }
   if (modifiers & GLFW_MOD_ALT) == GLFW_MOD_ALT {
-    keyboardModifiers.insert(.option)
+    keyModifiers.insert(.option)
   }
   if (modifiers & GLFW_MOD_SUPER) == GLFW_MOD_SUPER {
-    keyboardModifiers.insert(.command)
+    keyModifiers.insert(.command)
   }
   if (modifiers & GLFW_MOD_CAPS_LOCK) == GLFW_MOD_CAPS_LOCK {
-    keyboardModifiers.insert(.capsLock)
+    keyModifiers.insert(.capsLock)
   }
   if (modifiers & GLFW_MOD_NUM_LOCK) == GLFW_MOD_NUM_LOCK {
-    keyboardModifiers.insert(.numLock)
+    keyModifiers.insert(.numLock)
   }
 
   // Get the key symbol.
   let symbol = glfwGetKeyName(key, scancode).map(String.init(cString:))
 
+  // FIXME: The followinf code implies that the window is always first responder for key events.
+  // This is okay for now, but we'll have to change this once we implement text input fields.
+
   // Dispatch the event to the window.
-  // FIXME: This implies that the window is always first responder for keyboard events. This is
-  // fine for now, but we'll have to change this once we implement text input fields.
-  let event = KeyboardEvent(
+  let event = KeyEvent(
     isRepeat: action == GLFW_REPEAT,
-    modifiers: keyboardModifiers,
+    modifiers: keyModifiers,
     code: code,
     symbol: symbol,
     firstResponder: window,
