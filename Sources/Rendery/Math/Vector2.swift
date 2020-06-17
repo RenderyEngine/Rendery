@@ -27,7 +27,7 @@ public struct Vector2: Hashable {
   /// This vector, normalized.
   public var normalized: Vector2 {
     let l = magnitude
-    return l != 0
+    return l != 0.0
       ? self / l
       : self
   }

@@ -129,7 +129,7 @@ public struct Quaternion: Hashable {
   /// This quaternion, normalized.
   public var normalized: Quaternion {
     let l = magnitude
-    return l != 0
+    return l != 0.0
       ? self / l
       : self
   }
