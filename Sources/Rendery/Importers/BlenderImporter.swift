@@ -251,8 +251,8 @@ public final class BlendFile: InitializableFromFile {
       self.header = header
     }
 
-    /// The type of object that is located in this block.
-    public var objectType: String {
+    /// The type of value that is located in this block.
+    public var type: String {
       let structure = blend.dnaIndex.structures[header.sdnaIndex]
       return blend.dnaIndex.types[Int(structure.typeIndex)].repr
     }
@@ -298,7 +298,7 @@ public final class BlendFile: InitializableFromFile {
 }
 
 /// A wrapper around the contents of a data-block in a `.blend` file.
-public class BlenderObject {
+public class BlenderValue {
 
   fileprivate init(blend: BlendFile, sdna: Int, data: ArraySlice<UInt8>) {
     self.blend = blend
@@ -306,12 +306,12 @@ public class BlenderObject {
     self.data = data
   }
 
-  public var objectType: String {
+  public var type: String {
     let structure = blend.dnaIndex.structures[sdna]
     return blend.dnaIndex.types[Int(structure.typeIndex)].repr
   }
 
-  /// A list of the name of each member field contained in this object.
+  /// A list of the name of each member field contained in this data.
   public var memberNames: [String] {
     let structure = blend.dnaIndex.structures[sdna]
     return structure.fields
@@ -324,9 +324,9 @@ public class BlenderObject {
   /// Returns the value of the specified member, wrapped in a proxy that provides a convenient
   /// sugar to chain subscripts.
   ///
-  /// This subscript can be used to access an arbitrarily deep member in an object graph. Rather
-  /// than explicitly specifying the expected type after `member(:)`, this subscript allows you
-  /// to create one single optional value.
+  /// This subscript can be used to access an arbitrarily deep member. Rather than explicitly
+  /// specifying the expected type after `member(:)`, this subscript allows you to create one
+  /// single optional value.
   ///
   /// - Parameter name: The name of the member to access.
   public subscript(name: String) -> SubscriptProxy {
@@ -338,19 +338,27 @@ public class BlenderObject {
   public struct SubscriptProxy {
 
     public subscript(_ name: String) -> SubscriptProxy {
-      guard let object = value as? BlenderObject
+      guard let object = value as? BlenderValue
         else { return SubscriptProxy(value: nil) }
       return object[name]
     }
 
-    /// Attempts to unwrap the proxied object as a value of the specified type.
+    /// Attempts to unwrap the proxied data as a value of the specified type.
     ///
-    /// - Parameter type: The assumed type of the proxied object.
+    /// - Parameter type: The assumed type of the proxied value.
     public func unwrap<T>(as type: T.Type) -> T? {
       return value as? T
     }
 
+    /// Attempts to unwrap the proxied data as a blender value.
+    public var blender: BlenderValue? { value as? BlenderValue }
+
+    /// The proxied data.
     fileprivate var value: Any?
+
+    public static func == <T>(lhs: SubscriptProxy, rhs: T) -> Bool where T: Equatable {
+      return lhs.unwrap(as: T.self) == rhs
+    }
 
   }
 
@@ -359,6 +367,15 @@ public class BlenderObject {
   /// - Parameter name: The name of the member to access.
   public func member<T>(_ name: String) -> T? {
     return member(name) as? T
+  }
+
+  /// Returns the value of the specified member, if it can be casted as `T`.
+  ///
+  /// - Parameters:
+  ///   - name: The name of the member to access.
+  ///   - defaultValue: A default value to return in case the member's value can't be retrieved.
+  public func member<T>(_ name: String, default defaultValue: T) -> T {
+    return (member(name) as? T) ?? defaultValue
   }
 
   /// Returns the value of the specified member, if any.
@@ -438,10 +455,10 @@ public class BlenderObject {
             // Return an array of new blender objects.
             return slice
               .split(every: fieldSize)
-              .map({ BlenderObject(blend: blend, sdna: index, data: $0) })
+              .map({ BlenderValue(blend: blend, sdna: index, data: $0) })
           } else {
             // Wrap the member's data into a single new blender objects.
-            return BlenderObject(blend: blend, sdna: index, data: slice)
+            return BlenderValue(blend: blend, sdna: index, data: slice)
           }
         }
 
@@ -479,7 +496,7 @@ public class BlenderObject {
 
         // FIXME
         LogManager.main.log(
-          "Dismissed the member '\(objectType).\(fieldName)' while a '.blend file: " +
+          "Dismissed the member '\(type).\(fieldName)' while a '.blend file: " +
           "cannot handle data of type '\(fieldType.repr)'.",
           level: .debug)
         return nil
@@ -529,7 +546,7 @@ extension BlendFile.Block: Collection {
     return i + 1
   }
 
-  public subscript(index: Int) -> BlenderObject {
+  public subscript(index: Int) -> BlenderValue {
     precondition((0 ..< header.structureCount) ~= index, "Index is out of bounds.")
 
     let structure = blend.dnaIndex.structures[header.sdnaIndex]
@@ -537,7 +554,7 @@ extension BlendFile.Block: Collection {
     blend.handle.seek(offset: header.offset + index * size)
     let data = blend.handle.read(count: size)
 
-    return BlenderObject(
+    return BlenderValue(
       blend: blend,
       sdna: header.sdnaIndex,
       data: data[0...])
@@ -571,10 +588,10 @@ extension BlendFile.Block: CustomStringConvertible {
 
 }
 
-extension BlenderObject: CustomStringConvertible {
+extension BlenderValue: CustomStringConvertible {
 
   public var description: String {
-    return "Blender.\(objectType)()"
+    return "Blender.\(type)()"
   }
 
 }
