@@ -27,30 +27,30 @@ public struct Model {
   /// The meshes that describe the model's geometry.
   public var meshes: [Mesh]
 
-  /// The model's bounding box.
-  public var boundingBox: Box {
+  /// The model's axis-aligned bounding box.
+  public var aabb: Box {
     guard !meshes.isEmpty
       else { return Box(origin: .zero, dimensions: .zero) }
 
-    var minPoint = meshes[0].boundingBox.origin
-    var maxPoint = meshes[0].boundingBox.origin + meshes[0].boundingBox.dimensions
+    var minPoint = meshes[0].aabb.origin
+    var maxPoint = meshes[0].aabb.origin + meshes[0].aabb.dimensions
     for mesh in meshes.dropFirst() {
-      if mesh.boundingBox.origin.x < minPoint.x {
-        minPoint.x = mesh.boundingBox.origin.x
-      } else if mesh.boundingBox.origin.x > maxPoint.x {
-        maxPoint.x = mesh.boundingBox.origin.x
+      if mesh.aabb.origin.x < minPoint.x {
+        minPoint.x = mesh.aabb.origin.x
+      } else if mesh.aabb.origin.x > maxPoint.x {
+        maxPoint.x = mesh.aabb.origin.x
       }
 
-      if mesh.boundingBox.origin.y < minPoint.y {
-        minPoint.y = mesh.boundingBox.origin.y
-      } else if mesh.boundingBox.origin.x > maxPoint.y {
-        maxPoint.y = mesh.boundingBox.origin.y
+      if mesh.aabb.origin.y < minPoint.y {
+        minPoint.y = mesh.aabb.origin.y
+      } else if mesh.aabb.origin.x > maxPoint.y {
+        maxPoint.y = mesh.aabb.origin.y
       }
 
-      if mesh.boundingBox.origin.z < minPoint.z {
-        minPoint.z = mesh.boundingBox.origin.z
-      } else if mesh.boundingBox.origin.z > maxPoint.z {
-        maxPoint.z = mesh.boundingBox.origin.z
+      if mesh.aabb.origin.z < minPoint.z {
+        minPoint.z = mesh.aabb.origin.z
+      } else if mesh.aabb.origin.z > maxPoint.z {
+        maxPoint.z = mesh.aabb.origin.z
       }
     }
 
@@ -110,7 +110,7 @@ public struct Model {
       // Compute the model transform.
       var modelMatrix = node.sceneTransform
       if pivotPoint != Vector3(x: 0.5, y: 0.5, z: 0.5) {
-        let bb = boundingBox
+        let bb = aabb
         let translation = (Vector3.unitScale - pivotPoint) * bb.dimensions + bb.origin
         modelMatrix = modelMatrix * Matrix4(translation: translation)
       }
