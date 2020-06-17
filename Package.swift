@@ -16,7 +16,7 @@ let package = Package(
     .target(name: "UsageExample", dependencies: ["Rendery"]),
     .target(
       name: "Rendery",
-      dependencies: ["CGLFW", "CSTBImage", "Numerics"],
+      dependencies: ["CSTBImage", "CGLFW", "Cgltf", "Numerics"],
       linkerSettings: [
         .linkedFramework("OpenGL"),
       ]
@@ -24,6 +24,7 @@ let package = Package(
 
     // C targets.
     .target(name: "CSTBImage", dependencies: []),
+    .target(name: "Cgltf", dependencies: []),
 
     // System libraries.
     .systemLibrary(name: "CGLFW", pkgConfig: "glfw3"),
