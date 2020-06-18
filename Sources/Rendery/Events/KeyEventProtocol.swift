@@ -1,5 +1,5 @@
 /// A type that represents a key/gamepad event.
-public protocol KeyEventProtocol: InputEvent where Responder == KeyResponder {
+public protocol KeyEventProtocol: InputEvent {
 
   /// A flag that indicates if the event is a repeat caused by the user holding the key down.
   var isRepeat: Bool { get }

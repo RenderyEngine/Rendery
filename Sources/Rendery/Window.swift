@@ -119,6 +119,7 @@ public final class Window {
     glfwSetWindowSizeCallback(handle, windowSizeCallback)
     glfwSetWindowFocusCallback(handle, windowFocusCallback)
     glfwSetKeyCallback(handle, windowKeyCallback)
+    glfwSetMouseButtonCallback(handle, windowMouseButtonCallback)
 
     // TODO: This callback gets called when a Unicode character is input, but not the individual
     // key events that led to the production of the unicode character. It will probably be very
@@ -213,9 +214,9 @@ public final class Window {
 
 // MARK:- Input event handling
 
-extension Window: KeyResponder {
+extension Window: InputResponder {
 
-  public var nextKeyResponder: KeyResponder? { nil }
+  public var nextResponder: InputResponder? { nil }
 
   public func respondToKeyPress<E>(with event: E) where E: KeyEventProtocol {
     delegate?.windowDidReceiveKeyPress(window: self, event: event)
@@ -223,6 +224,14 @@ extension Window: KeyResponder {
 
   public func respondToKeyRelease<E>(with event: E) where E: KeyEventProtocol {
     delegate?.windowDidReceiveKeyRelease(window: self, event: event)
+  }
+
+  public func respondToMousePress<E>(with event: E) where E: MouseEventProtocol {
+    delegate?.windowDidReceiveMousePress(window: self, event: event)
+  }
+
+  public func respondToMouseRelease<E>(with event: E) where E: MouseEventProtocol {
+    delegate?.windowDidReceiveMouseRelease(window: self, event: event)
   }
 
 }
@@ -338,4 +347,24 @@ private func windowKeyCallback(
   } else {
     window.respondToKeyPress(with: event)
   }
+}
+
+/// The window mouse button callback.
+///
+/// - Parameters:
+///   - handle: An opaque pointer to the GLFW window handle.
+///   - button: A code that identifies the mouse button that was pressed or released.
+///   - action: The even type (`GLFW_RELEASE` or `GLFW_PRESS`).
+///   - modifiers: A bitmask identify which key modifiers are currently pressed, where all
+///     individual bits can be identified by the constants `GLFW_MOD_*`.
+private func windowMouseButtonCallback(
+  handle: OpaquePointer?,
+  button: Int32,
+  action: Int32,
+  modifiers: Int32
+) {
+  guard let window = windowFrom(handle: handle)
+    else { return }
+
+ print(window, button)
 }
