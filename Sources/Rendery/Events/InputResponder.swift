@@ -5,15 +5,15 @@ public protocol InputResponder: AnyObject {
   var nextResponder: InputResponder? { get }
 
   /// Notifies the responder that a key has been pressed.
-  func respondToKeyPress<E>(with: E) where E: KeyEventProtocol
+  func respondToKeyPress(with: KeyEvent)
 
   /// Notifies the responder that a key has been released.
-  func respondToKeyRelease<E>(with: E) where E: KeyEventProtocol
+  func respondToKeyRelease(with: KeyEvent)
 
   /// Notifies the responder that a mouse button has been pressed.
-  func respondToMousePress<E>(with: E) where E: MouseEventProtocol
+  func respondToMousePress(with: MouseEvent)
 
   /// Notifies the responder that a mouse button has been released.
-  func respondToMouseRelease<E>(with: E) where E: MouseEventProtocol
+  func respondToMouseRelease(with: MouseEvent)
 
 }

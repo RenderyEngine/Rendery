@@ -2,16 +2,16 @@
 public protocol ViewportDelegate: AnyObject {
 
   /// Notifies the delegate that the viewport recieved a key press event.
-  func didKeyPress<E>(viewport: Viewport, event: E) where E: KeyEventProtocol
+  func didKeyPress(viewport: Viewport, event: KeyEvent)
 
   /// Notifies the delegate that the viewport recieved a key release event.
-  func didKeyRelease<E>(viewport: Viewport, event: E) where E: KeyEventProtocol
+  func didKeyRelease(viewport: Viewport, event: KeyEvent)
 
   /// Notifies the delegate that the viewport recieved a mouse press event.
-  func didMousePress<E>(viewport: Viewport, event: E) where E: MouseEventProtocol
+  func didMousePress(viewport: Viewport, event: MouseEvent)
 
   /// Notifies the delegate that the viewport recieved a mouse release event.
-  func didMouseRelease<E>(viewport: Viewport, event: E) where E: MouseEventProtocol
+  func didMouseRelease(viewport: Viewport, event: MouseEvent)
 
 }
 
@@ -19,19 +19,19 @@ public protocol ViewportDelegate: AnyObject {
 
 extension ViewportDelegate {
 
-  public func didKeyPress<E>(viewport: Viewport, event: E) where E: KeyEventProtocol {
+  public func didKeyPress(viewport: Viewport, event: KeyEvent) {
     viewport.nextResponder?.respondToKeyPress(with: event)
   }
 
-  public func didKeyRelease<E>(viewport: Viewport, event: E) where E: KeyEventProtocol {
+  public func didKeyRelease(viewport: Viewport, event: KeyEvent) {
     viewport.nextResponder?.respondToKeyRelease(with: event)
   }
 
-  public func didMousePress<E>(viewport: Viewport, event: E) where E: MouseEventProtocol {
+  public func didMousePress(viewport: Viewport, event: MouseEvent) {
     viewport.nextResponder?.respondToMousePress(with: event)
   }
 
-  public func didMouseRelease<E>(viewport: Viewport, event: E) where E: MouseEventProtocol {
+  public func didMouseRelease(viewport: Viewport, event: MouseEvent) {
     viewport.nextResponder?.respondToMouseRelease(with: event)
   }
 

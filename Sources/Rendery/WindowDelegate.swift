@@ -17,16 +17,16 @@ public protocol WindowDelegate: AnyObject {
   func didLostFocus(window: Window)
 
   /// Notifies the delegate that the window recieved a key press event.
-  func didKeyPress<E>(window: Window, event: E) where E: KeyEventProtocol
+  func didKeyPress(window: Window, event: KeyEvent)
 
   /// Notifies the delegate that the window recieved a key release event.
-  func didKeyRelease<E>(window: Window, event: E) where E: KeyEventProtocol
+  func didKeyRelease(window: Window, event: KeyEvent)
 
   /// Notifies the delegate that the window recieved a mouse press event.
-  func didMousePress<E>(window: Window, event: E) where E: MouseEventProtocol
+  func didMousePress(window: Window, event: MouseEvent)
 
   /// Notifies the delegate that the window recieved a mouse release event.
-  func didMouseRelease<E>(window: Window, event: E) where E: MouseEventProtocol
+  func didMouseRelease(window: Window, event: MouseEvent)
 
 }
 
@@ -49,19 +49,19 @@ extension WindowDelegate {
   public func didLostFocus(window: Window) {
   }
 
-  public func didKeyPress<E>(window: Window, event: E) where E: KeyEventProtocol {
+  public func didKeyPress(window: Window, event: KeyEvent) {
     window.nextResponder?.respondToKeyPress(with: event)
   }
 
-  public func didKeyRelease<E>(window: Window, event: E) where E: KeyEventProtocol {
+  public func didKeyRelease(window: Window, event: KeyEvent) {
     window.nextResponder?.respondToKeyRelease(with: event)
   }
 
-  public func didMousePress<E>(window: Window, event: E) where E: MouseEventProtocol {
+  public func didMousePress(window: Window, event: MouseEvent) {
     window.nextResponder?.respondToMousePress(with: event)
   }
 
-  public func didMouseRelease<E>(window: Window, event: E) where E: MouseEventProtocol {
+  public func didMouseRelease(window: Window, event: MouseEvent) {
     window.nextResponder?.respondToMouseRelease(with: event)
   }
 

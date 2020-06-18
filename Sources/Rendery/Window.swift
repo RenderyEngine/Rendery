@@ -218,19 +218,19 @@ extension Window: InputResponder {
 
   public var nextResponder: InputResponder? { nil }
 
-  public func respondToKeyPress<E>(with event: E) where E: KeyEventProtocol {
+  public func respondToKeyPress(with event: KeyEvent) {
     delegate?.didKeyPress(window: self, event: event)
   }
 
-  public func respondToKeyRelease<E>(with event: E) where E: KeyEventProtocol {
+  public func respondToKeyRelease(with event: KeyEvent) {
     delegate?.didKeyRelease(window: self, event: event)
   }
 
-  public func respondToMousePress<E>(with event: E) where E: MouseEventProtocol {
+  public func respondToMousePress(with event: MouseEvent) {
     delegate?.didMousePress(window: self, event: event)
   }
 
-  public func respondToMouseRelease<E>(with event: E) where E: MouseEventProtocol {
+  public func respondToMouseRelease(with event: MouseEvent) {
     delegate?.didMouseRelease(window: self, event: event)
   }
 
@@ -346,11 +346,16 @@ private func windowMouseButtonCallback(
   guard let window = windowFrom(handle: handle)
     else { return }
 
+  // Get the cursor position.
+  var cursorPosition: Vector2 = .zero
+  glfwGetCursorPos(handle, &cursorPosition.x, &cursorPosition.y)
+
   // Dispatch the event to the first responder for mouse events.
   let responder: InputResponder = window.viewports.first ?? window
   let event = MouseEvent(
+    button: Int(button),
+    cursorPosition: cursorPosition,
     modifiers: KeyModifierSet(fromGLFW: modifiers),
-    code: Int(button),
     firstResponder: responder,
     timestamp: DispatchTime.now().uptimeNanoseconds / 1_000_000)
 

@@ -82,7 +82,7 @@ extension Viewport: InputResponder {
     return target.viewports[i + 1]
   }
 
-  public func respondToKeyPress<E>(with event: E) where E : KeyEventProtocol {
+  public func respondToKeyPress(with event: KeyEvent) {
     if let delegate = self.delegate {
       delegate.didKeyPress(viewport: self, event: event)
     } else {
@@ -90,7 +90,7 @@ extension Viewport: InputResponder {
     }
   }
 
-  public func respondToKeyRelease<E>(with event: E) where E : KeyEventProtocol {
+  public func respondToKeyRelease(with event: KeyEvent) {
     if let delegate = self.delegate {
       delegate.didKeyRelease(viewport: self, event: event)
     } else {
@@ -98,7 +98,7 @@ extension Viewport: InputResponder {
     }
   }
 
-  public func respondToMousePress<E>(with event: E) where E : MouseEventProtocol {
+  public func respondToMousePress(with event: MouseEvent) {
     if let delegate = self.delegate {
       delegate.didMousePress(viewport: self, event: event)
     } else {
@@ -106,7 +106,7 @@ extension Viewport: InputResponder {
     }
   }
 
-  public func respondToMouseRelease<E>(with event: E) where E : MouseEventProtocol {
+  public func respondToMouseRelease(with event: MouseEvent) {
     if let delegate = self.delegate {
       delegate.didMouseRelease(viewport: self, event: event)
     } else {
