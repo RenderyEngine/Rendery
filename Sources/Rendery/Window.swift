@@ -351,15 +351,26 @@ private func windowMouseButtonCallback(
   guard let window = windowFrom(handle: handle)
     else { return }
 
+  // Retrieve the sceeen size.
+  var screenWidth: Int32 = 0
+  var screenHeight: Int32 = 0
+  glfwGetWindowSize(handle, &screenWidth, &screenHeight);
+  let screenSize = Vector2(x: Double(screenWidth), y: Double(screenHeight))
+
   // Get the cursor position.
   var cursorPosition: Vector2 = .zero
   glfwGetCursorPos(handle, &cursorPosition.x, &cursorPosition.y)
 
+  // Determine the viewport in which the event should be dispatched.
+  let responder: InputResponder = window.viewports.first(where: { (viewport) -> Bool in
+    let region = viewport.region.scaled(by: screenSize)
+    return region.contains(cursorPosition)
+  }) ?? window
+
   // Dispatch the event to the first responder for mouse events.
-  let responder: InputResponder = window.viewports.first ?? window
   let event = MouseEvent(
     button: Int(button),
-    cursorPosition: cursorPosition,
+    cursorPosition: cursorPosition / screenSize,
     modifiers: KeyModifierSet(fromGLFW: modifiers),
     firstResponder: responder,
     timestamp: DispatchTime.now().uptimeNanoseconds / 1_000_000)

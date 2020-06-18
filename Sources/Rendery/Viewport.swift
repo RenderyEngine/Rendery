@@ -75,11 +75,9 @@ public final class Viewport {
 extension Viewport: InputResponder {
 
   public var nextResponder: InputResponder? {
-    guard target.viewports.last !== self
-      else { return target }
-
-    let i = target.viewports.firstIndex(where: { $0 === self })!
-    return target.viewports[i + 1]
+    // Note that for mouse events, returning `target` as the next responder discards any obscured
+    // viewport to which the event could have been dispatched.
+    return target
   }
 
   public func respondToKeyPress(with event: KeyEvent) {
