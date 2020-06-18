@@ -254,8 +254,13 @@ private func windowCloseCallback(handle: OpaquePointer?) {
 private func windowSizeCallback(handle: OpaquePointer?, width: Int32, height: Int32) {
   guard let window = windowFrom(handle: handle)
     else { return }
-  window.width = Int(width)
-  window.height = Int(height)
+
+  var actualWidth: Int32 = 0
+  var actualHeight: Int32 = 0
+  glfwGetFramebufferSize(handle, &actualWidth, &actualHeight)
+
+  window.width = Int(actualWidth)
+  window.height = Int(actualHeight)
   window.delegate?.didResize(window: window)
 }
 
