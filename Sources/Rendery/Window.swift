@@ -201,7 +201,7 @@ public final class Window {
     guard !isClosed
       else { return }
 
-    delegate?.windowDidClose(window: self)
+    delegate?.didClose(window: self)
     glfwDestroyWindow(handle)
     isClosed = true
   }
@@ -219,19 +219,19 @@ extension Window: InputResponder {
   public var nextResponder: InputResponder? { nil }
 
   public func respondToKeyPress<E>(with event: E) where E: KeyEventProtocol {
-    delegate?.windowDidReceiveKeyPress(window: self, event: event)
+    delegate?.didKeyPress(window: self, event: event)
   }
 
   public func respondToKeyRelease<E>(with event: E) where E: KeyEventProtocol {
-    delegate?.windowDidReceiveKeyRelease(window: self, event: event)
+    delegate?.didKeyRelease(window: self, event: event)
   }
 
   public func respondToMousePress<E>(with event: E) where E: MouseEventProtocol {
-    delegate?.windowDidReceiveMousePress(window: self, event: event)
+    delegate?.didMousePress(window: self, event: event)
   }
 
   public func respondToMouseRelease<E>(with event: E) where E: MouseEventProtocol {
-    delegate?.windowDidReceiveMouseRelease(window: self, event: event)
+    delegate?.didMouseRelease(window: self, event: event)
   }
 
 }
@@ -248,7 +248,7 @@ private func windowFrom(handle: OpaquePointer?) -> Window? {
 private func windowCloseCallback(handle: OpaquePointer?) {
   guard let window = windowFrom(handle: handle)
     else { return }
-  window.delegate?.windowWillClose(window: window)
+  window.delegate?.willClose(window: window)
 }
 
 private func windowSizeCallback(handle: OpaquePointer?, width: Int32, height: Int32) {
@@ -256,7 +256,7 @@ private func windowSizeCallback(handle: OpaquePointer?, width: Int32, height: In
     else { return }
   window.width = Int(width)
   window.height = Int(height)
-  window.delegate?.windowDidResize(window: window)
+  window.delegate?.didResize(window: window)
 }
 
 private func windowFocusCallback(handle: OpaquePointer?, hasFocus: Int32) {
@@ -267,10 +267,10 @@ private func windowFocusCallback(handle: OpaquePointer?, hasFocus: Int32) {
     // If focus changes from one window to another, the first callback is for the window that
     // lost it and the second for the window that received it.
     AppContext.shared.activeWindow = nil
-    window.delegate?.windowDidLostFocus(window: window)
+    window.delegate?.didLostFocus(window: window)
   } else {
     AppContext.shared.activeWindow = window
-    window.delegate?.windowDidReceiveFocus(window: window)
+    window.delegate?.didReceiveFocus(window: window)
   }
 }
 
@@ -306,46 +306,26 @@ private func windowKeyCallback(
     AppContext.shared.inputs.keyPressed.remove(code)
   }
 
-  // Translate the key modifiers.
-  var keyModifiers: KeyModifierSet = .none
-  if (modifiers & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT {
-    keyModifiers.insert(.shift)
-  }
-  if (modifiers & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL {
-    keyModifiers.insert(.control)
-  }
-  if (modifiers & GLFW_MOD_ALT) == GLFW_MOD_ALT {
-    keyModifiers.insert(.option)
-  }
-  if (modifiers & GLFW_MOD_SUPER) == GLFW_MOD_SUPER {
-    keyModifiers.insert(.command)
-  }
-  if (modifiers & GLFW_MOD_CAPS_LOCK) == GLFW_MOD_CAPS_LOCK {
-    keyModifiers.insert(.capsLock)
-  }
-  if (modifiers & GLFW_MOD_NUM_LOCK) == GLFW_MOD_NUM_LOCK {
-    keyModifiers.insert(.numLock)
-  }
-
   // Get the key symbol.
   let symbol = glfwGetKeyName(key, scancode).map(String.init(cString:))
 
-  // FIXME: The followinf code implies that the window is always first responder for key events.
+  // FIXME: The following code implies that viewports are always first responders for key events.
   // This is okay for now, but we'll have to change this once we implement text input fields.
+  let responder: InputResponder = window.viewports.first ?? window
 
-  // Dispatch the event to the window.
+  // Dispatch the event to the first responder for key events.
   let event = KeyEvent(
     isRepeat: action == GLFW_REPEAT,
-    modifiers: keyModifiers,
+    modifiers: KeyModifierSet(fromGLFW: modifiers),
     code: code,
     symbol: symbol,
-    firstResponder: window,
+    firstResponder: responder,
     timestamp: DispatchTime.now().uptimeNanoseconds / 1_000_000)
 
   if action == GLFW_RELEASE {
-    window.respondToKeyRelease(with: event)
+    responder.respondToKeyRelease(with: event)
   } else {
-    window.respondToKeyPress(with: event)
+    responder.respondToKeyPress(with: event)
   }
 }
 
@@ -366,5 +346,44 @@ private func windowMouseButtonCallback(
   guard let window = windowFrom(handle: handle)
     else { return }
 
- print(window, button)
+  // Dispatch the event to the first responder for mouse events.
+  let responder: InputResponder = window.viewports.first ?? window
+  let event = MouseEvent(
+    modifiers: KeyModifierSet(fromGLFW: modifiers),
+    code: Int(button),
+    firstResponder: responder,
+    timestamp: DispatchTime.now().uptimeNanoseconds / 1_000_000)
+
+ if action == GLFW_RELEASE {
+   responder.respondToMouseRelease(with: event)
+ } else {
+   responder.respondToMousePress(with: event)
+ }
+}
+
+private extension KeyModifierSet {
+
+  init(fromGLFW modifiers: Int32) {
+    self.rawValue = 0
+
+    if (modifiers & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT {
+      insert(.shift)
+    }
+    if (modifiers & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL {
+      insert(.control)
+    }
+    if (modifiers & GLFW_MOD_ALT) == GLFW_MOD_ALT {
+      insert(.option)
+    }
+    if (modifiers & GLFW_MOD_SUPER) == GLFW_MOD_SUPER {
+      insert(.command)
+    }
+    if (modifiers & GLFW_MOD_CAPS_LOCK) == GLFW_MOD_CAPS_LOCK {
+      insert(.capsLock)
+    }
+    if (modifiers & GLFW_MOD_NUM_LOCK) == GLFW_MOD_NUM_LOCK {
+      insert(.numLock)
+    }
+  }
+
 }

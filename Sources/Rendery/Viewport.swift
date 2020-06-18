@@ -23,6 +23,9 @@ public final class Viewport {
     self.region = region
   }
 
+  /// The viewport's delegate.
+  public weak var delegate: ViewportDelegate?
+
   /// The viewport's target.
   public unowned let target: Window
 
@@ -65,6 +68,50 @@ public final class Viewport {
   public func dismissScene() {
     scene?.willMove(from: self, successor: nil)
     scene = nil
+  }
+
+}
+
+extension Viewport: InputResponder {
+
+  public var nextResponder: InputResponder? {
+    guard target.viewports.last !== self
+      else { return target }
+
+    let i = target.viewports.firstIndex(where: { $0 === self })!
+    return target.viewports[i + 1]
+  }
+
+  public func respondToKeyPress<E>(with event: E) where E : KeyEventProtocol {
+    if let delegate = self.delegate {
+      delegate.didKeyPress(viewport: self, event: event)
+    } else {
+      nextResponder?.respondToKeyPress(with: event)
+    }
+  }
+
+  public func respondToKeyRelease<E>(with event: E) where E : KeyEventProtocol {
+    if let delegate = self.delegate {
+      delegate.didKeyRelease(viewport: self, event: event)
+    } else {
+      nextResponder?.respondToKeyRelease(with: event)
+    }
+  }
+
+  public func respondToMousePress<E>(with event: E) where E : MouseEventProtocol {
+    if let delegate = self.delegate {
+      delegate.didMousePress(viewport: self, event: event)
+    } else {
+      nextResponder?.respondToMousePress(with: event)
+    }
+  }
+
+  public func respondToMouseRelease<E>(with event: E) where E : MouseEventProtocol {
+    if let delegate = self.delegate {
+      delegate.didMouseRelease(viewport: self, event: event)
+    } else {
+      nextResponder?.respondToMouseRelease(with: event)
+    }
   }
 
 }

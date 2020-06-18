@@ -2,31 +2,31 @@
 public protocol WindowDelegate: AnyObject {
 
   /// Notifies the delegate that the window is about to close.
-  func windowWillClose(window: Window)
+  func willClose(window: Window)
 
   /// Notifies the delegate that the window closed.
-  func windowDidClose(window: Window)
+  func didClose(window: Window)
 
   /// Notifies the delegate that the window has been resized.
-  func windowDidResize(window: Window)
+  func didResize(window: Window)
 
   /// Notifies the delegate that the window received focus.
-  func windowDidReceiveFocus(window: Window)
+  func didReceiveFocus(window: Window)
 
   /// Notifies the delegate that the window lost focus.
-  func windowDidLostFocus(window: Window)
+  func didLostFocus(window: Window)
 
   /// Notifies the delegate that the window recieved a key press event.
-  func windowDidReceiveKeyPress<E>(window: Window, event: E) where E: KeyEventProtocol
+  func didKeyPress<E>(window: Window, event: E) where E: KeyEventProtocol
 
   /// Notifies the delegate that the window recieved a key release event.
-  func windowDidReceiveKeyRelease<E>(window: Window, event: E) where E: KeyEventProtocol
+  func didKeyRelease<E>(window: Window, event: E) where E: KeyEventProtocol
 
   /// Notifies the delegate that the window recieved a mouse press event.
-  func windowDidReceiveMousePress<E>(window: Window, event: E) where E: MouseEventProtocol
+  func didMousePress<E>(window: Window, event: E) where E: MouseEventProtocol
 
   /// Notifies the delegate that the window recieved a mouse release event.
-  func windowDidReceiveMouseRelease<E>(window: Window, event: E) where E: MouseEventProtocol
+  func didMouseRelease<E>(window: Window, event: E) where E: MouseEventProtocol
 
 }
 
@@ -34,42 +34,34 @@ public protocol WindowDelegate: AnyObject {
 
 extension WindowDelegate {
 
-  public func windowWillClose(window: Window) {
+  public func willClose(window: Window) {
   }
 
-  public func windowDidClose(window: Window) {
+  public func didClose(window: Window) {
   }
 
-  public func windowDidResize(window: Window) {
+  public func didResize(window: Window) {
   }
 
-  public func windowDidReceiveFocus(window: Window) {
+  public func didReceiveFocus(window: Window) {
   }
 
-  public func windowDidLostFocus(window: Window) {
+  public func didLostFocus(window: Window) {
   }
 
-  public func windowDidReceiveKeyPress<E>(window: Window, event: E)
-    where E: KeyEventProtocol
-  {
+  public func didKeyPress<E>(window: Window, event: E) where E: KeyEventProtocol {
     window.nextResponder?.respondToKeyPress(with: event)
   }
 
-  public func windowDidReceiveKeyRelease<E>(window: Window, event: E)
-    where E: KeyEventProtocol
-  {
+  public func didKeyRelease<E>(window: Window, event: E) where E: KeyEventProtocol {
     window.nextResponder?.respondToKeyRelease(with: event)
   }
 
-  public func windowDidReceiveMousePress<E>(window: Window, event: E)
-    where E: MouseEventProtocol
-  {
+  public func didMousePress<E>(window: Window, event: E) where E: MouseEventProtocol {
     window.nextResponder?.respondToMousePress(with: event)
   }
 
-  public func windowDidReceiveMouseRelease<E>(window: Window, event: E)
-    where E: MouseEventProtocol
-  {
+  public func didMouseRelease<E>(window: Window, event: E) where E: MouseEventProtocol {
     window.nextResponder?.respondToMouseRelease(with: event)
   }
 
