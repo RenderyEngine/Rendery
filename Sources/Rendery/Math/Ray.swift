@@ -7,7 +7,6 @@ public struct Ray {
   ///   - origin: The ray's origin.
   ///   - direction: The ray's direction, as a unit vector.
   public init(origin: Vector3, direction: Vector3) {
-    assert(direction.magnitude.isEqual(to: 1.0, withTolerance: .defaultTolerance))
     self.origin = origin
     self.direction = direction
   }

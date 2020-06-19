@@ -102,7 +102,7 @@ public final class GLSLProgram: GraphicsResource {
   public func assign(matrix3: Matrix3, at location: String) {
     let locID = glGetUniformLocation(handle, location)
     let data = matrix3.components.map(Float.init)
-    glUniformMatrix3fv(locID, 1, 1, data)
+    glUniformMatrix3fv(locID, 1, 0, data)
   }
 
   /// Assigns a 4x4 matrix at the specified location.
@@ -115,7 +115,7 @@ public final class GLSLProgram: GraphicsResource {
   public func assign(matrix4: Matrix4, at location: String) {
     let locID = glGetUniformLocation(handle, location)
     let data = matrix4.components.map(Float.init)
-    glUniformMatrix4fv(locID, 1, 1, data)
+    glUniformMatrix4fv(locID, 1, 0, data)
   }
 
   /// Assigns a texture at the specified location (or texture unit).

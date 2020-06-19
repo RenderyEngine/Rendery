@@ -20,7 +20,7 @@ public struct Quaternion: Hashable {
   ///   - axis: The rotation axis as a normalized 3D vector.
   ///   - angle: The magnitude of rotation.
   public init(axis: Vector3, angle: Angle) {
-    let halfAngle = angle.radians / 2.0
+    let halfAngle = angle.radians * 0.5
     let s = Double.sin(halfAngle)
 
     self.w = Double.cos(halfAngle)
@@ -97,7 +97,20 @@ public struct Quaternion: Hashable {
   /// - Parameters:
   ///   - v: The first vector.
   ///   - u: The vector obtained by applying the computed rotation.
-  public init(from v: Vector3, to u: Vector3) {
+  public init(from v: Vector3, to u: Vector3, up: Vector3 = .unitY) {
+//    let d = v.dot(u)
+//    if abs(d - (-1.0)) < 0.000001 {
+//      // `v` and `u` point in the opposite direction, so it is a 180° turn around the up-axis.
+//      self = Quaternion(w: Double.pi, x: up.x, y: up.y, z: up.z)
+//    } else if abs(d - 1.0) < 0.000001 {
+//      // `v` and `u` point in the same direction.
+//      self = .identity
+//    }
+//
+//    let angle = Angle(radians: Double.acos(d))
+//    let axis = v.cross(u).normalized
+//    self.init(axis: axis, angle: angle)
+
     let cos2Theta = v.dot(u)
     let vu = v.cross(u)
     let w = 1.0 + cos2Theta
@@ -121,9 +134,17 @@ public struct Quaternion: Hashable {
   /// The quaternion's z-component.
   public var z: Double
 
-  /// The vector's magnitude (a.k.a. length or norm).
+  /// The quaternion's magnitude (a.k.a. length or norm).
   public var magnitude: Double {
     return Double.sqrt(w * w + x * x + y * y + z * z)
+  }
+
+  /// The quaternion's squared magnitude.
+  ///
+  /// Use this property rather than `magnitude` if you do not need the exact magnitude of the
+  /// quaternion, but just want know if it is `0` or if it is longer than another quaternion's.
+  public var squaredMagnitude: Double {
+    return w * w + x * x + y * y + z * z
   }
 
   /// This quaternion, normalized.
@@ -171,7 +192,7 @@ public struct Quaternion: Hashable {
     }
   }
 
-  /// The rotation represented by this quaternion as a transformation matrix.
+  /// The rotation represented by this quaternion, as a transformation matrix.
   public var transform: Matrix4 {
     get {
       let x2 = x + x
@@ -189,12 +210,20 @@ public struct Quaternion: Hashable {
       let yz = y * z2 / lengthSquared
       let zz = z * z2 / lengthSquared
 
-      return Matrix4(components: [
-        1.0 - (yy + zz) , xy - wz         , xz + wy         , 0.0,
-        xy + wz         , 1.0 - (xx + zz) , yz - wx         , 0.0,
-        xz - wy         , yz + wx         , 1.0 - (xx + yy) , 0.0,
-        0.0             , 0.0             , 0.0             , 1.0,
-      ])
+      var result = Matrix4.zero
+
+      result[0,0] = 1.0 - (yy + zz)
+      result[1,0] = xy + wz
+      result[2,0] = xz - wy
+      result[0,1] = xy - wz
+      result[1,1] = 1.0 - (xx + zz)
+      result[2,1] = yz + wx
+      result[0,2] = xz + wy
+      result[1,2] = yz - wx
+      result[2,2] = 1.0 - (xx + yy)
+      result[3,3] = 1.0
+
+      return result
     }
 
     set {

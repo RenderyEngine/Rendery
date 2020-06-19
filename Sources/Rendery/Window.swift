@@ -179,7 +179,7 @@ public final class Window {
 
       // Compute the view matrix.
       let target = camera.target?.sceneTranslation ?? .zero
-      let view = Matrix4.lookAt(from: pointOfView.sceneTranslation, to: target)
+      let view = Matrix4.lookAt(from: pointOfView.sceneTranslation, to: target).inverted
 
       // Collect the scene's light sources to compute lighting.
       let lightNodes = scene.root3D.descendants(.satisfying({ $0.light != nil }))

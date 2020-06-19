@@ -109,27 +109,16 @@ public struct Camera {
     let left = -right
 
     // Compute the perspective projection matrix.
-    return Matrix4(components: [
-      (2.0 * nearDistance) / (right - left),
-      0.0,
-      (right + left) / (right - left),
-      0.0,
+    var result = Matrix4.zero
+    result[0,0] = (2.0 * nearDistance) / (right - left)
+    result[0,3] = (right + left) / (right - left)
+    result[1,1] = (2.0 * nearDistance) / (top - bottom)
+    result[1,2] = (top + bottom) / (top - bottom)
+    result[2,2] = (nearDistance - farDistance) / (farDistance - nearDistance)
+    result[2,3] = (-2.0 * farDistance * nearDistance) / (farDistance - nearDistance)
+    result[3,2] = -1.0
 
-      0.0,
-      (2.0 * nearDistance) / (top - bottom),
-      (top + bottom) / (top - bottom),
-      0.0,
-
-      0.0,
-      0.0,
-      (nearDistance - farDistance) / (farDistance - nearDistance),
-      (-2.0 * farDistance * nearDistance) / (farDistance - nearDistance),
-
-      0.0,
-      0.0,
-      -1.0,
-      0.0,
-    ])
+    return result
   }
 
 }

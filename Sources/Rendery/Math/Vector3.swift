@@ -26,6 +26,14 @@ public struct Vector3: Hashable {
     return Double.sqrt(x * x + y * y + z * z)
   }
 
+  /// The vector's squared magnitude.
+  ///
+  /// Use this property rather than `magnitude` if you do not need the exact magnitude of the
+  /// vector, but just want know if it is `0` or if it is longer than another vector's.
+  public var squaredMagnitude: Double {
+    return x * x + y * y + z * z
+  }
+
   /// This vector, normalized.
   public var normalized: Vector3 {
     let l = magnitude
@@ -201,7 +209,7 @@ public struct Vector3: Hashable {
 extension Vector3: CustomStringConvertible {
 
   public var description: String {
-    return "(\(x), \(y), \(z) )"
+    return "(\(x), \(y), \(z))"
   }
 
 }
