@@ -260,19 +260,6 @@ public struct Matrix4: Hashable {
     return result
   }
 
-  /// Returns the transformation of a quaternion by a matrix.
-  ///
-  /// - Parameters:
-  ///   - m: A transformation matrix.
-  ///   - q: The quaternion to transform.
-  public static func * (m: Matrix4, q: Quaternion) -> Quaternion {
-    return Quaternion(
-      w: m[3,0] * q.x + m[3,1] * q.y + m[3,2] * q.z + m[3,3] * q.w,
-      x: m[0,0] * q.x + m[0,1] * q.y + m[0,2] * q.z + m[0,3] * q.w,
-      y: m[1,0] * q.x + m[1,1] * q.y + m[1,2] * q.z + m[1,3] * q.w,
-      z: m[2,0] * q.x + m[2,1] * q.y + m[2,2] * q.z + m[2,3] * q.w)
-  }
-
   /// Returns the transformation of a vector by a matrix.
   ///
   /// - Parameters:
