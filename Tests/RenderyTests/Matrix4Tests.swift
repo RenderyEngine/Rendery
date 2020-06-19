@@ -1,8 +1,6 @@
 import XCTest
 import Rendery
 
-let accuracyOfEquality = 0.00001
-
 final class Matrix4Tests: XCTestCase {
 
   func testInitWithTranslation() {
@@ -153,6 +151,22 @@ final class Matrix4Tests: XCTestCase {
     XCTAssertEqual(res.components[15], 14552.0)
   }
 
+  func testMultiplyByVector3() {
+    XCTAssertEqual(Matrix4.identity * Vector3.unitScale, Vector3.unitScale)
+
+    let mat0 = Matrix4(translation: Vector3(x: 1.0, y: 0.0, z:-1.0))
+    XCTAssertEqual(mat0 * Vector3.unitScale, Vector3(x: 2.0, y: 1.0, z: 0.0))
+
+    let mat1 = Matrix4(rotation: Quaternion(axis: .unitY, angle: .deg(90.0)))
+    assertEqual(
+      mat1 * Vector3.unitScale,
+      Vector3(x: 1.0, y: 1.0, z: -1.0),
+      accuracy: accuracyOfEquality)
+
+    let mat2 = Matrix4(scale: Vector3(x: 1.0, y: 0.0, z:-1.0))
+    XCTAssertEqual(mat2 * Vector3.unitScale, Vector3(x: 1.0, y: 0.0, z: -1.0))
+  }
+
   func testLookAt() {
     let mat = Matrix4.lookAt(
       from: Vector3.zero,
@@ -161,12 +175,6 @@ final class Matrix4Tests: XCTestCase {
 
     let rot = Matrix4(rotation: Quaternion(axis: Vector3.unitX, angle: .deg(45.0)))
     assertEqual(mat, rot, accuracy: accuracyOfEquality)
-  }
-
-  func assertEqual(_ lhs: Matrix4, _ rhs: Matrix4, accuracy: Double) {
-    for i in 0 ..< 16 {
-      XCTAssertEqual(lhs.components[i], rhs.components[i], accuracy: accuracy)
-    }
   }
 
 }
