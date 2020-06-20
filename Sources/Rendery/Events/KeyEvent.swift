@@ -4,7 +4,7 @@ public struct KeyEvent: InputEvent {
   /// A flag that indicates if the event is a repeat caused by the user holding the key down.
   public let isRepeat: Bool
 
-  /// The modifier keys that were pressed when the event occured.
+  /// The modifier keys that were pressed when the event occurred.
   public let modifiers: KeyModifierSet
 
   /// The code of the key related to the event.

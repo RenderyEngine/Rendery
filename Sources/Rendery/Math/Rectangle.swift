@@ -98,6 +98,11 @@ public struct Rectangle: Hashable {
       dimensions: Vector2(x: dimensions.x * x, y: dimensions.y * y))
   }
 
+  /// Returns whether the rectangle contains the specified point.
+  public func contains(_ point: Vector2) -> Bool {
+    return ((minX ..< maxX) ~= point.x) && ((minY ..< maxY) ~= point.y)
+  }
+
 }
 
 extension Rectangle: CustomStringConvertible {

@@ -7,7 +7,7 @@ public protocol InputEvent {
   /// which the event was originally dispatched.
   var firstResponder: InputResponder? { get }
 
-  /// The time when the event occured.
+  /// The time when the event occurred.
   var timestamp: Milliseconds { get }
 
   /// A container for custom data.

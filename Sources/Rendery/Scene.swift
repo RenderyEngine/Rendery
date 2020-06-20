@@ -27,6 +27,24 @@ open class Scene {
   /// The root of the scene's 3D scene tree.
   open var root3D = Node3D()
 
+  /// Casts a ray into the scene to find the nodes whose volume body intersects with it.
+  open func cast(ray: Ray) -> [(node: Node3D, collisionPoint: Vector3)] {
+    var collisions: [(node: Node3D, collisionPoint: Vector3)] = []
+
+    for node in root3D.descendants.filter({ $0.model != nil }) {
+      if let point = ray.collisionPoint(
+        with: node.model!.aabb,
+        translation: node.sceneTranslation,
+        rotation: node.sceneRotation,
+        scale: node.sceneScale)
+      {
+        collisions.append((node: node, collisionPoint: point))
+      }
+    }
+
+    return collisions
+  }
+
   /// A callback method that is called when the scene is about to be presented by a viewport.
   ///
   /// This method is intended to be overridden to implement any custom behavior before the scene is
