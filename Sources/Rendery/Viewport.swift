@@ -70,6 +70,61 @@ public final class Viewport {
     scene = nil
   }
 
+  /// Returns a ray that starts at the specified screen coordinates and points at the back of the
+  /// viewport's frustum.
+  ///
+  /// The ray's origin and direction is computed by unprojecting the specified screen point (i.e.,
+  /// a position on the viewport's target) into the scene space. The origin corresponds to the
+  /// unprojection on the camera's near plane, while the direction is determined by the position
+  /// of the screen point on the far plane.
+  ///
+  /// If the viewport does not cover the entire rendering Area, the specified screen coordinates
+  /// projected to clip space before computing scene coordinates.
+  ///
+  /// - Parameter screenPoint: The screen point from which the ray should shoot.
+  ///
+  /// - Returns: A ray or `nil` if the viewport has no point of view.
+  public func ray(fromScreenPoint screenPoint: Vector2) -> Ray? {
+    guard let pov = pointOfView, let camera = pov.camera
+      else { return nil }
+
+    // Compute the screen point in NDCs.
+    let clipPoint = screenPoint / region.dimensions + region.origin
+    let devicePoint = Vector2(x: 2.0 * clipPoint.x - 1.0, y: 1.0 - 2.0 * clipPoint.y)
+
+    // Compute the view matrix.
+    let dest = camera.target?.sceneTranslation ?? .zero
+    let view = Matrix4.lookAt(from: pov.sceneTranslation, to: dest).inverted
+
+    // Compute the projection matrix.
+    let window = target
+    let scaledRegion = self.region.scaled(x: Double(window.width), y: Double(window.height))
+    let projection = camera.projection(onto: scaledRegion)
+
+    // Compute the inverted view-projection matrix, that unprojects NDCs back to the scene space.
+    let ivp = (projection * view).inverted
+
+    // The usual technique is to unproject the near point at 0 on the z-axis. However, its position
+    // on near plane is required to compute the ray's origin with an orthographic camera, since it
+    // doesn't have any convergence point. Unprojecting the point at -1 rather than 0 shouldn't
+    // change the direction. However, for a perspective camera, the camera's position can be used
+    // as the ray's origin.
+
+    let np = unproject(ndc: Vector3(x: devicePoint.x, y: devicePoint.y, z: -1.0), with: ivp)
+    let fp = unproject(ndc: Vector3(x: devicePoint.x, y: devicePoint.y, z: 0.99), with: ivp)
+    return Ray(origin: np, direction: (fp - np).normalized)
+  }
+
+  /// Unprojects the specified normalized device coordinates into the scene space.
+  public func unproject(ndc: Vector3, with ivp: Matrix4) -> Vector3 {
+    let x = ivp[0,0] * ndc.x + ivp[0,1] * ndc.y + ivp[0,2] * ndc.z + ivp[0,3]
+    let y = ivp[1,0] * ndc.x + ivp[1,1] * ndc.y + ivp[1,2] * ndc.z + ivp[1,3]
+    let z = ivp[2,0] * ndc.x + ivp[2,1] * ndc.y + ivp[2,2] * ndc.z + ivp[2,3]
+    let w = ivp[3,0] * ndc.x + ivp[3,1] * ndc.y + ivp[3,2] * ndc.z + ivp[3,3]
+
+    return Vector3(x: x / w, y: y / w, z: z / w)
+  }
+
 }
 
 extension Viewport: InputResponder {
