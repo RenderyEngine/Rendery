@@ -18,7 +18,23 @@ public struct MeshData: MeshSource {
     self.attributeDescriptors = attributeDescriptors
     self.primitiveType = primitiveType
 
-    // Run some sanity checks.
+    // TODO: Run some sanity checks.
+  }
+
+  public init<T>(
+    vertexData: Array<T>,
+    vertexCount: Int,
+    vertexIndices: [UInt32]? = nil,
+    attributeDescriptors: [VertexAttributeDescriptor],
+    primitiveType: Mesh.PrimitiveType = .triangles
+  ) {
+    let data = vertexData.withUnsafeBufferPointer({ buffer in Data(buffer: buffer) })
+    self.init(
+      vertexData: data,
+      vertexCount: vertexCount,
+      vertexIndices: vertexIndices,
+      attributeDescriptors: attributeDescriptors,
+      primitiveType: primitiveType)
   }
 
   public let vertexData: Data

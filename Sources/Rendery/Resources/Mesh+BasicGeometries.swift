@@ -1,4 +1,5 @@
 import Foundation
+import Numerics
 
 extension Mesh {
 
@@ -79,6 +80,83 @@ extension Mesh {
     return generate(vertexData: vertexData, vertexIndices: vertexIndices)
   }
 
+  /// Creates the mesh that consists of multiple segments connecting the two specified points.
+  ///
+  /// - Parameters:
+  ///   - points: An array of at least two points, specifying the edges of the polyline.
+  ///   - thickness: The thickness of the polyline.
+  public static func polyline(points: [Vector2], thickness: Double = 0.1) -> Mesh {
+    assert(points.count >= 2)
+
+    // Extrude the segments described in `points` to create quads.
+    let v0 = points[1] - points[0]
+    let u0 = Vector2(x: -v0.y, y: v0.x).normalized * thickness
+    var positions = [
+      Vector3(x: points[0].x + u0.x, y: points[0].y + u0.y, z: 0.0),
+      Vector3(x: points[0].x - u0.x, y: points[0].y - u0.y, z: 0.0),
+    ]
+
+    for i in 1 ..< points.count {
+      let v = points[i] - points[i - 1]
+      var u = Vector2(x: -v.y, y: v.x).normalized * thickness
+
+      // If there is another point after the current one, try to adjust u's position by computing
+      // the cross-section with the joint segment to soften the extruded edges. A better solution
+      // should probably leverage the geometry shader to deal very sharp corners.
+      if i + 1 < points.count {
+        let alpha = Angle(from: v, to: points[i + 1] - points[i])
+        var theta = alpha + ((.rad(.pi) - alpha) / 2.0)
+        if points[i].y > points[i + 1].y {
+          theta = -theta
+        }
+
+        let cosT = Double.cos(theta.radians)
+        let sinT = Double.sin(theta.radians)
+        let v2 = Vector2(
+          x: v.x * cosT - v.y * sinT,
+          y: v.x * sinT + v.y * cosT)
+        u = v2.normalized * thickness
+
+        if points[i].y > points[i + 1].y {
+          u = -u
+        }
+      }
+
+      positions.append(contentsOf: [
+        Vector3(x: points[i].x + u.x, y: points[i].y + u.y, z: 0.0),
+        Vector3(x: points[i].x - u.x, y: points[i].y - u.y, z: 0.0)
+      ])
+    }
+
+    // Compute vertex indices so that it create quads.
+    var indices: [UInt32] = []
+    for i in stride(from: 0, to: positions.count - 2, by: 2) {
+      indices.append(contentsOf: [
+        UInt32(i), UInt32(i + 1), UInt32(i + 3),
+        UInt32(i), UInt32(i + 3), UInt32(i + 2),
+      ])
+    }
+
+    // Generate the vertex data (positions + normals).
+    var vertexData: [Float] = []
+    for position in positions {
+      vertexData.append(contentsOf: [Float(position.x), Float(position.y), 0.0])
+      vertexData.append(contentsOf: [0.0, 0.0, 1.0])
+    }
+
+    let stride = MemoryLayout<Float>.stride * 6
+    let source = MeshData(
+      vertexData: vertexData,
+      vertexCount: positions.count,
+      vertexIndices: indices,
+      attributeDescriptors: [
+        .position(offset: 0, stride: stride),
+        .normal(offset: 3, stride: stride),
+      ])
+
+    return Mesh(source: source)
+  }
+
   /// Generates a basic mesh from the specified vertex data.
   ///
   /// - Parameters:
@@ -86,7 +164,7 @@ extension Mesh {
   ///   - vertexIndices: The vertex indices.
   private static func generate(vertexData: [Float], vertexIndices: [UInt32]) -> Mesh {
     let stride = MemoryLayout<Float>.stride * 8
-    let meshSource = vertexData.withUnsafeBufferPointer({ buffer in
+    let source = vertexData.withUnsafeBufferPointer({ buffer in
       MeshData(
         vertexData: Data(buffer: buffer),
         vertexCount: vertexData.count / 8,
@@ -95,11 +173,11 @@ extension Mesh {
           .position(offset: 0, stride: stride),
           .normal(offset: 3 * MemoryLayout<Float>.stride, stride: stride),
           .uv(offset: 6 * MemoryLayout<Float>.stride, stride: stride)
-      ])
+        ])
     })
 
     // Create and return the mesh.
-    return Mesh(source: meshSource)
+    return Mesh(source: source)
   }
 
 }

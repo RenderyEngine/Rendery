@@ -190,6 +190,15 @@ public final class AppContext {
   /// A flag that indicates whether the rendering loop should stop before the next frame.
   public var shouldStopRendering = false
 
+  /// The width of the lines that are drawn as `Mesh.PrimitiveType.lines`.
+  ///
+  /// This property should be used for debugging purposes only. The actual range of widths that can
+  /// be supported is driver-dependent, which may lead to inconsistent results. If you need to use
+  /// lines as part of a scene, consider creating a mesh with `Mesh.polyline(segments:thickness:)`.
+  public var lineWidth: Double = 1.0 {
+    didSet { glLineWidth(Float(lineWidth)) }
+  }
+
   /// Starts Rendery's rendering loop.
   ///
   /// The method starts the rendering loop and does not return until it is halted. Any subscribed
