@@ -412,3 +412,27 @@ public struct Quaternion: Hashable {
   public static var identity: Quaternion { Quaternion(w: 1.0, x: 0.0, y: 0.0, z: 0.0) }
 
 }
+
+extension Quaternion: CustomStringConvertible {
+
+  public var description: String {
+    // Roll (x-axis rotation)
+    let sinRByCosP = 2.0 * (w * x + y * z)
+    let cosRByCosP = 1.0 - 2.0 * (x * x + y * y)
+    let roll = Angle(radians: Double.atan2(y: sinRByCosP, x: cosRByCosP))
+
+    // Pitch (y-axis rotation)
+    let sinP = 2.0 * (w * y - z * x)
+    let pitch = abs(sinP) >= 1.0
+      ? Angle(radians: Double(signOf: sinP, magnitudeOf: Double.pi / 2.0))
+      : Angle(radians: Double.asin(sinP))
+
+    // Yaw (z-axis rotation)
+    let sinYByCosP = 2.0 * (w * z + x * y)
+    let cosYByCosP = 1.0 - 2.0 * (y * y + z * z)
+    let yaw = Angle(radians: Double.atan2(y: sinYByCosP, x: cosYByCosP))
+
+    return "(x: \(roll.degrees), y: \(pitch.degrees), z: \(yaw.degrees))"
+  }
+
+}
