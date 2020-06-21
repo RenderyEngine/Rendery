@@ -6,18 +6,10 @@ public struct Camera {
   /// Initializes a camera.
   public init(
     type projectionType: ProjectionType,
-    lookingAt target: Node3D? = nil,
-    aspectRatio: AspectRatio = .auto,
-    fovY: Angle = .deg(45.0),
-    nearDistance: Double = 0.01,
-    farDistance: Double = 100.0
+    aspectRatio: AspectRatio = .auto
   ) {
     self.projectionType = projectionType
-    self.target = target
     self.aspectRatio = aspectRatio
-    self.fovY = fovY
-    self.nearDistance = nearDistance
-    self.farDistance = farDistance
   }
 
   /// The camera's projection type (orthographic or perspective).
@@ -40,9 +32,6 @@ public struct Camera {
 
   }
 
-  /// The camera's target.
-  public var target: Node3D?
-
   /// The camera's aspect ratio.
   public var aspectRatio: AspectRatio
 
@@ -61,7 +50,7 @@ public struct Camera {
   ///
   /// The field of view is the angle between the camera's position and the edges of the screen onto
   /// which a scene is projected. Typical values are within 45° to 60°.
-  public var fovY: Angle
+  public var fovY: Angle = .deg(45.0)
 
   /// The distance between the camera and the near clipping plane.
   ///
@@ -72,13 +61,20 @@ public struct Camera {
   /// aspect ratio, determines the dimensions of the frustum within which a scene is viewed (in the
   /// the scene's coordinate system). A frustum viewport should have the same aspect ratio as the
   /// screen viewport that renders it.
-  public var nearDistance: Double
+  public var nearDistance: Double = 1.0
 
   /// The distance between the camera and the far clipping plane.
   ///
   /// The far clipping plane represents the limit beyond which a surface is no longer visible to
   /// the camera. In other words, it defines the bottom of the camera's visible frustum.
-  public var farDistance: Double
+  public var farDistance: Double = 100.0
+
+  /// The distance from the camera at which objects are in focus.
+  ///
+  /// With an orthographic projection, this property affects the camera's the orthographic scale,
+  /// together with the field of view and aspect ratio. The orthographic scale denotes the portion
+  /// of the scene captured by the camera. It's height is given by `tan(fovY / 2) * focusDistance`.
+  public var focusDistance: Double = 4.0
 
   /// Returns the camera's matrix projection matrix.
   ///
@@ -87,9 +83,6 @@ public struct Camera {
   ///
   /// - Parameter region: The viewport onto which coordinates should be projected.
   public func projection(onto region: Rectangle) -> Matrix4 {
-    guard projectionType == .perspective
-      else { fatalError("Not implemented :(") }
-
     var ratio: Double
     if case .fixed(let value) = aspectRatio {
       ratio = value
@@ -97,26 +90,53 @@ public struct Camera {
       ratio = region.width / region.height
     }
 
-    return perspectiveMatrix(ratio: ratio)
+    switch projectionType {
+    case .perspective:
+      return perspectiveMatrix(aspectRatio: ratio)
+    case .orthographic:
+      return orthographicMatrix(aspectRatio: ratio)
+    }
   }
 
-  /// Computes a perspective matrix.
-  private func perspectiveMatrix(ratio: Double) -> Matrix4 {
+  /// Computes a perspective projection matrix.
+  private func perspectiveMatrix(aspectRatio: Double) -> Matrix4 {
     // Compute screen coordinates.
     let top = Double.tan(fovY.radians / 2.0) * nearDistance
     let bottom = -top
-    let right = top * ratio
+    let right = top * aspectRatio
     let left = -right
 
-    // Compute the perspective projection matrix.
+    // Compute the corresponding perspective projection matrix.
     var result = Matrix4.zero
     result[0,0] = (2.0 * nearDistance) / (right - left)
     result[0,3] = (right + left) / (right - left)
     result[1,1] = (2.0 * nearDistance) / (top - bottom)
     result[1,2] = (top + bottom) / (top - bottom)
-    result[2,2] = (nearDistance - farDistance) / (farDistance - nearDistance)
+    result[2,2] = -(farDistance + nearDistance) / (farDistance - nearDistance)
     result[2,3] = (-2.0 * farDistance * nearDistance) / (farDistance - nearDistance)
     result[3,2] = -1.0
+
+    return result
+  }
+
+  /// Computes an orthographic projection matrix.
+  private func orthographicMatrix(aspectRatio: Double) -> Matrix4 {
+    // Compute screen coordinates.
+    // let top = fovY.radians / 2.0
+    let top = Double.tan(fovY.radians / 2.0) * focusDistance
+    let bottom = -top
+    let right = top * aspectRatio
+    let left = -right
+
+    // Compute the corresponding orthographic projection matrix.
+    var result = Matrix4.zero
+    result[0,0] = 2.0 / (right - left)
+    result[0,3] = -(right + left) / (right - left)
+    result[1,1] = 2.0 / (top - bottom)
+    result[1,3] = -(top + bottom) / (top - bottom)
+    result[2,2] = -2.0 / (farDistance - nearDistance)
+    result[2,3] = -(farDistance + nearDistance) / (farDistance - nearDistance);
+    result[3,3] = 1.0
 
     return result
   }
