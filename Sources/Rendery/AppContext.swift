@@ -153,7 +153,7 @@ public final class AppContext {
   /// - Returns: The index of the frame listener in the subscription set.
   @discardableResult
   public func subscribe(
-    frameListener frameWillRender: @escaping (Milliseconds, Milliseconds) -> Void
+    frameListener frameWillRender: @escaping FrameListenerClosure.Function
   ) -> Int {
     let listener = FrameListenerClosure(frameWillRender)
     frameListeners.append(listener)
