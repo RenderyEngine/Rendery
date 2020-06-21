@@ -28,9 +28,9 @@ public struct Model {
   public var meshes: [Mesh]
 
   /// The model's axis-aligned bounding box.
-  public var aabb: Box {
+  public var aabb: AxisAlignedBox {
     guard !meshes.isEmpty
-      else { return Box(origin: .zero, dimensions: .zero) }
+      else { return AxisAlignedBox(origin: .zero, dimensions: .zero) }
 
     var minPoint = meshes[0].aabb.origin
     var maxPoint = meshes[0].aabb.origin + meshes[0].aabb.dimensions
@@ -54,7 +54,7 @@ public struct Model {
       }
     }
 
-    return Box(origin: minPoint, dimensions: maxPoint - minPoint)
+    return AxisAlignedBox(origin: minPoint, dimensions: maxPoint - minPoint)
   }
 
   /// The materials that describe the model's skin.
@@ -72,7 +72,7 @@ public struct Model {
   /// origin. A value of `0.0` or `1.0` on a given axis indicates that the pivot point reaches the
   /// edge of the model's bounding box
   ///
-  /// - Note: `pivotPoint.z` should always be `0.0` for models that are used as sprites, as only
+  /// - Note: `pivotPoint.z` should always be `0.5` for models that are used as sprites, as only
   ///   node positions are considered to compute z-ordering while rendering 2D scenes.
   public var pivotPoint: Vector3 = Vector3(x: 0.5, y: 0.5, z: 0.5)
 

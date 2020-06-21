@@ -1,5 +1,5 @@
 /// A structure that contains the location and dimensions of a box (a.k.a. rectangular cuboid).
-public struct Box: Hashable {
+public struct AxisAlignedBox: Hashable {
 
   /// Initializes a box with its origin and dimensions.
   ///
@@ -76,25 +76,25 @@ public struct Box: Hashable {
   /// All coordinates are scaled, meaning that the new box will not have the same if the this box'
   /// origin is not zero.
   ///
-  ///     let b1 = Box(
+  ///     let b1 = AxisAlignedBox(
   ///       origin: Vector3(x: 0.2, y: 0.5, z: 0.8),
   ///       dimensions: Vector3(x: 0.5, y: 0.5, z: 0.5))
   ///     let b2 = b1.scaled(by: Vector3(x: 8.0, y: 6.0, z: 4.0))
   ///     print(b2.minX, b2.minY, b2.maxX, b2.maxX)
-  ///     // Prints Box(origin: (1.6, 3.0, 3.2), dimensions: (4.0, 3.0, 2.0))
+  ///     // Prints AxisAlignedBox(origin: (1.6, 3.0, 3.2), dimensions: (4.0, 3.0, 2.0))
   ///
   /// - Parameter factors: The scaling factors represented as a vector whose each component scales
   ///   the box' coordinates along the corresponding aixs.
-  public func scaled(by factors: Vector3) -> Box {
-    return Box(origin: origin * factors, dimensions: dimensions * factors)
+  public func scaled(by factors: Vector3) -> AxisAlignedBox {
+    return AxisAlignedBox(origin: origin * factors, dimensions: dimensions * factors)
   }
 
 }
 
-extension Box: CustomStringConvertible {
+extension AxisAlignedBox: CustomStringConvertible {
 
   public var description: String {
-    return "Box(origin: \(origin), dimensions: \(dimensions))"
+    return "AxisAlignedBox(origin: \(origin), dimensions: \(dimensions))"
   }
 
 }

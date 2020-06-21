@@ -52,9 +52,9 @@ public final class Mesh: GraphicsResource {
         }
       })
 
-      self.aabb = Box(origin: minPoint, dimensions: maxPoint - minPoint)
+      self.aabb = AxisAlignedBox(origin: minPoint, dimensions: maxPoint - minPoint)
     } else {
-      self.aabb = Box(origin: .zero, dimensions: .zero)
+      self.aabb = AxisAlignedBox(origin: .zero, dimensions: .zero)
     }
 
     self.source = source
@@ -85,7 +85,7 @@ public final class Mesh: GraphicsResource {
   }
 
   /// The mesh's axis-aligned bounding box.
-  public let aabb: Box
+  public let aabb: AxisAlignedBox
 
   // MARK: Internal API
 

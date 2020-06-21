@@ -25,7 +25,7 @@ public struct Ray {
   /// a so-called "OBB".
   ///
   /// - Parameters:
-  ///   - aabb: A axis-aligned box specifying the cuboid with which intersection will be checked.
+  ///   - aabb: A naxis-aligned box specifying the cuboid with which a collision will be tested.
   ///   - translation: The translation to apply on `aabb`'s coordinates.
   ///   - rotation: The rotation to apply on `aabb`'s coordinates.
   ///   - scale: The rotation to apply on `aabb`'s coordinates.
@@ -36,7 +36,7 @@ public struct Ray {
   /// - Returns: The nearest point at which the ray intersects with the box, or `nil` if it does
   ///   not intersect with it.
   public func collisionPoint(
-    with aabb: Box,
+    with aabb: AxisAlignedBox,
     translation: Vector3 = .zero,
     rotation: Quaternion = .identity,
     scale: Vector3 = .unitScale

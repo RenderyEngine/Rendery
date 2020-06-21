@@ -3,7 +3,15 @@ import Numerics
 
 extension Mesh {
 
-  /// Creates the mesh of a flat rectangle with the given specification.
+  /// Creates the mesh of a 2x2 rectangle on the xy-plane.
+  public static func rectangle() -> Mesh {
+    let spec = Rectangle(
+      origin: Vector2(x: -1.0, y: -1.0),
+      dimensions: Vector2(x: 2.0, y: 2.0))
+    return rectangle(spec)
+  }
+
+  /// Creates the mesh of a rectangle on the xy-plane with the given specification.
   ///
   /// - Parameter spec: The rectangle's specification.
   public static func rectangle(
@@ -28,12 +36,18 @@ extension Mesh {
     return generate(vertexData: vertexData, vertexIndices: vertexIndices)
   }
 
-  /// Creates the mesh of a box with the specified dimensions.
+  /// Creates the mesh of an axis-aligned 2x2x2 box.
+  public static func box() -> Mesh {
+    let spec = AxisAlignedBox(
+      origin: Vector3(x: -1.0, y: -1.0, z: -1.0),
+      dimensions: Vector3(x: 2.0, y: 2.0, z: 2.0))
+    return box(spec)
+  }
+
+  /// Creates the mesh of an axis-aligned box with the specified dimensions.
   ///
-  /// - Parameter spec: The box' specification.
-  public static func box(
-    _ spec: Box = Box(x: -1.0, y: -1.0, z: -1.0, width: 2.0, height: 2.0, depth: 2.0)
-  ) -> Mesh {
+  /// - Parameter spec: The box's specification.
+  public static func box(_ spec: AxisAlignedBox) -> Mesh {
     let (lx, ly, lz) = (Float(spec.minX), Float(spec.minY), Float(spec.minZ))
     let (gx, gy, gz) = (Float(spec.maxX), Float(spec.maxY), Float(spec.maxZ))
 
@@ -164,17 +178,15 @@ extension Mesh {
   ///   - vertexIndices: The vertex indices.
   private static func generate(vertexData: [Float], vertexIndices: [UInt32]) -> Mesh {
     let stride = MemoryLayout<Float>.stride * 8
-    let source = vertexData.withUnsafeBufferPointer({ buffer in
-      MeshData(
-        vertexData: Data(buffer: buffer),
-        vertexCount: vertexData.count / 8,
-        vertexIndices: vertexIndices,
-        attributeDescriptors: [
-          .position(offset: 0, stride: stride),
-          .normal(offset: 3 * MemoryLayout<Float>.stride, stride: stride),
-          .uv(offset: 6 * MemoryLayout<Float>.stride, stride: stride)
-        ])
-    })
+    let source = MeshData(
+      vertexData: vertexData,
+      vertexCount: vertexData.count / 8,
+      vertexIndices: vertexIndices,
+      attributeDescriptors: [
+        .position(offset: 0, stride: stride),
+        .normal(offset: 3 * MemoryLayout<Float>.stride, stride: stride),
+        .uv(offset: 6 * MemoryLayout<Float>.stride, stride: stride)
+      ])
 
     // Create and return the mesh.
     return Mesh(source: source)
