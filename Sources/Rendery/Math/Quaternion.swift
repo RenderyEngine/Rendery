@@ -95,7 +95,7 @@ public struct Quaternion: Hashable {
   /// This initializer calculates a quaternion `q` such that `q * v = u`.
   ///
   /// - Parameters:
-  ///   - v: The first vector.
+  ///   - v: A vector.
   ///   - u: The vector obtained by applying the computed rotation.
   public init(from v: Vector3, to u: Vector3, up: Vector3 = .unitY) {
 //    let d = v.dot(u)
@@ -155,9 +155,9 @@ public struct Quaternion: Hashable {
       : self
   }
 
-  /// This quaternion, inversed.
-  public var inversed: Quaternion {
-    let lenSq = x * x + y * y + z * z
+  /// This quaternion, inverted.
+  public var inverted: Quaternion {
+    let lenSq = w * w + x * x + y * y + z * z
     if lenSq != 0.0 {
       let inv = 1.0 / lenSq
       return Quaternion(w: w * inv, x: -x * inv, y: -y * inv, z: -z * inv)
