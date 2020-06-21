@@ -54,10 +54,10 @@ public struct Rectangle: Hashable {
   public var dimensions: Vector2
 
   /// The rectangle's width.
-  public var width: Double { abs(dimensions.x - origin.x) }
+  public var width: Double { abs(dimensions.x) }
 
   /// The rectangle's height.
-  public var height: Double { abs(dimensions.y - origin.y) }
+  public var height: Double { abs(dimensions.y) }
 
   /// Returns the rectangle whose coordinates are scaled by the given factors.
   ///

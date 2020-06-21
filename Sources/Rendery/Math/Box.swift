@@ -62,14 +62,14 @@ public struct Box: Hashable {
   /// The box' dimensions.
   public var dimensions: Vector3
 
-  /// The box' dimension along the x-axis.
-  public var width: Double { abs(dimensions.x - origin.x) }
+  /// The box' absolute dimension along the x-axis.
+  public var width: Double { abs(dimensions.x) }
 
-  /// The box' dimension along the y-axis.
-  public var height: Double { abs(dimensions.y - origin.y) }
+  /// The box' absolute dimension along the y-axis.
+  public var height: Double { abs(dimensions.y) }
 
-  /// The box' dimension along the z-axis.
-  public var depth: Double { abs(dimensions.z - origin.z) }
+  /// The box' absolute dimension along the z-axis.
+  public var depth: Double { abs(dimensions.z) }
 
   /// Returns the box whose coordinates are scaled by the given factors.
   ///
