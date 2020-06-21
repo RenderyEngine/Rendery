@@ -273,6 +273,15 @@ public struct Matrix4: Hashable {
       z: (m[2,0] * v.x + m[2,1] * v.y + m[2,2] * v.z + m[2,3]) * iw)
   }
 
+  /// Returns the transofmration of a triangle by a matrix.
+  ///
+  /// - Parameters:
+  ///   - m: A transformation matrix.
+  ///   - t: The triangle to transform.
+  public static func * (m: Matrix4, t: Triangle) -> Triangle {
+    return Triangle(a: m * t.a, b: m * t.b, c: m * t.c)
+  }
+
   /// Initializes a "look at" matrix.
   ///
   /// A "look at" matrix is a transformation matrix that can be used to orient and position an

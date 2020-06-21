@@ -17,6 +17,43 @@ public struct Ray {
   /// The ray's direction, as a unit vector.
   public var direction: Vector3
 
+  /// Returns whether this ray intersects with the specified triangle.
+  ///
+  /// - Parameters:
+  ///   - triangle: A triangle with which collision will be tested.
+  ///   - isCullingEnabled: A flag that indicates whether back-face culling is enabled.
+  public func collisionPoint(with triangle: Triangle, isCullingEnabled: Bool = false) -> Vector3? {
+
+    // Möller-Trumbore algorithm from "Fast, Minimum Storage Ray/Triangle Intersection", 1997.
+
+    let ab = triangle.b - triangle.a
+    let ac = triangle.c - triangle.a
+    let pvec = direction.cross(ac)
+    let det = ab.dot(pvec)
+
+    if isCullingEnabled && det < Double.ulpOfOne {
+      // If the determinant is negative, the triangle is back-facing.
+      return nil
+    } else if abs(det) < Double.ulpOfOne {
+      // If the determinant is close to 0, the ray is parallel to the triangle.
+      return nil
+    }
+
+    let idet = 1.0 / det
+    let tvec = origin - triangle.a
+    let u = tvec.dot(pvec) * idet
+    guard (u >= 0.0) && (u <= 1.0)
+      else { return nil }
+
+    let qvec = tvec.cross(ab)
+    let v = direction.dot(qvec) * idet
+    guard (v >= 0.0) && (v <= 1.0)
+      else { return nil }
+
+    let t = ac.dot(qvec) * idet
+    return origin + direction * t
+  }
+
   /// Returns whether this ray intersects with the specified box.
   ///
   /// The parameter `aabb` is assumed to be an axis-aligned box defined in some local space (e.g.,
