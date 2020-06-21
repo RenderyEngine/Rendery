@@ -85,24 +85,13 @@ public final class Viewport {
   ///
   /// - Returns: A ray or `nil` if the viewport has no point of view.
   public func ray(fromScreenPoint screenPoint: Vector2) -> Ray? {
-    guard let pov = pointOfView, let camera = pov.camera
+    // Compute the inverted view-projection matrix, that unprojects NDCs back to the scene space.
+    guard let ivp = viewProjectionMatrix?.inverted
       else { return nil }
 
     // Compute the screen point in NDCs.
     let clipPoint = screenPoint / region.dimensions + region.origin
     let devicePoint = Vector2(x: 2.0 * clipPoint.x - 1.0, y: 1.0 - 2.0 * clipPoint.y)
-
-    // Compute the view matrix.
-    let dest = camera.target?.sceneTranslation ?? .zero
-    let view = Matrix4.lookAt(from: pov.sceneTranslation, to: dest).inverted
-
-    // Compute the projection matrix.
-    let window = target
-    let scaledRegion = self.region.scaled(x: Double(window.width), y: Double(window.height))
-    let projection = camera.projection(onto: scaledRegion)
-
-    // Compute the inverted view-projection matrix, that unprojects NDCs back to the scene space.
-    let ivp = (projection * view).inverted
 
     // The usual technique is to unproject the near point at 0 on the z-axis. However, its position
     // on near plane is required to compute the ray's origin with an orthographic camera, since it
@@ -113,6 +102,19 @@ public final class Viewport {
     let np = unproject(ndc: Vector3(x: devicePoint.x, y: devicePoint.y, z: -1.0), with: ivp)
     let fp = unproject(ndc: Vector3(x: devicePoint.x, y: devicePoint.y, z: 0.99), with: ivp)
     return Ray(origin: np, direction: (fp - np).normalized)
+  }
+
+  /// The viewport's view-projection matrix.
+  public var viewProjectionMatrix: Matrix4? {
+    guard let pov = pointOfView, let camera = pov.camera
+      else { return nil }
+
+    // FIXME: Cache the projection matrix.
+    let scaledRegion = region.scaled(x: Double(target.width), y: Double(target.height))
+    let projection = camera.projection(onto: scaledRegion)
+
+    let view = pov.sceneTransform.inverted
+    return projection * view
   }
 
   /// Unprojects the specified normalized device coordinates into the scene space.
