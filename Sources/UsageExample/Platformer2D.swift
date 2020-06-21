@@ -15,54 +15,60 @@ final class PlatformerScene: Scene, FrameListener {
     let groundModel = Model.sprite(fromImage: groundImage)
 
     let tileImage = provider.fetch(assetOfType: Image.self, named: "platformPack_tile013")!
-    let tileModel = Model.sprite(fromImage: tileImage)
+    var tileModel = Model.sprite(fromImage: tileImage)
+    tileModel.pivotPoint.y = 1.0
 
     // Prepare the scene tree.
     backgroundColor = "#7ec7ff"
 
-    playerNode = root3D.createChild(suchThat: { (playerNode: Node3D) in
-      playerNode.name = "player"
+    // Create a parent node for to downscale all tiles.
+    root3D.createChild(suchThat: { parent in
+      parent.scale /= 100.0
 
-      playerNode.createChild(suchThat: { (clouds: Node3D) in
+      // Create clouds in the background.
+      parent.createChild(suchThat: { (clouds: Node3D) in
         clouds.tags.insert("parallax")
         clouds.model = cloudsModel
         clouds.model!.materials[0].multiply = .color("#cae8ff")
-        clouds.translation = Vector3(x: 0.0, y: 50.0, z: -20.0)
-        clouds.scale *= 1.1
+        clouds.translation.z = -10.0
+        clouds.scale *= 1.2
       })
-
-      playerNode.createChild(suchThat: { (clouds: Node3D) in
+      parent.createChild(suchThat: { (clouds: Node3D) in
         clouds.tags.insert("parallax")
         clouds.model = cloudsModel
-        clouds.translation.z = -10.0
-        clouds.scale *= 0.9
-        clouds.scale.x = -1 // .axisAngle = (axis: .unitY, angle: .deg(180.0))
+        clouds.translation.z = -5.0
+        clouds.scale *= 0.8
+        clouds.scale.x = -clouds.scale.x
       })
 
-      playerNode.createChild(suchThat: { (ground: Node3D) in
+      // Create some distant hills in the background.
+      parent.createChild(suchThat: { (ground: Node3D) in
         ground.tags.insert("parallax")
         ground.model = groundModel
         ground.model!.materials[0].multiply = .color("#a9eaa9")
-        ground.translation = Vector3(x: 0.0, y: -200.0, z: -5.0)
+        ground.translation.y = -200.0
+        ground.translation.z = -2.5
       })
 
-      playerNode.createChild(suchThat: { (character: Node3D) in
+      // Create the character.
+      characterNode = parent.createChild(suchThat: { (character: Node3D) in
         character.model = playerModel
         character.model!.pivotPoint.y = 0.0
         character.translation.y = -100.0
       })
 
-      playerNode.createChild(suchThat: { (cameraNode: Node3D) in
-        cameraNode.translation.z = 750.0
-        cameraNode.camera = Camera(type: .perspective, lookingAt: playerNode)
+      // Create a sequence of tiles that represent the floor.
+      parent.createChildren(count: 10, suchThat: { (node: Node3D, offset: Int) in
+        node.model = tileModel
+        node.translation.x = (Double(offset) - 4.5) * Double(tileImage.width)
+        node.translation.y = -100.0
+        node.translation.z = 1.0
       })
     })
 
-    root3D.createChildren(count: 10, suchThat: { (platformNode: Node3D, offset: Int) in
-      platformNode.model = tileModel
-      platformNode.model!.pivotPoint.y = 1.0
-      platformNode.translation.x = (Double(offset) - 4.5) * Double(tileImage.width)
-      platformNode.translation.y = -100.0
+    cameraNode = root3D.createChild(suchThat: { (cameraNode: Node3D) in
+      cameraNode.translation.z = 5.0
+      cameraNode.camera = Camera(type: .perspective)
     })
 
     // Subscribe the scene as a frame listener to handle user inputs.
@@ -74,26 +80,34 @@ final class PlatformerScene: Scene, FrameListener {
     root3D.children.forEach({ child in child.removeFromParent() })
   }
 
-  /// The player's node.
-  weak var playerNode: Node3D?
+  /// The character's node.
+  weak var characterNode: Node3D?
+
+  /// The camera's node.
+  weak var cameraNode: Node3D?
 
   /// The player's speed.
   let speed = 0.2
 
   func frameWillRender(currentTime: Milliseconds, delta: Milliseconds) {
-    guard let playerNode = self.playerNode
+    guard let character = characterNode, let camera = cameraNode
       else { return }
 
+    // Move the character.
     if AppContext.shared.inputs.isPressed(key: 68) {
-      playerNode.translation.x += Double(delta) * speed
+      character.translation.x += Double(delta) * speed
     } else if AppContext.shared.inputs.isPressed(key: 65) {
-      playerNode.translation.x -= Double(delta) * speed
+      character.translation.x -= Double(delta) * speed
     }
 
-    for node in playerNode.descendants(.tagged(by: "parallax")) {
+    // Track the character's position.
+    camera.translation.x = character.sceneTranslation.x
+
+    // Simulate parallax.
+    for node in root3D.descendants(.tagged(by: "parallax")) {
       // The farther the node, the smaller its translation should be.
-      let factor = 1.0 / abs(node.translation.z)
-      node.translation.x = playerNode.translation.x * factor
+      let factor = 1.0 / -node.translation.z
+      node.translation.x = character.translation.x * factor
     }
   }
 
