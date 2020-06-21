@@ -70,5 +70,26 @@ open class Scene {
   open func willMove(from viewport: Viewport, successor: Scene?) {
   }
 
+  // MARK: Node constraints
+
+  /// A cache that stores the generation number of the rendering loop at which a node's constraints
+  /// have been last updated.
+  private final var constraintCache: [Node3D: UInt64] = [:]
+
+  /// Applies the transformation constraints on `node`.
+  internal final func updateConstraints(on node: Node3D, generation: UInt64) {
+    guard constraintCache[node, default: 0] < generation
+      else { return }
+
+    for constraint in node.constraints {
+      for dependency in constraint.dependencies {
+        updateConstraints(on: dependency, generation: generation)
+      }
+      constraint.apply(on: node)
+    }
+
+    constraintCache[node] = generation
+  }
+
 }
 

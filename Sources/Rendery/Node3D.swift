@@ -189,6 +189,19 @@ public final class Node3D: Node {
     shouldUpdateSceneProperties = false
   }
 
+  /// The node's transform constraints.
+  ///
+  /// You may add a transform constraint to automatically control the transform properties of a
+  /// node so that they satisfy a set of relationships. You may for instance constrain a node so
+  /// that it remains oriented to another node, regardless of its parent's transform.
+  ///
+  /// - Note: Transform constraints are applied during the rendering loop, __after__ the frame
+  ///   listeners have been notified, and not when they are set, nor when you manually assign any
+  ///   transform properties. Hence, if you read transform properties of a node under constraint
+  ///   to update your scene behavior from a frame listener, keep in mind that their values will
+  ///   correspond to the results from the last frame.
+  public var constraints: [TransformConstraint] = []
+
   // MARK: Visual behavior
 
   /// The camera attached to this node.
@@ -217,6 +230,18 @@ public final class Node3D: Node {
     for child in children {
       child.render(vpMatrix: vpMatrix, ambient: ambient, lightNodes: lightNodes)
     }
+  }
+
+}
+
+extension Node3D: Hashable {
+
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(ObjectIdentifier(self))
+  }
+
+  public static func == (lhs: Node3D, rhs: Node3D) -> Bool {
+    return lhs === rhs
   }
 
 }
