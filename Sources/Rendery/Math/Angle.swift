@@ -1,3 +1,5 @@
+import Numerics
+
 /// A structure that represents an angle.
 ///
 /// This structure is intended to be used as a wrapper for angle values, rather than expressing it
@@ -17,6 +19,15 @@ public struct Angle {
   /// - Parameter degrees: The angle's value, in degrees.
   public init(degrees: Double) {
     self.radians = degrees * Double.pi / 180
+  }
+
+  /// Initializes an angle with a pair of 2-dimensional vectors.
+  ///
+  /// - Parameters:
+  ///   - v: A vector.
+  ///   - u: The vector between which the angle should be computed
+  public init(from v: Vector2, to u: Vector2) {
+    self.init(radians: Double.acos(v.dot(u) / (v.magnitude * u.magnitude)))
   }
 
   /// The angle's value, in radians.
@@ -91,6 +102,13 @@ extension Angle: AdditiveArithmetic {
 
   public static func -= (lhs: inout Angle, rhs: Angle) {
     lhs.radians -= rhs.radians
+  }
+
+  /// Calculates the additive inverse of an angle.
+  ///
+  /// - Parameter operand: The angle to negate.
+  public static prefix func - (operand: Angle) -> Angle {
+    return Angle(radians: -operand.radians)
   }
 
   /// Returns the multiplication of an angle by a scalar.
