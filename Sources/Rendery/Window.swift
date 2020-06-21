@@ -134,8 +134,12 @@ public final class Window {
 
   /// Renders this window.
   ///
-  /// This method is called by the application context at each iteration of the rendering cycle.
-  internal func render() {
+  /// This method executes the last step of the rendering cycle by rendering the viewports. It is
+  /// called by the application context after the frame listeners have been notified.
+  ///
+  /// - Parameter generation: The generation number of the rendering loop. This number serves to
+  ///   invalidate some internal caches.
+  internal func render(generation: UInt64) {
     // Set the window as the current OpenGL context.
     glfwMakeContextCurrent(handle)
 
@@ -143,11 +147,11 @@ public final class Window {
     glClearColor(backgroundColor)
     glClear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
 
-    // Render each viewport.
+    // Render the viewports.
     for viewport in viewports {
       // Draw the scene (if any) in each defined viewport.
       if let scene = viewport.scene {
-        render(scene: scene, on: viewport)
+        render(scene: scene, on: viewport, generation: generation)
       }
     }
 
@@ -159,7 +163,7 @@ public final class Window {
   }
 
   /// Renders the specified scene on the specified viewport.
-  private func render(scene: Scene, on viewport: Viewport) {
+  private func render(scene: Scene, on viewport: Viewport, generation: UInt64) {
     // Compute the actual region of the rendering area designated by the viewport.
     let region = viewport.region.scaled(x: Double(width), y: Double(height))
     glViewport(region: region)
@@ -172,23 +176,21 @@ public final class Window {
     glClearColor(scene.backgroundColor)
     glClear(GL.COLOR_BUFFER_BIT)
 
-    // Render the scene's 3D content.
-    if let pointOfView = viewport.pointOfView, let camera = pointOfView.camera {
-      // FIXME: Cache the projection matrix.
-      let projection = camera.projection(onto: region)
+    if let pov = viewport.pointOfView  {
+      // Apply the transform constraints on the point of view so that all camera properties are
+      // up to date before computing the view-projection matrix.
+      scene.updateConstraints(on: pov, generation: generation)
 
-      // Compute the view matrix.
-      let target = camera.target?.sceneTranslation ?? .zero
-      let view = Matrix4.lookAt(from: pointOfView.sceneTranslation, to: target).inverted
+      if let vpMatrix = viewport.viewProjectionMatrix {
+        // Collect the scene's light sources to compute lighting.
+        let lightNodes = scene.root3D.descendants(.satisfying({ $0.light != nil }))
 
-      // Collect the scene's light sources to compute lighting.
-      let lightNodes = scene.root3D.descendants(.satisfying({ $0.light != nil }))
-
-      // Render the scene.
-      scene.root3D.render(
-        vpMatrix: projection * view,
-        ambient: scene.ambientLight,
-        lightNodes: lightNodes)
+        // Render the scene tree.
+        scene.root3D.render(
+          vpMatrix: vpMatrix,
+          ambient: scene.ambientLight,
+          lightNodes: lightNodes)
+      }
     }
 
     glDisable(GL.SCISSOR_TEST)

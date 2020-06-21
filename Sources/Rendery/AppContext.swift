@@ -259,7 +259,7 @@ public final class AppContext {
         // rather than rendering them in sequence. However, this also means that any user code that
         // gets executed in response to the rendering should by thread-aware.
 
-        window.render()
+        window.render(generation: renderCycleStart)
         windowIndex = windowIndex + 1
       }
 
