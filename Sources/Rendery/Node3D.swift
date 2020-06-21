@@ -78,6 +78,27 @@ public final class Node3D: Node {
     parent = nil
   }
 
+  /// Returns a sequence that iterators over all of the node's descendants.
+  public var descendants: DescendantIterator { DescendantIterator(root: self) }
+
+  public struct DescendantIterator: IteratorProtocol, Sequence {
+
+    public init(root: Node3D) {
+      self.stack = root.children.reversed()
+    }
+
+    private var stack: [Node3D]
+
+    public mutating func next() -> Node3D? {
+      guard let node = stack.popLast()
+        else { return nil }
+
+      stack.append(contentsOf: node.children.reversed())
+      return node
+    }
+
+  }
+
   // MARK: Transform
 
   /// The node's translation, relative to its parent coordinate space.
