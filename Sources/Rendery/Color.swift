@@ -123,6 +123,14 @@ public struct Color {
   /// The transparent color.
   public static var transparent = Color(red: 0, green: 0, blue: 0, alpha: 0)
 
+  /// A random color.
+  public static var random: Color {
+    return Color(
+      red  : UInt8.random(in: 0 ... 255),
+      green: UInt8.random(in: 0 ... 255),
+      blue : UInt8.random(in: 0 ... 255))
+  }
+
 }
 
 extension Color: ExpressibleByStringLiteral {
