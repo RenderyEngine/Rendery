@@ -229,7 +229,13 @@ public final class Node3D: Node {
   public var camera: Camera?
 
   /// The model attached to this node.
-  public var model: Model?
+  ///
+  /// Setting this property automatically assignes the model's bounding box to `collisionShape`.
+  public var model: Model? {
+    didSet {
+      collisionShape = model?.aabb
+    }
+  }
 
   /// The light source attached to this node.
   public var light: Light?
@@ -252,6 +258,19 @@ public final class Node3D: Node {
       child.render(vpMatrix: vpMatrix, ambient: ambient, lightNodes: lightNodes)
     }
   }
+
+  // MARK: Collision behavior
+
+  /// The node's collision shape.
+  ///
+  /// The collision shape is the volume that is used for collision testing. Nodes to which a model
+  /// is attached are given a bounding box of the model as their default collision shape. You may
+  /// substitute it for a different collision shape, typically to provide a more accurate
+  /// approximation of the model's geometry.
+  ///
+  /// You may also assign a collision shape to a node without any model, so that it also respond to
+  /// collision testing. This can be useful to implement invisible sensors.
+  public var collisionShape: CollisionShape?
 
 }
 

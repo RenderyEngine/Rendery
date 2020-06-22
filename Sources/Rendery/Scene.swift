@@ -27,18 +27,19 @@ open class Scene {
   /// The root of the scene's 3D scene tree.
   open var root3D = Node3D()
 
-  /// Casts a ray into the scene to find the nodes whose volume body intersects with it.
-  open func cast(ray: Ray) -> [(node: Node3D, collisionPoint: Vector3)] {
-    var collisions: [(node: Node3D, collisionPoint: Vector3)] = []
+  /// Casts a ray into the scene to find the nodes whose collision shape intersects with it.
+  open func cast(ray: Ray) -> [(node: Node3D, collisionDistance: Double)] {
+    var collisions: [(node: Node3D, collisionDistance: Double)] = []
 
-    for node in root3D.descendants.filter({ $0.model != nil }) {
-      if let point = ray.collisionPoint(
-        with: node.model!.aabb,
+    for node in root3D.descendants.filter({ $0.collisionShape != nil }) {
+      if let distance = node.collisionShape!.collisionDistance(
+        with: ray,
         translation: node.sceneTranslation,
         rotation: node.sceneRotation,
-        scale: node.sceneScale)
+        scale: node.sceneScale,
+        isCullingEnabled: false)
       {
-        collisions.append((node: node, collisionPoint: point))
+        collisions.append((node: node, collisionDistance: distance))
       }
     }
 
