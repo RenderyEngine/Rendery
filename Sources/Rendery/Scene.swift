@@ -28,22 +28,8 @@ open class Scene {
   open var root3D = Node3D()
 
   /// Casts a ray into the scene to find the nodes whose collision shape intersects with it.
-  open func cast(ray: Ray) -> [(node: Node3D, collisionDistance: Double)] {
-    var collisions: [(node: Node3D, collisionDistance: Double)] = []
-
-    for node in root3D.descendants.filter({ $0.collisionShape != nil }) {
-      if let distance = node.collisionShape!.collisionDistance(
-        with: ray,
-        translation: node.sceneTranslation,
-        rotation: node.sceneRotation,
-        scale: node.sceneScale,
-        isCullingEnabled: false)
-      {
-        collisions.append((node: node, collisionDistance: distance))
-      }
-    }
-
-    return collisions
+  open func cast(ray: Ray) -> RaycastQuery {
+    return RaycastQuery(ray: ray, nodes: Node3D.NodeIterator(root: root3D))
   }
 
   /// A callback method that is called when the scene is about to be presented by a viewport.

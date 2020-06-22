@@ -78,13 +78,16 @@ public final class Node3D: Node {
     parent = nil
   }
 
-  /// Returns a sequence that iterators over all of the node's descendants.
-  public var descendants: DescendantIterator { DescendantIterator(root: self) }
+  /// Returns a sequence that iterates over all of the node's descendants.
+  public var descendants: NodeIterator { NodeIterator(root: self, includeRoot: false) }
 
-  public struct DescendantIterator: IteratorProtocol, Sequence {
+  /// A sequence that iterates over the nodes of a scene tree.
+  public struct NodeIterator: IteratorProtocol, Sequence {
 
-    public init(root: Node3D) {
-      self.stack = root.children.reversed()
+    public init(root: Node3D, includeRoot: Bool = true) {
+      self.stack = includeRoot
+        ? [root]
+        : root.children.reversed()
     }
 
     private var stack: [Node3D]
