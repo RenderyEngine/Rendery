@@ -2,7 +2,7 @@
 ///
 /// This collision shape is built directly from the triangles defining a mesh's geometry. This
 /// allows for very detailed but equally computationally expensive collision tests.
-public struct MeshCollisionShape: CollisionShape {
+public struct MeshShape: CollisionShape {
 
   /// Initializes a mesh collision shape from a set of triangles.
   ///
