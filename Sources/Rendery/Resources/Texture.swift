@@ -77,7 +77,6 @@ public final class Texture: GraphicsResource {
 
   internal final func load() {
     assert(state != .gone)
-
     guard state != .loaded
       else { return }
 

@@ -173,7 +173,6 @@ public final class GLSLProgram: GraphicsResource {
 
   internal func load() throws {
     assert(state != .gone)
-
     guard state != .loaded
       else { return }
 

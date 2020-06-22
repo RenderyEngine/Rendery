@@ -45,6 +45,28 @@ public final class Mesh: GraphicsResource {
   /// The mesh's axis-aligned bounding box.
   public let aabb: AxisAlignedBox
 
+  /// Bakes the given transformation matrix into the mesh data.
+  ///
+  /// Usually, the translations, rotations and scaling of a model is controlled by the node to
+  /// which it is attached, while the mesh data (e.g., vertex positions, normals, etc.) are left
+  /// unchanged so that they can be stored into GPU memory. However, there might be situations
+  /// where applying a transform directly on a mesh is preferrable. Common use cases include
+  /// correcting the rotation/scaling of a mesh imported from a third-party modeling software, or
+  /// mirroring a mesh along one axis.
+  ///
+  /// This method must be applied while __before__ the mesh is loaded into GPU memory, while its
+  /// data source is still available (i.e., in the `unloaded` state). Attempting otherwise will
+  /// result in a `StateError`.
+  ///
+  /// - Parameter transform: A matrix representing the transformations to bake.
+  ///
+  /// - Throws: `StateError` if the resource is not in the `unloaded` state.
+  public func bake(transform: Matrix4) throws {
+    guard state == .unloaded
+      else { throw StateError(reason: "Baking transformations requires the mesh to be unloaded.") }
+    source = MeshData(baking: transform, into: source!)
+  }
+
   // MARK: Internal API
 
   /// The ID of OpenGL's vertex array.
@@ -86,7 +108,6 @@ public final class Mesh: GraphicsResource {
 
   internal final func load() {
     assert(state != .gone)
-
     guard state != .loaded
       else { return }
 
