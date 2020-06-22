@@ -59,6 +59,7 @@ public final class GLTFFile: InitializableFromFile {
 
   private static func extractMaterial(from gltfMaterial: cgltf_material) -> Material {
     var material = Material(program: .default)
+    material.name = String(cString: gltfMaterial.name, encoding: .utf8)
 
     if gltfMaterial.has_pbr_metallic_roughness != 0 {
       let pbr = gltfMaterial.pbr_metallic_roughness
@@ -262,14 +263,12 @@ public final class GLTFFile: InitializableFromFile {
     }
 
     // Create the mesh data.
-    let source =  data.withUnsafeBufferPointer({ buffer in
-      MeshData(
-        vertexData: Data(buffer: buffer),
-        vertexCount: vertexCount,
-        vertexIndices: indices,
-        attributeDescriptors: descriptors,
-        primitiveType: .triangles) // FIXME: This depends on the type of the glTF primitive!
-    })
+    let source = MeshData(
+      vertexData: data,
+      vertexCount: vertexCount,
+      vertexIndices: indices,
+      attributeDescriptors: descriptors,
+      primitiveType: .triangles) // FIXME: This depends on the type of the glTF primitive!
 
     return Mesh(source: source)
   }

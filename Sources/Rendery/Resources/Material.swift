@@ -10,6 +10,12 @@ public struct Material {
     self.shader = program
   }
 
+  /// The material's name.
+  ///
+  /// This property can be used to provide a descriptive name for the material, to make managing
+  /// the contents of your scenes easier.
+  public var name: String?
+
   // The material's shader program.
   public var shader: GLSLProgram
 
