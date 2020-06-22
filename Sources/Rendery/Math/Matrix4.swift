@@ -184,10 +184,7 @@ public struct Matrix4: Hashable {
   /// Decomposes the matrix into a scale factor, a rotation and a translation.
   public func decompose() -> (translation: Vector3, rotation: Quaternion, scale: Vector3) {
 
-    // This decomposition method relies on the fact that the matrix may only encode scale, rotation
-    // and/or orientation, and that each scale component is positive. It won't produce correct
-    // results otherwise.
-    // A more accurate implementation can be found in Ogre3D's source, which relies on a QR
+    // A likely more accurate implementation can be found in Ogre3D's source, which relies on a QR
     // decomposition to extract rotation, scaling and shear. Another solution suggested on
     // stackexchange uses polar decomposition: https://math.stackexchange.com/questions/237369
 
@@ -195,10 +192,15 @@ public struct Matrix4: Hashable {
     let translation = Vector3(x: self[0,3], y: self[1,3], z: self[2,3])
 
     // Extract the scale.
-    let sx = Vector3(x: self[0,0], y: self[1,0], z: self[2,0]).magnitude
+    var sx = Vector3(x: self[0,0], y: self[1,0], z: self[2,0]).magnitude
     let sy = Vector3(x: self[0,1], y: self[1,1], z: self[2,1]).magnitude
     let sz = Vector3(x: self[0,2], y: self[1,2], z: self[2,2]).magnitude
     let scale = Vector3(x: sx, y: sy, z: sz)
+
+    // Invert one scale if the matrix's determinant is negative.
+    if determinant < 0.0 {
+      sx = -sx
+    }
 
     // Extract the rotation.
     let rotation = Quaternion(matrix: Matrix4(columnMajor: [
