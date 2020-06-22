@@ -5,7 +5,7 @@ public struct Camera {
 
   /// Initializes a camera.
   public init(
-    type projectionType: ProjectionType,
+    type projectionType: ProjectionType = .perspective,
     aspectRatio: AspectRatio = .auto
   ) {
     self.projectionType = projectionType
