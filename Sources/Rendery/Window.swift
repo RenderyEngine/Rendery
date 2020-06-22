@@ -80,6 +80,21 @@ public final class Window {
     }
   }
 
+  /// The position of the cursor, in normalized window coordinates.
+  public var cursorPosition: Vector2 {
+    get {
+      var screenWidth: Int32 = 0
+      var screenHeight: Int32 = 0
+      glfwGetWindowSize(handle, &screenWidth, &screenHeight);
+      let screenSize = Vector2(x: Double(screenWidth), y: Double(screenHeight))
+
+      // Get the cursor position.
+      var cursorPosition: Vector2 = .zero
+      glfwGetCursorPos(handle, &cursorPosition.x, &cursorPosition.y)
+      return cursorPosition / screenSize
+    }
+  }
+
   // MARK: Initialization
 
   /// Initializes a window.
@@ -214,7 +229,7 @@ public final class Window {
 
 }
 
-// MARK:- Input event handling
+// MARK:- Responder chain
 
 extension Window: InputResponder {
 
@@ -353,26 +368,18 @@ private func windowMouseButtonCallback(
   guard let window = windowFrom(handle: handle)
     else { return }
 
-  // Retrieve the sceeen size.
-  var screenWidth: Int32 = 0
-  var screenHeight: Int32 = 0
-  glfwGetWindowSize(handle, &screenWidth, &screenHeight);
-  let screenSize = Vector2(x: Double(screenWidth), y: Double(screenHeight))
-
   // Get the cursor position.
-  var cursorPosition: Vector2 = .zero
-  glfwGetCursorPos(handle, &cursorPosition.x, &cursorPosition.y)
+  let cursorPosition = window.cursorPosition
 
   // Determine the viewport in which the event should be dispatched.
   let responder: InputResponder = window.viewports.first(where: { (viewport) -> Bool in
-    let region = viewport.region.scaled(by: screenSize)
-    return region.contains(cursorPosition)
+    viewport.region.contains(cursorPosition)
   }) ?? window
 
   // Dispatch the event to the first responder for mouse events.
   let event = MouseEvent(
     button: Int(button),
-    cursorPosition: cursorPosition / screenSize,
+    cursorPosition: cursorPosition,
     modifiers: KeyModifierSet(fromGLFW: modifiers),
     firstResponder: responder,
     timestamp: DispatchTime.now().uptimeNanoseconds / 1_000_000)
