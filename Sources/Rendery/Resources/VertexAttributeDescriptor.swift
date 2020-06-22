@@ -42,9 +42,6 @@ public struct VertexAttributeDescriptor {
     /// Vertex color data.
     case color
 
-    /// Surface tangent vector data.
-    case tangent
-
     /// Custom user data.
     case custom(name: String)
 
