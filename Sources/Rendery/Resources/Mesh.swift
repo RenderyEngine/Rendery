@@ -5,58 +5,13 @@ public final class Mesh: GraphicsResource {
 
   /// Initializes a mesh from a mesh source.
   ///
-  /// - Parameters:
-  ///   - source: The mesh's source.
+  /// - Parameter source: The mesh's source.
   public init<Source>(source: Source) where Source: MeshSource {
     // Copy essential source data (i.e., those required by the drawing method).
     self.vertexCount = source.vertexCount
     self.vertexIndices = source.vertexIndices
     self.primitiveType = source.primitiveType
-
-    // Compute the mesh's bounding box from the vertex data.
-    if let attribute = source.attributeDescriptors.first(where: { $0.semantic == .position }) {
-      assert(attribute.componentType == Float.self)
-
-      var minPoint: Vector3 = Vector3(x: Double(Int.max), y: Double(Int.max), z: Double(Int.max))
-      var maxPoint: Vector3 = Vector3(x: Double(Int.min), y: Double(Int.min), z: Double(Int.min))
-
-      source.vertexData.withUnsafeBytes({ buffer in
-        for i in stride(
-          from: attribute.offset,
-          to: attribute.offset + attribute.stride * source.vertexCount,
-          by: attribute.stride)
-        {
-          let x = buffer.baseAddress!.advanced(by: i).assumingMemoryBound(to: Float.self)
-          if Double(x.pointee) < minPoint.x {
-            minPoint.x = Double(x.pointee)
-          }
-          if Double(x.pointee) > maxPoint.x {
-            maxPoint.x = Double(x.pointee)
-          }
-
-          let y = x.advanced(by: 1)
-          if Double(y.pointee) < minPoint.y {
-            minPoint.y = Double(y.pointee)
-          }
-          if Double(y.pointee) > maxPoint.y {
-            maxPoint.y = Double(y.pointee)
-          }
-
-          let z = y.advanced(by: 1)
-          if Double(z.pointee) < minPoint.z {
-            minPoint.z = Double(z.pointee)
-          }
-          if Double(z.pointee) > maxPoint.z {
-            maxPoint.z = Double(z.pointee)
-          }
-        }
-      })
-
-      self.aabb = AxisAlignedBox(origin: minPoint, dimensions: maxPoint - minPoint)
-    } else {
-      self.aabb = AxisAlignedBox(origin: .zero, dimensions: .zero)
-    }
-
+    self.aabb = source.aabb
     self.source = source
     self.state = .unloaded
   }

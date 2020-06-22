@@ -38,3 +38,51 @@ public protocol MeshSource {
 
 }
 
+extension MeshSource {
+
+  public var aabb: AxisAlignedBox {
+    if let attribute = attributeDescriptors.first(where: { $0.semantic == .position }) {
+      assert(attribute.componentType == Float.self)
+
+      var minPoint: Vector3 = Vector3(x: Double(Int.max), y: Double(Int.max), z: Double(Int.max))
+      var maxPoint: Vector3 = Vector3(x: Double(Int.min), y: Double(Int.min), z: Double(Int.min))
+
+      vertexData.withUnsafeBytes({ buffer in
+        for i in stride(
+          from: attribute.offset,
+          to: attribute.offset + attribute.stride * vertexCount,
+          by: attribute.stride)
+        {
+          let x = buffer.baseAddress!.advanced(by: i).assumingMemoryBound(to: Float.self)
+          if Double(x.pointee) < minPoint.x {
+            minPoint.x = Double(x.pointee)
+          }
+          if Double(x.pointee) > maxPoint.x {
+            maxPoint.x = Double(x.pointee)
+          }
+
+          let y = x.advanced(by: 1)
+          if Double(y.pointee) < minPoint.y {
+            minPoint.y = Double(y.pointee)
+          }
+          if Double(y.pointee) > maxPoint.y {
+            maxPoint.y = Double(y.pointee)
+          }
+
+          let z = y.advanced(by: 1)
+          if Double(z.pointee) < minPoint.z {
+            minPoint.z = Double(z.pointee)
+          }
+          if Double(z.pointee) > maxPoint.z {
+            maxPoint.z = Double(z.pointee)
+          }
+        }
+      })
+
+      return AxisAlignedBox(origin: minPoint, dimensions: maxPoint - minPoint)
+    } else {
+      return AxisAlignedBox(origin: .zero, dimensions: .zero)
+    }
+  }
+
+}
