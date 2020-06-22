@@ -18,26 +18,19 @@ public struct MeshShape: CollisionShape {
   public init?(source: MeshSource) {
     guard source.primitiveType == .triangles
       else { return nil }
-    guard let descriptor = source.attributeDescriptors.first(where: { $0.semantic == .position })
+    guard let attribute = source.attributeDescriptors.first(where: { $0.semantic == .position })
       else { return nil }
+    assert(attribute.componentType == Float.self)
 
     var positions: [Vector3] = []
 
-    for i in stride(from: descriptor.offset, to: source.vertexData.count, by: descriptor.stride) {
-      let position = source.vertexData.withUnsafeBytes({ (buffer) -> Vector3? in
-        switch ObjectIdentifier(descriptor.componentType) {
-        case ObjectIdentifier(Float.self):
-          return extractVector(from:  buffer.baseAddress!.advanced(by: i), typedAs: Float.self)
-        case ObjectIdentifier(Double.self):
-          return extractVector(from:  buffer.baseAddress!.advanced(by: i), typedAs: Double.self)
-        default:
-          return nil
-        }
+    let data = source.vertexData
+    for i in stride(from: attribute.offset, to: source.vertexData.count, by: attribute.stride) {
+      let position = data.advanced(by: i).withUnsafeBytes({ (buffer) -> Vector3 in
+        let base = buffer.baseAddress!.assumingMemoryBound(to: Float.self)
+        return Vector3(x: Double(base[0]), y: Double(base[1]), z: Double(base[2]))
       })
-
-      guard position != nil
-        else { return nil }
-      positions.append(position!)
+      positions.append(position)
     }
 
     self.triangles = []
@@ -87,14 +80,4 @@ public struct MeshShape: CollisionShape {
     return closest
   }
 
-}
-
-private func extractVector<T>(from pointer: UnsafeRawPointer, typedAs: T.Type) -> Vector3
-  where T: BinaryFloatingPoint
-{
-  let base = pointer.assumingMemoryBound(to: T.self)
-  return Vector3(
-    x: Double(base.pointee),
-    y: Double(base.advanced(by: 1).pointee),
-    z: Double(base.advanced(by: 2).pointee))
 }
