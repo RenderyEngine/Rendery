@@ -43,7 +43,7 @@ public final class Mesh: GraphicsResource {
   }
 
   /// The mesh's axis-aligned bounding box.
-  public let aabb: AxisAlignedBox
+  public private(set) var aabb: AxisAlignedBox
 
   /// Bakes the given transformation matrix into the mesh data.
   ///
@@ -64,7 +64,9 @@ public final class Mesh: GraphicsResource {
   public func bake(transform: Matrix4) throws {
     guard state == .unloaded
       else { throw StateError(reason: "Baking transformations requires the mesh to be unloaded.") }
+
     source = MeshData(baking: transform, into: source!)
+    aabb = source!.aabb
   }
 
   // MARK: Internal API
