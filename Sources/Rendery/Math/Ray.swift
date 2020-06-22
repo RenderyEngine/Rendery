@@ -17,152 +17,34 @@ public struct Ray {
   /// The ray's direction, as a unit vector.
   public var direction: Vector3
 
-  /// Returns whether this ray intersects with the specified triangle.
+  /// Returns the distance from the ray's origin to the point at which it intersects with the
+  /// thes specied collision shape, or `nil` if there is no intersection.
+  ///
+  /// The method accepts a set of transform properties to project the shape into the same space as
+  /// the ray. The reason is that collision shapes are defined in their own local space, whereas
+  /// collision detection is typically achieved in the scene coordinate space.
   ///
   /// - Parameters:
-  ///   - triangle: A triangle with which collision will be tested.
-  ///   - isCullingEnabled: A flag that indicates whether back-face culling is enabled.
-  public func collisionPoint(with triangle: Triangle, isCullingEnabled: Bool = false) -> Vector3? {
-
-    // Möller-Trumbore algorithm from "Fast, Minimum Storage Ray/Triangle Intersection", 1997.
-
-    let ab = triangle.b - triangle.a
-    let ac = triangle.c - triangle.a
-    let pvec = direction.cross(ac)
-    let det = ab.dot(pvec)
-
-    if isCullingEnabled && det < Double.ulpOfOne {
-      // If the determinant is negative, the triangle is back-facing.
-      return nil
-    } else if abs(det) < Double.ulpOfOne {
-      // If the determinant is close to 0, the ray is parallel to the triangle.
-      return nil
-    }
-
-    let idet = 1.0 / det
-    let tvec = origin - triangle.a
-    let u = tvec.dot(pvec) * idet
-    guard (u >= 0.0) && (u <= 1.0)
-      else { return nil }
-
-    let qvec = tvec.cross(ab)
-    let v = direction.dot(qvec) * idet
-    guard (v >= 0.0) && (v <= 1.0)
-      else { return nil }
-
-    let t = ac.dot(qvec) * idet
-    return origin + direction * t
-  }
-
-  /// Returns whether this ray intersects with the specified box.
-  ///
-  /// The parameter `aabb` is assumed to be an axis-aligned box defined in some local space (e.g.,
-  /// the coordinate space of a mesh's vertices). If the ray is defined in another space, then you
-  /// should provide transform parameters to project the box's coordinates, effectively computing
-  /// a so-called "OBB".
-  ///
-  /// - Parameters:
-  ///   - aabb: A naxis-aligned box specifying the cuboid with which a collision will be tested.
-  ///   - translation: The translation to apply on `aabb`'s coordinates.
-  ///   - rotation: The rotation to apply on `aabb`'s coordinates.
-  ///   - scale: The rotation to apply on `aabb`'s coordinates.
-  ///
-  ///   - transform: A transformation matrix that is applied to `aabb` to obtain the corresponding
-  ///     (translated, scaled and) oriented bounding box (a.k.a., OBB).
-  ///
-  /// - Returns: The nearest point at which the ray intersects with the box, or `nil` if it does
-  ///   not intersect with it.
-  public func collisionPoint(
-    with aabb: AxisAlignedBox,
+  ///   - shape: The shape with which a collision will be tested.
+  ///   - translation: The translation required to project the shape into the ray's spacce.
+  ///   - rotation: The rotation required to project the shape into the ray's space.
+  ///   - scale: The scale required to project the shape into the ray's space.
+  ///   - isCullingEnabled: A flag that indicates whether face culling is enabled. On side-shapes,
+  ///     this parameter specifies whether face culling is enabled, in which case a collision will
+  ///     not be detected unless the ray hits the front of the shape.
+  public func collisionDistance<S>(
+    with shape: S,
     translation: Vector3 = .zero,
     rotation: Quaternion = .identity,
-    scale: Vector3 = .unitScale
-  ) -> Vector3? {
-    let delta = translation - origin
-    var tmin: Double
-    var tmax: Double
-
-    let rotationMatrix = Matrix4(rotation: rotation)
-    let scaledAABB = aabb.scaled(by: scale)
-
-    // Test intersection with the 2 planes perpendicular to the OBB's x-axis.
-    do {
-      let x = Vector3(x: rotationMatrix[0,0], y: rotationMatrix[1,0], z: rotationMatrix[2,0])
-      let ex = x.dot(delta)
-      let fx = direction.dot(x)
-      if abs(fx) < Double.defaultTolerance {
-        // The ray is almost parallel to the near/far planes.
-        if (-ex + scaledAABB.minX > 0.0) || (-ex + scaledAABB.maxX < 0.0) {
-          return nil
-        }
-      }
-
-      tmin = (ex + scaledAABB.minX) / fx
-      tmax = (ex + scaledAABB.maxX) / fx
-      if tmin > tmax {
-        swap(&tmin, &tmax)
-      }
-    }
-
-    // Test intersection with the 2 planes perpendicular to the OBB's y-axis.
-    do {
-      let y = Vector3(x: rotationMatrix[0,1], y: rotationMatrix[1,1], z: rotationMatrix[2,1])
-      let ey = y.dot(delta)
-      let fy = direction.dot(y)
-      if abs(fy) < Double.defaultTolerance {
-        // The ray is almost parallel to the near/far planes.
-        if (-ey + scaledAABB.minY > 0.0) || (-ey + scaledAABB.maxY < 0.0) {
-          return nil
-        }
-      } else {
-        var tymin = (ey + scaledAABB.minY) / fy
-        var tymax = (ey + scaledAABB.maxY) / fy
-        if tymin > tymax {
-          swap(&tymin, &tymax)
-        }
-
-        if tymin > tmin {
-          tmin = tymin
-        }
-        if tymax < tmax {
-          tmax = tymax
-        }
-        if tmin > tmax {
-          return nil
-        }
-      }
-    }
-
-    // Test intersection with the 2 planes perpendicular to the OBB's z-axis.
-    do {
-      let z = Vector3(x: rotationMatrix[0,2], y: rotationMatrix[1,2], z: rotationMatrix[2,2])
-      let ez = z.dot(delta)
-      let fz = direction.dot(z)
-      if abs(fz) < Double.defaultTolerance {
-        // The ray is almost parallel to the near/far planes.
-        if (-ez + scaledAABB.minZ > 0.0) || (-ez + scaledAABB.maxZ < 0.0) {
-          return nil
-        }
-      } else {
-        var tzmin = (ez + scaledAABB.minZ) / fz
-        var tzmax = (ez + scaledAABB.maxZ) / fz
-        if tzmin > tzmax {
-          swap(&tzmin, &tzmax)
-        }
-
-        if tzmin > tmin {
-          tmin = tzmin
-        }
-        if tzmax < tmax {
-          tmax = tzmax
-        }
-        if tmin > tmax {
-          return nil
-        }
-      }
-    }
-
-    return origin + direction * tmin
+    scale: Vector3 = .unitScale,
+    isCullingEnabled: Bool = false
+  ) -> Double? where S: CollisionShape {
+    return shape.collisionDistance(
+      with: self,
+      translation: translation,
+      rotation: rotation,
+      scale: scale,
+      isCullingEnabled: isCullingEnabled)
   }
 
 }
