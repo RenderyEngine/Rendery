@@ -16,6 +16,9 @@ public final class Mesh: GraphicsResource {
     self.state = .unloaded
   }
 
+  /// The data source for this mesh.
+  public var source: MeshSource?
+
   /// The number of vertices composing the mesh.
   public let vertexCount: Int
 
@@ -52,9 +55,6 @@ public final class Mesh: GraphicsResource {
 
   /// The ID of OpenGL's vertex buffer.
   private var vboID: GL.UInt = 0
-
-  /// The data source for this mesh.
-  private var source: MeshSource?
 
   /// Draws the model's meshes.
   ///
@@ -134,9 +134,6 @@ public final class Mesh: GraphicsResource {
       })
     }
 
-    // Dispose of the data source.
-    source = nil
-
     state = .loaded
     LogManager.main.log(
       "Mesh '\(address(of: self))' successfully loaded (\(vertexCount) vertices).",
@@ -157,7 +154,9 @@ public final class Mesh: GraphicsResource {
       eboID = 0
     }
 
-    state = .gone
+    state = source != nil
+      ? .unloaded
+      : .gone
   }
 
   deinit {
