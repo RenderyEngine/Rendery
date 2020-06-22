@@ -30,6 +30,7 @@ public final class GLTFFile: InitializableFromFile {
     var materialCache: [UnsafeMutablePointer<cgltf_material>?: Material] = [:]
 
     var model = Model(meshes: [], materials: [])
+    model.name = String(cString: gltfMesh.name, encoding: .utf8)
 
     // Extract the primitives (i.e., the "meshes" in Rendery's parlance).
     for i in 0 ..< gltfMesh.primitives_count {

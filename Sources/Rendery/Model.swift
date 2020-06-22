@@ -24,6 +24,12 @@ public struct Model {
     self.materials = materials
   }
 
+  /// The model's name.
+  ///
+  /// This property can be used to provide a descriptive name for the model, to make managing the
+  /// contents of your scenes easier.
+  public var name: String?
+
   /// The meshes that describe the model's geometry.
   public var meshes: [Mesh]
 
