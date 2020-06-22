@@ -17,6 +17,12 @@ public final class Node3D: Node {
   /// of nodes in a scene tree.
   public var tags: Set<String> = []
 
+  /// A container for custom data.
+  ///
+  /// This property can be used to store your own data in a node. For instance, you may store a set
+  /// of custom properties that your scene can uses when responding to a ray query.
+  public var userData: [String: Any]?
+
   // MARK: Scene tree
 
   /// The node's parent.
