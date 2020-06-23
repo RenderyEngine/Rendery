@@ -21,7 +21,9 @@ public struct Model {
   ///     default white material.
   public init(meshes: [Mesh], materials: [Material] = []) {
     self.meshes = meshes
-    self.materials = materials
+    self.materials = materials.isEmpty
+      ? [Material()]
+      : materials
   }
 
   /// The model's name.
