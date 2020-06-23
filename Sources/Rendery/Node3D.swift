@@ -281,6 +281,13 @@ public final class Node3D: Node {
   /// collision testing. This can be useful to implement invisible sensors.
   public var collisionShape: CollisionShape?
 
+  /// The node's collision mask.
+  ///
+  /// This property defines the categories of collision objects to which this node belongs. When
+  /// rendery performs collision testing, it first checks if the collider belongs to the same
+  /// category before searching for an intersection.
+  public var collisionMask: CollisionMask = .default
+
 }
 
 extension Node3D: Hashable {

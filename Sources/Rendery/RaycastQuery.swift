@@ -7,6 +7,9 @@ public struct RaycastQuery: IteratorProtocol, Sequence {
   /// The nodes with which ray collision should be tested.
   public private(set) var nodes: Node3D.NodeIterator
 
+  /// The categories of collision shapes with which the ray should interact.
+  public let collisionMask: CollisionMask
+
   /// Returns the elements of the sequence, sorted.
   public func sorted() -> [(node: Node3D, collisionDistance: Double)] {
     return sorted(by: { a, b in a.collisionDistance < b.collisionDistance })
@@ -14,6 +17,11 @@ public struct RaycastQuery: IteratorProtocol, Sequence {
 
   public mutating func next() -> (node: Node3D, collisionDistance: Double)? {
     while let node = nodes.next() {
+      // Check if the ray should interact with the node.
+      guard (node.collisionMask.rawValue & collisionMask.rawValue) != 0
+        else { continue }
+
+      // Check if the ray hits the node's collision shape.
       if let distance = node.collisionShape?.collisionDistance(
         with: ray,
         translation: node.sceneTranslation,

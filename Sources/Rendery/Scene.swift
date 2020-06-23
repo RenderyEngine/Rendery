@@ -28,8 +28,16 @@ open class Scene {
   open var root3D = Node3D()
 
   /// Casts a ray into the scene to find the nodes whose collision shape intersects with it.
-  open func cast(ray: Ray) -> RaycastQuery {
-    return RaycastQuery(ray: ray, nodes: Node3D.NodeIterator(root: root3D))
+  ///
+  /// - Parameters:
+  ///   - ray: A ray to cast.
+  ///   - collisionMask: A mask defining the categories of collision shapes with which the ray
+  ///     should interact.
+  open func cast(ray: Ray, collisionMask: CollisionMask = .all) -> RaycastQuery {
+    return RaycastQuery(
+      ray: ray,
+      nodes: Node3D.NodeIterator(root: root3D),
+      collisionMask: collisionMask)
   }
 
   /// A callback method that is called when the scene is about to be presented by a viewport.
