@@ -74,7 +74,7 @@ public final class AppContext {
     // glBlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA) // <- without premultiplied alpha
 
     // Enable depth testing.
-    // FIXME: It's bee suggested that depth testing should be removed when drawing 2D sprites with
+    // FIXME: It's been suggested that depth testing should be removed when drawing 2D sprites with
     // some transparency, but it is needed to render 3D. It feature could be exposed as a property
     // of the app context.
     glEnable(GL.DEPTH_TEST)

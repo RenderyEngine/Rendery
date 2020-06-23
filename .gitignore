@@ -1,7 +1,7 @@
 ## macOS
 .DS_Store
 
-## Swift Package Manager & XCode
+## Swift Package Manager & Xcode
 Packages/
 Package.pins
 Package.resolved
