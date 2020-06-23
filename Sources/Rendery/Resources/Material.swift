@@ -20,7 +20,7 @@ public struct Material {
   public var shader: GLSLProgram
 
   /// The material's diffuse response to lighting.
-  public var diffuse: Property = .color(.white)
+  public var diffuse: Property = .color(.black)
 
   /// A value that alters each texel after all other properties have been combined.
   ///
