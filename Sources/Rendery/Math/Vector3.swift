@@ -62,6 +62,20 @@ public struct Vector3: Hashable {
       z: x * other.y - y * other.x)
   }
 
+  /// Computes the Euclidean distance between this vector and another.
+  ///
+  /// - Parameter other: The vector with which calculate the distance.
+  public func distance(to other: Vector3) -> Double {
+    return (other - self).magnitude
+  }
+
+  /// Computes the squared Euclidean distance between this vector and another.
+  ///
+  /// - Parameter other: The vector with which calculate the distance.
+  public func squaredDistance(to other: Vector3) -> Double {
+    return (other - self).squaredMagnitude
+  }
+
   /// Returns the component-wise addition of two vectors.
   ///
   /// - Parameters:
