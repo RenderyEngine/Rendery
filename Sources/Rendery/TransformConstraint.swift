@@ -7,10 +7,10 @@ public protocol TransformConstraint {
   /// Applies the constraint on the specified node.
   ///
   /// - Parameter node: The node on which the constraint should be applied.
-  func apply(on node: Node3D)
+  func apply(on node: Node)
 
   /// The nodes on which this constraint depends.
-  var dependencies: [Node3D] { get }
+  var dependencies: [Node] { get }
 
 }
 
@@ -22,13 +22,13 @@ public struct LookAtConstraint: TransformConstraint {
   /// - Parameters:
   ///   - target: The target of the constraint.
   ///   - up: A normalized up vector specifying how the observer is oriented.
-  public init(target: Node3D, up: Vector3 = .unitY) {
+  public init(target: Node, up: Vector3 = .unitY) {
     self.target = target
     self.up = up
   }
 
   /// The target of the constraint.
-  public var target: Node3D
+  public var target: Node
 
   /// The direction that is aligned with the "up" direction of the node under constraint.
   public var up: Vector3
@@ -40,7 +40,7 @@ public struct LookAtConstraint: TransformConstraint {
   /// scene rotation (i.e., `node.sceneRotation`) matches the result of a "look at" matrix.
   ///
   /// - Parameter node: The node on which the constraint should be applied.
-  public func apply(on node: Node3D) {
+  public func apply(on node: Node) {
     let targetPosition = target.sceneTranslation
     let lookAt = Matrix4.lookAt(from: node.sceneTranslation, to: targetPosition, up: up)
 
@@ -52,6 +52,6 @@ public struct LookAtConstraint: TransformConstraint {
     }
   }
 
-  public var dependencies: [Node3D] { [target] }
+  public var dependencies: [Node] { [target] }
 
 }

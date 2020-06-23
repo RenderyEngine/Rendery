@@ -198,13 +198,13 @@ public final class Window {
 
       if let vpMatrix = viewport.viewProjectionMatrix {
         // Collect the scene's light sources to compute lighting.
-        let lightNodes = scene.root3D.descendants(.satisfying({ $0.light != nil }))
+        let lightNodes = scene.root.descendants(.satisfying({ $0.light != nil }))
 
         // Render the scene tree.
-        scene.root3D.render(
+        scene.root.render(
           vpMatrix: vpMatrix,
           ambient: scene.ambientLight,
-          lightNodes: lightNodes)
+          lightNodes: Array(lightNodes))
       }
     }
 

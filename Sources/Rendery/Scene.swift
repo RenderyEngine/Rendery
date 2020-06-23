@@ -25,7 +25,7 @@ open class Scene {
   open var ambientLight: Color = .white
 
   /// The root of the scene's 3D scene tree.
-  open var root3D = Node3D()
+  open var root = Node()
 
   /// Casts a ray into the scene to find the nodes whose collision shape intersects with it.
   ///
@@ -36,7 +36,7 @@ open class Scene {
   open func cast(ray: Ray, collisionMask: CollisionMask = .all) -> RaycastQuery {
     return RaycastQuery(
       ray: ray,
-      nodes: Node3D.NodeIterator(root: root3D),
+      nodes: Node.NodeIterator(root: root),
       collisionMask: collisionMask)
   }
 
@@ -69,10 +69,10 @@ open class Scene {
 
   /// A cache that stores the generation number of the rendering loop at which a node's constraints
   /// have been last updated.
-  private final var constraintCache: [Node3D: UInt64] = [:]
+  private final var constraintCache: [Node: UInt64] = [:]
 
   /// Applies the transformation constraints on `node`.
-  internal final func updateConstraints(on node: Node3D, generation: UInt64) {
+  internal final func updateConstraints(on node: Node, generation: UInt64) {
     guard constraintCache[node, default: 0] < generation
       else { return }
 

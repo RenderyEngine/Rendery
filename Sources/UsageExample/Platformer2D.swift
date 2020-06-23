@@ -26,14 +26,14 @@ final class PlatformerScene: Scene, FrameListener {
       parent.scale /= 100.0
 
       // Create clouds in the background.
-      parent.createChild(suchThat: { (clouds: Node3D) in
+      parent.createChild(suchThat: { (clouds: Node) in
         clouds.tags.insert("parallax")
         clouds.model = cloudsModel
         clouds.model!.materials[0].multiply = .color("#cae8ff")
         clouds.translation.z = -10.0
         clouds.scale *= 1.2
       })
-      parent.createChild(suchThat: { (clouds: Node3D) in
+      parent.createChild(suchThat: { (clouds: Node) in
         clouds.tags.insert("parallax")
         clouds.model = cloudsModel
         clouds.translation.z = -5.0
@@ -42,7 +42,7 @@ final class PlatformerScene: Scene, FrameListener {
       })
 
       // Create some distant hills in the background.
-      parent.createChild(suchThat: { (ground: Node3D) in
+      parent.createChild(suchThat: { (ground: Node) in
         ground.tags.insert("parallax")
         ground.model = groundModel
         ground.model!.materials[0].multiply = .color("#a9eaa9")
@@ -51,14 +51,14 @@ final class PlatformerScene: Scene, FrameListener {
       })
 
       // Create the character.
-      characterNode = parent.createChild(suchThat: { (character: Node3D) in
+      characterNode = parent.createChild(suchThat: { (character: Node) in
         character.model = playerModel
         character.model!.pivotPoint.y = 0.0
         character.translation.y = -100.0
       })
 
       // Create a sequence of tiles that represent the floor.
-      parent.createChildren(count: 10, suchThat: { (node: Node3D, offset: Int) in
+      parent.createChildren(count: 10, suchThat: { (node: Node, offset: Int) in
         node.model = tileModel
         node.translation.x = (Double(offset) - 4.5) * Double(tileImage.width)
         node.translation.y = -100.0
@@ -66,7 +66,7 @@ final class PlatformerScene: Scene, FrameListener {
       })
     })
 
-    cameraNode = root3D.createChild(suchThat: { (cameraNode: Node3D) in
+    cameraNode = root3D.createChild(suchThat: { (cameraNode: Node) in
       cameraNode.translation.z = 5.0
       cameraNode.camera = Camera(type: .perspective)
     })
@@ -81,10 +81,10 @@ final class PlatformerScene: Scene, FrameListener {
   }
 
   /// The character's node.
-  weak var characterNode: Node3D?
+  weak var characterNode: Node?
 
   /// The camera's node.
-  weak var cameraNode: Node3D?
+  weak var cameraNode: Node?
 
   /// The player's speed.
   let speed = 0.2

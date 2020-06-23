@@ -91,7 +91,7 @@ public struct Model {
   ///   - ambient: The scene's ambient light.
   ///   - lightNodes: The nodes with an attached light source which may interact with the model.
   ///   - node: The node being rendered.
-  internal func draw(vpMatrix: Matrix4, ambient: Color, lightNodes: [Node3D], node: Node3D) {
+  internal func draw(vpMatrix: Matrix4, ambient: Color, lightNodes: [Node], node: Node) {
     for (index, mesh) in meshes.enumerated() {
       // Makes sure the mesh is loaded.
       mesh.load()
@@ -148,7 +148,7 @@ public struct Model {
     let ambient: Color
 
     /// The nodes with an attached light source that may impact the mesh's appearence.
-    let lightNodes: [Node3D]
+    let lightNodes: [Node]
 
     /// The model matrix that transforms local coordinates into the scene's coordinates.
     let modelMatrix: Matrix4

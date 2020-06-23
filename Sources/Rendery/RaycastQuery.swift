@@ -5,17 +5,17 @@ public struct RaycastQuery: IteratorProtocol, Sequence {
   public private(set) var ray: Ray
 
   /// The nodes with which ray collision should be tested.
-  public private(set) var nodes: Node3D.NodeIterator
+  public private(set) var nodes: Node.NodeIterator
 
   /// The categories of collision shapes with which the ray should interact.
   public let collisionMask: CollisionMask
 
   /// Returns the elements of the sequence, sorted.
-  public func sorted() -> [(node: Node3D, collisionDistance: Double)] {
+  public func sorted() -> [(node: Node, collisionDistance: Double)] {
     return sorted(by: { a, b in a.collisionDistance < b.collisionDistance })
   }
 
-  public mutating func next() -> (node: Node3D, collisionDistance: Double)? {
+  public mutating func next() -> (node: Node, collisionDistance: Double)? {
     while let node = nodes.next() {
       // Check if the ray should interact with the node.
       guard (node.collisionMask.rawValue & collisionMask.rawValue) != 0

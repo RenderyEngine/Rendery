@@ -42,7 +42,7 @@ public final class Viewport {
   /// parameters such as the projection type, field of view and viewing frustum.
   ///
   /// The scene will not be rendered if `pointOfView` is `nil`, or if it has no camera attached.
-  public weak var pointOfView: Node3D?
+  public weak var pointOfView: Node?
 
   /// Sets the specified scene as the viewport's rendered contents.
   ///
@@ -52,12 +52,12 @@ public final class Viewport {
   ///   - newScene: The scene to present.
   ///   - pointOfView: A node representing the point from which the scene is viewed. If unassigned,
   ///     this method will attempt to use the first node with an attached camera it can find.
-  public func present(scene newScene: Scene, from pointOfView: Node3D? = nil) {
+  public func present(scene newScene: Scene, from pointOfView: Node? = nil) {
     scene?.willMove(from: self, successor: newScene)
     newScene.willMove(to: self)
 
     scene = newScene
-    self.pointOfView = pointOfView ?? newScene.root3D
+    self.pointOfView = pointOfView ?? newScene.root
       .descendants(.satisfying({ node in node.camera != nil })).first
     if self.pointOfView == nil {
       LogManager.main.log("Presented scene has no point of view.", level: .debug)

@@ -1,5 +1,5 @@
-/// A search criterion to locate a node in a scene tree.
-public enum NodeSearchCriterion<N> where N: Node {
+/// A criterion to filter a node in a scene tree.
+public enum NodeFilterCriterion {
 
   /// A node named after the specified name.
   case named(String)
@@ -8,21 +8,21 @@ public enum NodeSearchCriterion<N> where N: Node {
   case tagged(by: [String])
 
   /// A node whose set of tags contains the specified tag.
-  public static func tagged(by tag: String) -> NodeSearchCriterion {
+  public static func tagged(by tag: String) -> NodeFilterCriterion {
     return .tagged(by: [tag])
   }
 
   /// A node satisfying the specified predicate.
-  case satisfying((N) -> Bool)
+  case satisfying((Node) -> Bool)
 
   /// The conjunction of two criteria.
-  indirect case both(NodeSearchCriterion, NodeSearchCriterion)
+  indirect case both(NodeFilterCriterion, NodeFilterCriterion)
 
   /// This disjunction of two criteria.
-  indirect case either(NodeSearchCriterion, NodeSearchCriterion)
+  indirect case either(NodeFilterCriterion, NodeFilterCriterion)
 
   /// Returns whether the specified node satisfies this criterion.
-  public func isSatisfied(by node: N) -> Bool {
+  public func satisfied(by node: Node) -> Bool {
     switch self {
     case .named(let name):
       return node.name == name
@@ -31,15 +31,15 @@ public enum NodeSearchCriterion<N> where N: Node {
     case .satisfying(let predicate):
       return predicate(node)
     case .both(let lhs, let rhs):
-      return lhs.isSatisfied(by: node) && rhs.isSatisfied(by: node)
+      return lhs.satisfied(by: node) && rhs.satisfied(by: node)
     case .either(let lhs, let rhs):
-      return lhs.isSatisfied(by: node) || rhs.isSatisfied(by: node)
+      return lhs.satisfied(by: node) || rhs.satisfied(by: node)
     }
   }
 
 }
 
-extension NodeSearchCriterion: CustomStringConvertible {
+extension NodeFilterCriterion: CustomStringConvertible {
 
   public var description: String {
     switch self {
