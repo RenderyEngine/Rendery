@@ -286,13 +286,13 @@ private func windowFocusCallback(handle: OpaquePointer?, hasFocus: Int32) {
     else { return }
 
   if (hasFocus == GLFW_TRUE) {
+    AppContext.shared.activeWindow = window
+    window.delegate?.didReceiveFocus(window: window)
+  } else {
     // If focus changes from one window to another, the first callback is for the window that
     // lost it and the second for the window that received it.
     AppContext.shared.activeWindow = nil
-    window.delegate?.didLostFocus(window: window)
-  } else {
-    AppContext.shared.activeWindow = window
-    window.delegate?.didReceiveFocus(window: window)
+    window.delegate?.didLoseFocus(window: window)
   }
 }
 
@@ -318,7 +318,7 @@ private func windowKeyCallback(
   guard let window = windowFrom(handle: handle)
     else { return }
 
-  // Update the input state.
+  // Update the input state of the application context.
   let code = key != GLFW_KEY_UNKNOWN
     ? Int(key)
     : 1 << 63 | Int(scancode)

@@ -14,7 +14,7 @@ public protocol WindowDelegate: AnyObject {
   func didReceiveFocus(window: Window)
 
   /// Notifies the delegate that the window lost focus.
-  func didLostFocus(window: Window)
+  func didLoseFocus(window: Window)
 
   /// Notifies the delegate that the window recieved a key press event.
   func didKeyPress(window: Window, event: KeyEvent)
@@ -46,7 +46,7 @@ extension WindowDelegate {
   public func didReceiveFocus(window: Window) {
   }
 
-  public func didLostFocus(window: Window) {
+  public func didLoseFocus(window: Window) {
   }
 
   public func didKeyPress(window: Window, event: KeyEvent) {

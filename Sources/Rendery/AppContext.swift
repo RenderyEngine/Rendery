@@ -59,6 +59,7 @@ public final class AppContext {
       clear()
       return nil
     }
+    activeWindow = mainWindow
 
     // Set the main window the current OpenGL context, so that the user can load data onto the GPU
     // (e.g., textures, meshes, etc.). This context will be shared among all secondary windows.
