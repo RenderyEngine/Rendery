@@ -231,14 +231,14 @@ public struct Quaternion: Hashable {
     }
   }
 
-  /// The local yaw element of this quaternion.
+  /// The local yaw (i.e., z-axis rotation) element of this quaternion.
   public var yaw: Angle {
     let sycp = 2.0 * (w * z + x * y)
     let cycp = 1.0 - 2.0 * (y * y + z * z)
     return Angle(radians: Double.atan2(y: sycp, x: cycp))
   }
 
-  /// The local pitch element of this quaternion.
+  /// The local pitch (i.e., y-axis rotation) element of this quaternion.
   public var pitch: Angle {
     let sp = 2.0 * (w * y + x * z)
     let rd = abs(sp) >= 1
@@ -247,7 +247,7 @@ public struct Quaternion: Hashable {
     return Angle(radians: rd)
   }
 
-  /// The local roll element of this quaternion.
+  /// The local roll (i.e., x-axis rotation) element of this quaternion.
   public var roll: Angle {
     let srcp = 2.0 * (w * x + y * z)
     let crcp = 1.0 - 2.0 * (x * x + y * y)
@@ -416,22 +416,6 @@ public struct Quaternion: Hashable {
 extension Quaternion: CustomStringConvertible {
 
   public var description: String {
-    // Roll (x-axis rotation)
-    let sinRByCosP = 2.0 * (w * x + y * z)
-    let cosRByCosP = 1.0 - 2.0 * (x * x + y * y)
-    let roll = Angle(radians: Double.atan2(y: sinRByCosP, x: cosRByCosP))
-
-    // Pitch (y-axis rotation)
-    let sinP = 2.0 * (w * y - z * x)
-    let pitch = abs(sinP) >= 1.0
-      ? Angle(radians: Double(signOf: sinP, magnitudeOf: Double.pi / 2.0))
-      : Angle(radians: Double.asin(sinP))
-
-    // Yaw (z-axis rotation)
-    let sinYByCosP = 2.0 * (w * z + x * y)
-    let cosYByCosP = 1.0 - 2.0 * (y * y + z * z)
-    let yaw = Angle(radians: Double.atan2(y: sinYByCosP, x: cosYByCosP))
-
     return "(x: \(roll.degrees), y: \(pitch.degrees), z: \(yaw.degrees))"
   }
 
