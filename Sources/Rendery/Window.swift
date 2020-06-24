@@ -368,6 +368,14 @@ private func windowMouseButtonCallback(
   guard let window = windowFrom(handle: handle)
     else { return }
 
+  // Update the input state of the application context.
+  let code = Int(button)
+  if action & GLFW_PRESS != 0 {
+     AppContext.shared.inputs.mouseButtonPressed.insert(code)
+   } else {
+     AppContext.shared.inputs.mouseButtonPressed.remove(code)
+   }
+
   // Get the cursor position.
   let cursorPosition = window.cursorPosition
 
@@ -378,7 +386,7 @@ private func windowMouseButtonCallback(
 
   // Dispatch the event to the first responder for mouse events.
   let event = MouseEvent(
-    button: Int(button),
+    button: code,
     cursorPosition: cursorPosition,
     modifiers: KeyModifierSet(fromGLFW: modifiers),
     firstResponder: responder,
