@@ -84,6 +84,21 @@ public final class Node {
     parent = nil
   }
 
+  /// Search for ancestor nodes satisfying the specified criterion, from parent to root.
+  ///
+  /// - Parameter criterion: The criterion the ancestor nodes should satisfy to be returned.
+  public func ancestors(_ criterion: NodeFilterCriterion? = nil) -> [Node] {
+    var result: [Node] = []
+    var current = self
+    while let next = current.parent {
+      if criterion == nil || criterion!.satisfied(by: next) {
+        result.append(next)
+      }
+      current = next
+    }
+    return result
+  }
+
   /// Returns whether this node is a descendant of the specified ancestor.
   ///
   /// - Parameter ancestor: The node for which ancestorship shoup be checked.
