@@ -61,6 +61,17 @@ public struct Vector2: Hashable {
     return (other - self).squaredMagnitude
   }
 
+  /// Computes the vector obtained after rotating this vector by the specified angle.
+  ///
+  /// - Parameter angle: An angle specifying the rotation to compute.
+  public func rotated(by angle: Angle) -> Vector2 {
+    let ca = Double.cos(angle.radians)
+    let sa = Double.sin(angle.radians)
+    return Vector2(
+      x: x * ca - y * sa,
+      y: x * sa + y * ca)
+  }
+
   /// Returns the component-wise addition of two vectors.
   ///
   /// - Parameters:
