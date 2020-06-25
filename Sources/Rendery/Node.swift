@@ -227,12 +227,13 @@ public final class Node {
   private func updateSceneProperties() {
     // Update the scene transforms, unless the node is an orphan.
     if let parent = self.parent {
-      _sceneScale = parent.sceneScale * scale
-      _sceneRotation = parent.sceneRotation * rotation
+      // Note that we post-multiply, since the matrix are stored as column-major.
+      _sceneScale = scale * parent.sceneScale
+      _sceneRotation = rotation * parent.sceneRotation
 
       // Compute the derived translation after applying the parent's global scale and rotation.
       let derivedTranslation = parent.sceneRotation * (parent.sceneScale * translation)
-      _sceneTranslation = parent.sceneTranslation + derivedTranslation
+      _sceneTranslation = derivedTranslation + parent.sceneTranslation
     } else {
       // If the node is an orphan, then its scene transform is equal to its local transform.
       _sceneScale = scale
