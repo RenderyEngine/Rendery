@@ -289,25 +289,6 @@ public final class Node {
   /// The light source attached to this node.
   public var light: Light?
 
-  /// Renders the node.
-  ///
-  /// - Parameters:
-  ///   - vpMatrix: The view-projection matrix.
-  ///   - ambient: The scene's ambient light.
-  ///   - lightNodes: The nodes with an attached light source which may interact with the objects
-  ///     attached to this node.
-  internal func render(vpMatrix: Matrix4, ambient: Color, lightNodes: [Node]) {
-    // TODO: Filter out light nodes that are too far.
-
-    // Draw the attached model, if any.
-    model?.draw(vpMatrix: vpMatrix, ambient: ambient, lightNodes: lightNodes, node: self)
-
-    // Render each child.
-    for child in children {
-      child.render(vpMatrix: vpMatrix, ambient: ambient, lightNodes: lightNodes)
-    }
-  }
-
   // MARK: Collision behavior
 
   /// The node's collision shape.

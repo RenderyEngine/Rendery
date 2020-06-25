@@ -21,9 +21,7 @@ public struct Model {
   ///     default white material.
   public init(meshes: [Mesh], materials: [Material] = []) {
     self.meshes = meshes
-    self.materials = materials.isEmpty
-      ? [Material()]
-      : materials
+    self.materials = materials
   }
 
   /// The model's name.
@@ -84,77 +82,40 @@ public struct Model {
   ///   node positions are considered to compute z-ordering while rendering 2D scenes.
   public var pivotPoint: Vector3 = Vector3(x: 0.5, y: 0.5, z: 0.5)
 
-  /// Draws the model's meshes with the specified transform, skinned by their respective material.
-  ///
-  /// - Parameters:
-  ///   - vpMatrix: The view-projection matrix.
-  ///   - ambient: The scene's ambient light.
-  ///   - lightNodes: The nodes with an attached light source which may interact with the model.
-  ///   - node: The node being rendered.
-  internal func draw(vpMatrix: Matrix4, ambient: Color, lightNodes: [Node], node: Node) {
-    for (index, mesh) in meshes.enumerated() {
-      // Makes sure the mesh is loaded.
-      mesh.load()
+  /// A flag that indicates whether the model should be drawn with an outline.
+  public var isOutlined: Bool = false
 
-      // Determine the mesh's material.
-      var material: Material
-      if materials.isEmpty {
-        material = Material(program: .default)
-      } else {
-        material = meshes.count <= materials.count
-          ? materials[index]
-          : materials[index % materials.count]
-      }
+  /// The color of the border when the model is outlined.
+  public var outlineColor: Color = .blue
 
-      // Makes sure the material's shader program is loaded.
-      do {
-        try material.shader.load()
-      } catch {
-        // Fallback on the default material.
-        LogManager.main.log(error, level: .error)
-        material = Material(program: .default)
-      }
-
-      // Compute the model transform.
-      var modelMatrix = node.sceneTransform
-      if pivotPoint != Vector3(x: 0.5, y: 0.5, z: 0.5) {
-        let bb = aabb
-        let translation = (Vector3.unitScale - pivotPoint) * bb.dimensions + bb.origin
-        modelMatrix = modelMatrix * Matrix4(translation: translation)
-      }
-
-      // Install the shader program.
-      material.shader.install()
-      let context = DrawingContext(
-        material: material,
-        ambient: ambient,
-        lightNodes: lightNodes,
-        modelMatrix: modelMatrix,
-        mvpMatrix: vpMatrix * modelMatrix)
-      withUnsafePointer(to: context, { ptr in material.shader.bind(UnsafeRawPointer(ptr)) })
-
-      // Draw the mesh.
-      mesh.draw()
-    }
-  }
-
-  /// The drawing context of a shader program used to draw a model.
-  public struct DrawingContext {
+  /// The drawing context of provided to a shader program to render the color pass of a model.
+  public struct ColorPassContext {
 
     /// The mesh's material.
-    let material: Material
+    var material: Material
 
     /// The scene's ambient light.
-    let ambient: Color
+    var ambient: Color
 
     /// The nodes with an attached light source that may impact the mesh's appearence.
-    let lightNodes: [Node]
+    var lightNodes: [Node]
 
     /// The model matrix that transforms local coordinates into the scene's coordinates.
-    let modelMatrix: Matrix4
+    var modelMatrix: Matrix4
 
     /// The model-view-projection matrix that transforms local coordinates into the clip space.
-    let mvpMatrix: Matrix4
+    var modelViewProjectionMatrix: Matrix4
+
+  }
+
+  /// The drawing context of provided to a shader program to draw the outline pass of a model.
+  public struct OutlinePassContext {
+
+    /// The model's outline color.
+    var outlineColor: Color
+
+    /// The model-view-projection matrix that transforms local coordinates into the clip space.
+    var modelViewProjectionMatrix: Matrix4
 
   }
 

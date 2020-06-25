@@ -9,7 +9,7 @@ public struct GLSLStandardProgram: GLSLProgramDelegate {
 
   public func bind(_ program: GLSLProgram, in context: UnsafeRawPointer) {
     // Extract parameters from context.
-    let parameters = context.assumingMemoryBound(to: Model.DrawingContext.self).pointee
+    let parameters = context.assumingMemoryBound(to: Model.ColorPassContext.self).pointee
 
     // Bind the scene's ambient light.
     program.assign(color: parameters.ambient, at: "ambientLight")
@@ -30,7 +30,7 @@ public struct GLSLStandardProgram: GLSLProgramDelegate {
 
     // Bind the transformation matrices.
     program.assign(matrix4: parameters.modelMatrix, at: "model")
-    program.assign(matrix4: parameters.mvpMatrix, at: "mvp")
+    program.assign(matrix4: parameters.modelViewProjectionMatrix, at: "mvp")
 
     // FIXME: Computing the inverse of a 3x3 matrix is faster, but results in much harsher lighting
     // transitions. To be investigated...

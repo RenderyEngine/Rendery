@@ -103,7 +103,6 @@ public final class Mesh: GraphicsResource {
 
     // Unbind the mesh's buffer.
     glBindVertexArray(0)
-    glUseProgram(0)
   }
 
   var state: GraphicsResourceState

@@ -41,4 +41,11 @@ public struct Material {
 
   }
 
+  /// A default white material.
+  public static var white: Material {
+    var material = Material()
+    material.diffuse = .color(.white)
+    return material
+  }
+
 }
