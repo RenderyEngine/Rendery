@@ -79,6 +79,12 @@ public final class AppContext {
     // some transparency, but it is needed to render 3D. It feature could be exposed as a property
     // of the app context.
     glEnable(GL.DEPTH_TEST)
+    glDepthFunc(GL.LESS)
+
+    // Enable stencil testing.
+    glEnable(GL.STENCIL_TEST)
+    glStencilFunc(GL.NOTEQUAL, 1, 0xff)
+    glStencilOp(GL.KEEP, GL.KEEP, GL.REPLACE)
 
     return mainWindow
   }
@@ -274,6 +280,19 @@ public final class AppContext {
           nanosleep(&req, nil)
           delta = DispatchTime.now().uptimeNanoseconds / 1_000_000 - renderCycleStart
         }
+      }
+    }
+  }
+
+  // MARK: Renderer settings
+
+  /// A flag that indicates whether depth testing is enabled.
+  internal var isDepthTestingEnabled: Bool = true {
+    didSet {
+      if isDepthTestingEnabled {
+        glEnable(GL.DEPTH_TEST)
+      } else {
+        glDisable(GL.DEPTH_TEST)
       }
     }
   }

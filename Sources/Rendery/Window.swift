@@ -158,9 +158,11 @@ public final class Window {
     // Set the window as the current OpenGL context.
     glfwMakeContextCurrent(handle)
 
-    // Clear the screen buffer with the window's background color.
+    // Clear the screen buffers. Note that default values have to be explicitly reset for `glClear`
+    // to have an effect (see https://stackoverflow.com/questions/58640953).
     glClearColor(backgroundColor)
-    glClear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
+    glStencilMask(0xff)
+    glClear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
 
     // Render the viewports.
     for viewport in viewports {
@@ -186,6 +188,7 @@ public final class Window {
     // Enable the scissor test so that rendering can only occur in the viewport's region.
     glScissor(region: region)
     glEnable(GL.SCISSOR_TEST)
+    defer { glDisable(GL.SCISSOR_TEST) }
 
     // Clear the scene's background.
     glClearColor(scene.backgroundColor)

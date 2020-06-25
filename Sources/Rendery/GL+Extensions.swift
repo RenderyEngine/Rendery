@@ -19,7 +19,9 @@ internal enum GL {
   static var COLOR_BUFFER_BIT     : BitField { BitField(GL_COLOR_BUFFER_BIT) }
   static var DEPTH_BUFFER_BIT     : BitField { BitField(GL_DEPTH_BUFFER_BIT) }
   static var SCISSOR_TEST         : BitField { BitField(GL_SCISSOR_TEST) }
+  static var STENCIL_BUFFER_BIT   : BitField { BitField(GL_STENCIL_BUFFER_BIT) }
 
+  static var ALWAYS               : Enum { Enum(GL_ALWAYS) }
   static var ARRAY_BUFFER         : Enum { Enum(GL_ARRAY_BUFFER) }
   static var BLEND                : Enum { Enum(GL_BLEND) }
   static var CLAMP_TO_BORDER      : Enum { Enum(GL_CLAMP_TO_BORDER) }
@@ -31,17 +33,23 @@ internal enum GL {
   static var FALSE                : Bool { Bool(GL_FALSE) }
   static var FRAGMENT_SHADER      : Enum { Enum(GL_FRAGMENT_SHADER) }
   static var INFO_LOG_LENGTH      : Enum { Enum(GL_INFO_LOG_LENGTH) }
+  static var KEEP                 : Enum { Enum(GL_KEEP) }
+  static var LESS                 : Enum { Enum(GL_LESS) }
   static var LINEAR               : Enum { Enum(GL_LINEAR) }
   static var LINES                : Enum { Enum(GL_LINES) }
   static var LINK_STATUS          : Enum { Enum(GL_LINK_STATUS) }
   static var MIRRORED_REPEAT      : Enum { Enum(GL_MIRRORED_REPEAT) }
   static var NEAREST              : Enum { Enum(GL_NEAREST) }
+  static var NEVER                : Enum { Enum(GL_NEVER) }
+  static var NOTEQUAL             : Enum { Enum(GL_NOTEQUAL) }
   static var ONE                  : Enum { Enum(GL_ONE) }
   static var ONE_MINUS_SRC_ALPHA  : Enum { Enum(GL_ONE_MINUS_SRC_ALPHA) }
   static var POINTS               : Enum { Enum(GL_POINTS) }
   static var REPEAT               : Enum { Enum(GL_REPEAT) }
+  static var REPLACE              : Enum { Enum(GL_REPLACE) }
   static var RGBA                 : Enum { Enum(GL_RGBA) }
   static var SRC_ALPHA            : Enum { Enum(GL_SRC_ALPHA) }
+  static var STENCIL_TEST         : Enum { Enum(GL_STENCIL_TEST) }
   static var TEXTURE_2D           : Enum { Enum(GL_TEXTURE_2D) }
   static var TEXTURE_HEIGHT       : Enum { Enum(GL_TEXTURE_HEIGHT) }
   static var TEXTURE_MIN_FILTER   : Enum { Enum(GL_TEXTURE_MIN_FILTER) }
