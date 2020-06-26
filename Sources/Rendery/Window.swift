@@ -194,6 +194,7 @@ public final class Window {
     glClearColor(scene.backgroundColor)
     glClear(GL.COLOR_BUFFER_BIT)
 
+    // Draw the scene tree.
     if let pov = viewport.pointOfView  {
       // Apply the transform constraints on the point of view so that all camera properties are
       // up to date before computing the view-projection matrix.
@@ -234,6 +235,12 @@ public final class Window {
 
       // Render the outline pass.
       outlinePass(renderable: renderableNodes, scene: scene, mvpMatrices: &mvpMatrices)
+    }
+
+    // Draw the scene's HUD.
+    if let hud = scene.hud {
+      var viewRenderer = ViewRenderer()
+      viewRenderer.render(view: hud)
     }
   }
 
