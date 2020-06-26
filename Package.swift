@@ -29,6 +29,7 @@ let package = Package(
     // System libraries.
     .systemLibrary(name: "CGLFW", pkgConfig: "glfw3"),
     // .systemLibrary(name: "CGLFW"),
+    .systemLibrary(name: "CFreeType", pkgConfig: "freetype2"),
 
     // Test targets.
     .testTarget(name: "RenderyTests", dependencies: ["Rendery"]),
