@@ -11,6 +11,12 @@ open class Scene {
   /// The color of the scene's background.
   open var backgroundColor: Color = .white
 
+  /// The root of scene tree.
+  open var root = Node()
+
+  /// The root view of the scene's HUD.
+  open var hud: AnyView?
+
   /// The scene's ambient light.
   ///
   /// The ambient light is an omni-directional light source that affects all objects in the scene
@@ -23,9 +29,6 @@ open class Scene {
   ///
   /// - Note: As for all light sources, the ambient light's alpha component is ignored.
   open var ambientLight: Color = .white
-
-  /// The root of the scene's 3D scene tree.
-  open var root = Node()
 
   /// Casts a ray into the scene to find the nodes whose collision shape intersects with it.
   ///
