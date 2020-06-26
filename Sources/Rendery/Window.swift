@@ -311,15 +311,15 @@ public final class Window {
       glStencilFunc(GL.NOTEQUAL, 1, 0xff)
       glStencilMask(0)
 
-      let shader = GLSLProgram.outline
+      let shader = GLSLProgram.flat
       try! shader.load()
       shader.install()
 
       let scaleMatrix = Matrix4(scale: Vector3.unitScale * 1.1)
       for node in outlined {
-        let context = Model.OutlinePassContext(
-          outlineColor: node.model!.outlineColor,
-          modelViewProjectionMatrix: mvpMatrices[node]! * scaleMatrix)
+        let context: GLSLFlatColorProgram.Parameters = (
+          color: node.model!.outlineColor,
+          mvp: mvpMatrices[node]! * scaleMatrix)
         withUnsafePointer(to: context, { ptr in shader.bind(UnsafeRawPointer(ptr)) })
 
         for mesh in node.model!.meshes {

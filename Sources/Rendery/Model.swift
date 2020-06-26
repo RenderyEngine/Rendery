@@ -108,17 +108,6 @@ public struct Model {
 
   }
 
-  /// The drawing context of provided to a shader program to draw the outline pass of a model.
-  public struct OutlinePassContext {
-
-    /// The model's outline color.
-    var outlineColor: Color
-
-    /// The model-view-projection matrix that transforms local coordinates into the clip space.
-    var modelViewProjectionMatrix: Matrix4
-
-  }
-
   /// Initializes a model composed of a flat quad and a texture built from the specified image.
   ///
   /// In Rendery, the term "sprite" is used to denote a model composed of a single quad (i.e., a

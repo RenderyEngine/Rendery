@@ -146,8 +146,8 @@ public final class GLSLProgram: GraphicsResource {
   /// The default shader program.
   public static let `default` = GLSLProgram(delegate: GLSLStandardProgram())
 
-  /// The outline shader program.
-  public static let outline = GLSLProgram(delegate: GLSLOutlineProgram())
+  /// The flat color shader program.
+  public static let flat = GLSLProgram(delegate: GLSLFlatColorProgram())
 
   /// A shader type.
   public enum ShaderType {

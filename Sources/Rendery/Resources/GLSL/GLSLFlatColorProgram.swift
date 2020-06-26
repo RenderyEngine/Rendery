@@ -1,5 +1,7 @@
-/// Rendery's built-in outline shader.
-public struct GLSLOutlineProgram: GLSLProgramDelegate {
+/// Rendery's built-in flat color shader.
+public struct GLSLFlatColorProgram: GLSLProgramDelegate {
+
+  public typealias Parameters = (color: Color, mvp: Matrix4)
 
   public var vertexSource: String { _vertexSource }
 
@@ -7,10 +9,10 @@ public struct GLSLOutlineProgram: GLSLProgramDelegate {
 
   public func bind(_ program: GLSLProgram, in context: UnsafeRawPointer) {
     // Extract parameters from context.
-    let parameters = context.assumingMemoryBound(to: Model.OutlinePassContext.self).pointee
+    let parameters = context.assumingMemoryBound(to: Parameters.self).pointee
 
-    program.assign(color: parameters.outlineColor, at: "outlineColor")
-    program.assign(matrix4: parameters.modelViewProjectionMatrix, at: "mvp")
+    program.assign(color: parameters.color, at: "outlineColor")
+    program.assign(matrix4: parameters.mvp, at: "mvp")
   }
 
 }
