@@ -16,7 +16,7 @@ let package = Package(
     .target(name: "UsageExample", dependencies: ["Rendery"]),
     .target(
       name: "Rendery",
-      dependencies: ["CSTBImage", "CGLFW", "Cgltf", "Numerics"],
+      dependencies: ["CSTBImage", "CGLFW", "CFreeType", "Cgltf", "Numerics"],
       linkerSettings: [
         .linkedFramework("OpenGL"),
       ]
@@ -27,9 +27,9 @@ let package = Package(
     .target(name: "Cgltf", dependencies: []),
 
     // System libraries.
+    .systemLibrary(name: "CFreeType", pkgConfig: "freetype2"),
     .systemLibrary(name: "CGLFW", pkgConfig: "glfw3"),
     // .systemLibrary(name: "CGLFW"),
-    .systemLibrary(name: "CFreeType", pkgConfig: "freetype2"),
 
     // Test targets.
     .testTarget(name: "RenderyTests", dependencies: ["Rendery"]),
