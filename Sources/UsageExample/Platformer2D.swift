@@ -22,7 +22,7 @@ final class PlatformerScene: Scene, FrameListener {
     backgroundColor = "#7ec7ff"
 
     // Create a parent node for to downscale all tiles.
-    root3D.createChild(suchThat: { parent in
+    root.createChild(suchThat: { parent in
       parent.scale /= 100.0
 
       // Create clouds in the background.
@@ -66,7 +66,7 @@ final class PlatformerScene: Scene, FrameListener {
       })
     })
 
-    cameraNode = root3D.createChild(suchThat: { (cameraNode: Node) in
+    cameraNode = root.createChild(suchThat: { (cameraNode: Node) in
       cameraNode.translation.z = 5.0
       cameraNode.camera = Camera(type: .perspective)
     })
@@ -77,7 +77,7 @@ final class PlatformerScene: Scene, FrameListener {
 
   override func willMove(from viewport: Viewport, successor: Scene?) {
     AppContext.shared.unsubscribe(frameListener: self)
-    root3D.children.forEach({ child in child.removeFromParent() })
+    root.children.forEach({ child in child.removeFromParent() })
   }
 
   /// The character's node.
@@ -104,7 +104,7 @@ final class PlatformerScene: Scene, FrameListener {
     camera.translation.x = character.sceneTranslation.x
 
     // Simulate parallax.
-    for node in root3D.descendants(.tagged(by: "parallax")) {
+    for node in root.descendants(.tagged(by: "parallax")) {
       // The farther the node, the smaller its translation should be.
       let factor = 1.0 / -node.translation.z
       node.translation.x = character.translation.x * factor
