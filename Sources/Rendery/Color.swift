@@ -1,5 +1,5 @@
 /// A structure that stores a 32-bit RGBA color value.
-public struct Color {
+public struct Color: Hashable {
 
   /// Initializes a color in the Generic RGB color space.
   ///
