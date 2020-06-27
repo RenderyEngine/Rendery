@@ -95,6 +95,9 @@ public final class AppContext {
     AppContext.shared = AppContext()
   }
 
+  /// The application context's font manager.
+  public let fontManager = FontManager()
+
   /// The windows created with this application context.
   ///
   /// - Note: The order in which windows appear in the array is irrelevant.
