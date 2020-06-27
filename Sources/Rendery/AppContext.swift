@@ -289,6 +289,28 @@ public final class AppContext {
 
   // MARK: Renderer settings
 
+  /// A flag that indicates whether blending is enabled.
+  internal var isBlendingEnabled: Bool = true {
+    didSet {
+      if isBlendingEnabled {
+        glEnable(GL.BLEND)
+      } else {
+        glDisable(GL.BLEND)
+      }
+    }
+  }
+
+  /// A flag that indicates whether transparent textures have their alpha-channel premultiplied.
+  internal var isAlphaPremultiplied: Bool = true {
+    didSet {
+      if isAlphaPremultiplied {
+        glBlendFunc(GL.ONE, GL.ONE_MINUS_SRC_ALPHA)
+      } else {
+        glBlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
+      }
+    }
+  }
+
   /// A flag that indicates whether depth testing is enabled.
   internal var isDepthTestingEnabled: Bool = true {
     didSet {
@@ -298,6 +320,22 @@ public final class AppContext {
         glDisable(GL.DEPTH_TEST)
       }
     }
+  }
+
+  /// Execute the specified closure and restore all renderer settings to their value before the
+  /// closure ran.
+  internal func restoreSettingsAfter<Result>(_ block: () -> Result) -> Result {
+    let wasBlendingEnabled = isBlendingEnabled
+    let wasAlphaPremultiplied = isAlphaPremultiplied
+    let wasDepthTestingEnabled = isDepthTestingEnabled
+
+    defer {
+      isBlendingEnabled = wasBlendingEnabled
+      isAlphaPremultiplied = wasAlphaPremultiplied
+      isDepthTestingEnabled = wasDepthTestingEnabled
+    }
+
+    return block()
   }
 
   // MARK: Internal API
