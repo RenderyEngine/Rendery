@@ -21,18 +21,24 @@ internal enum GL {
   static var SCISSOR_TEST         : BitField { BitField(GL_SCISSOR_TEST) }
   static var STENCIL_BUFFER_BIT   : BitField { BitField(GL_STENCIL_BUFFER_BIT) }
 
+  static var FALSE                : Bool { Bool(GL_FALSE) }
+  static var TRUE                 : Bool { Bool(GL_TRUE) }
+
   static var ALWAYS               : Enum { Enum(GL_ALWAYS) }
   static var ARRAY_BUFFER         : Enum { Enum(GL_ARRAY_BUFFER) }
   static var BLEND                : Enum { Enum(GL_BLEND) }
+  static var BYTE                 : Enum { Enum(GL_BYTE) }
   static var CLAMP_TO_BORDER      : Enum { Enum(GL_CLAMP_TO_BORDER) }
   static var CLAMP_TO_EDGE        : Enum { Enum(GL_CLAMP_TO_EDGE) }
   static var COMPILE_STATUS       : Enum { Enum(GL_COMPILE_STATUS) }
   static var DEPTH_TEST           : Enum { Enum(GL_DEPTH_TEST) }
+  static var DOUBLE               : Enum { Enum(GL_DOUBLE) }
   static var DYNAMIC_DRAW         : Enum { Enum(GL_DYNAMIC_DRAW) }
   static var ELEMENT_ARRAY_BUFFER : Enum { Enum(GL_ELEMENT_ARRAY_BUFFER) }
-  static var FALSE                : Bool { Bool(GL_FALSE) }
+  static var FLOAT                : Enum { Enum(GL_FLOAT) }
   static var FRAGMENT_SHADER      : Enum { Enum(GL_FRAGMENT_SHADER) }
   static var INFO_LOG_LENGTH      : Enum { Enum(GL_INFO_LOG_LENGTH) }
+  static var INT                  : Enum { Enum(GL_INT) }
   static var KEEP                 : Enum { Enum(GL_KEEP) }
   static var LESS                 : Enum { Enum(GL_LESS) }
   static var LINEAR               : Enum { Enum(GL_LINEAR) }
@@ -45,20 +51,26 @@ internal enum GL {
   static var ONE                  : Enum { Enum(GL_ONE) }
   static var ONE_MINUS_SRC_ALPHA  : Enum { Enum(GL_ONE_MINUS_SRC_ALPHA) }
   static var POINTS               : Enum { Enum(GL_POINTS) }
+  static var RED                  : Enum { Enum(GL_RED) }
   static var REPEAT               : Enum { Enum(GL_REPEAT) }
   static var REPLACE              : Enum { Enum(GL_REPLACE) }
   static var RGBA                 : Enum { Enum(GL_RGBA) }
+  static var SHORT                : Enum { Enum(GL_SHORT) }
   static var SRC_ALPHA            : Enum { Enum(GL_SRC_ALPHA) }
   static var STENCIL_TEST         : Enum { Enum(GL_STENCIL_TEST) }
   static var TEXTURE_2D           : Enum { Enum(GL_TEXTURE_2D) }
   static var TEXTURE_HEIGHT       : Enum { Enum(GL_TEXTURE_HEIGHT) }
+  static var TEXTURE_MAG_FILTER   : Enum { Enum(GL_TEXTURE_MAG_FILTER) }
   static var TEXTURE_MIN_FILTER   : Enum { Enum(GL_TEXTURE_MIN_FILTER) }
   static var TEXTURE_WIDTH        : Enum { Enum(GL_TEXTURE_WIDTH) }
   static var TEXTURE_WRAP_S       : Enum { Enum(GL_TEXTURE_WRAP_S) }
   static var TEXTURE_WRAP_T       : Enum { Enum(GL_TEXTURE_WRAP_T) }
   static var TEXTURE0             : Enum { Enum(GL_TEXTURE0) }
   static var TRIANGLES            : Enum { Enum(GL_TRIANGLES) }
-  static var TRUE                 : Enum { Enum(GL_TRUE) }
+  static var UNPACK_ALIGNMENT     : Enum { Enum(GL_UNPACK_ALIGNMENT) }
+  static var UNSIGNED_BYTE        : Enum { Enum(GL_UNSIGNED_BYTE) }
+  static var UNSIGNED_INT         : Enum { Enum(GL_UNSIGNED_INT) }
+  static var UNSIGNED_SHORT       : Enum { Enum(GL_UNSIGNED_SHORT) }
   static var VERTEX_SHADER        : Enum { Enum(GL_VERTEX_SHADER) }
 
 }
@@ -85,6 +97,17 @@ internal func glViewport(region: Rectangle) {
 }
 
 // MARK: Converters
+
+extension Image.PixelFormat {
+
+  internal var glValue: GL.Enum {
+    switch self {
+    case .gray: return GL.RED
+    case .rgba: return GL.RGBA
+    }
+  }
+
+}
 
 extension Mesh.PrimitiveType {
 

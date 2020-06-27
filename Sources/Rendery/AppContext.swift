@@ -71,7 +71,7 @@ public final class AppContext {
     // Enable blending and specifies how OpenGL should handle transparency. This requires textures
     // to be loaded with premultiplied alpha (i.e., (αR,αG,αB,α) rather than (R,G,B,α)).
     glEnable(GL.BLEND)
-    glBlendFunc(GL.Enum(GL_ONE), GL.ONE_MINUS_SRC_ALPHA)
+    glBlendFunc(GL.ONE, GL.ONE_MINUS_SRC_ALPHA)
     // glBlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA) // <- without premultiplied alpha
 
     // Enable depth testing.
