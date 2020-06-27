@@ -89,22 +89,24 @@ public final class Texture: GraphicsResource {
     glGenTextures(1, &self.handle)
     glBindTexture(GL.TEXTURE_2D, self.handle)
     source!.withUnsafePointer({ data in
-      // Mirror the image, as OpenGL expects the first pixel to be at the bottom-left, and
-      // premultiplie the alpha channel for blending.
-      var buffer: UnsafeMutablePointer<UInt8> = .allocate(capacity: 4 * width * height)
-      defer { buffer.deallocate() }
-      let w4 = width * 4
-      for row in 0 ..< height {
-        let base = buffer.advanced(by: row * w4)
-        base.assign(from: data.advanced(by: (height - 1 - row) * w4), count: w4)
-
-        // FIXME: Add an option to choose whether alpha should be pre-multiplied.
-        for col in stride(from: 0, to: w4, by: 4) {
-          base[col + 0] = UInt8(Double(base[col + 0]) * Double(base[col + 3]) / 255.0)
-          base[col + 1] = UInt8(Double(base[col + 1]) * Double(base[col + 3]) / 255.0)
-          base[col + 2] = UInt8(Double(base[col + 2]) * Double(base[col + 3]) / 255.0)
-        }
-      }
+//      // Mirror the image, as OpenGL expects the first pixel to be at the bottom-left, and
+//      // premultiplie the alpha channel for blending.
+//      let pixelStride = source!.format.componentCountPerPixel
+//      var buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: pixelStride * width * height)
+//      defer { buffer.deallocate() }
+//
+//      let lineStride = width * pixelStride
+//      for row in 0 ..< height {
+//        let base = buffer.advanced(by: row * lineStride)
+//        base.assign(from: data.advanced(by: (height - 1 - row) * lineStride), count: lineStride)
+//
+//        // FIXME: Add an option to choose whether alpha should be pre-multiplied.
+//        for col in stride(from: 0, to: lineStride, by: 4) {
+//          base[col + 0] = UInt8(Double(base[col + 0]) * Double(base[col + 3]) / 255.0)
+//          base[col + 1] = UInt8(Double(base[col + 1]) * Double(base[col + 3]) / 255.0)
+//          base[col + 2] = UInt8(Double(base[col + 2]) * Double(base[col + 3]) / 255.0)
+//        }
+//      }
 
       // Load the texture data into GPU memory.
       let format = source!.format.glValue
