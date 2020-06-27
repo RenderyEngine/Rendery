@@ -105,9 +105,9 @@ public final class Mesh: GraphicsResource {
     glBindVertexArray(0)
   }
 
-  var state: GraphicsResourceState
+  internal var state: GraphicsResourceState
 
-  internal final func load() {
+  internal func load() {
     assert(state != .gone)
     guard state != .loaded
       else { return }
@@ -161,11 +161,11 @@ public final class Mesh: GraphicsResource {
       "Mesh '\(address(of: self))' successfully loaded (\(vertexCount) vertices).",
       level: .debug)
 
-    // Bind the texture's lifetime to the app context.
+    // Bind the mesh's lifetime to the app context.
     AppContext.shared.graphicsResourceManager.store(self)
   }
 
-  func unload() {
+  internal func unload() {
     if vaoID > 0 {
       glDeleteBuffers(2, [vboID, eboID])
       glDeleteVertexArrays(1, &vaoID)
