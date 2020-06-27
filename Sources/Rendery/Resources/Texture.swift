@@ -107,16 +107,22 @@ public final class Texture: GraphicsResource {
       }
 
       // Load the texture data into GPU memory.
+      let format = source!.format.glValue
+      if format == GL.RED {
+        // Disable OpenGL's byte-alignment restriction, since there's only one channel.
+        glPixelStorei(GL.UNPACK_ALIGNMENT, 1)
+      }
+
       glTexImage2D(
         GL.TEXTURE_2D,                 // Texture target
         0,                             // Mipmap level
-        GL.Int(bitPattern: GL.RGBA),   // Format in GPU memory
+        GL.Int(bitPattern: format),    // Format in GPU memory
         GL.Size(width),                // Source width
         GL.Size(height),               // Source height
         0,                             // Legacy
-        GL.RGBA,                       // Source format
+        format,                        // Source format
         glTypeSymbol(of: UInt8.self)!, // Source type (per channel)
-        buffer)                        // Source data
+        data)                          // Source data
     })
 
     // Generate mipmaps, if requested.
@@ -133,6 +139,7 @@ public final class Texture: GraphicsResource {
       // Setup nearest neighbor filtering.
       // Required if mipmaps are disabled (https://stackoverflow.com/questions/8064420)
       glTexParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.Int(bitPattern: GL.NEAREST))
+      glTexParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.Int(bitPattern: GL.NEAREST))
     }
 
     // Setup the texture's wrapping method.

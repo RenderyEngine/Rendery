@@ -7,6 +7,25 @@ public final class Image: TextureSource, InitializableFromFile {
   /// Initializes an image with a matrix of pixel data.
   ///
   /// - Parameters:
+  ///   - pixels: A buffer of `width * height` bytes representing a matrix of pixels, each of which
+  ///     defined by a `n` consecutive bytes (i.e., 8-bit unsigned integers) representing the `n`
+  ///     different color channels composing the pixel's color. The matrix is in a row-major order,
+  ///     where the first block corresponds to the top-left corner of the image.
+  ///   - width: The image's width, in pixels.
+  ///   - height: The image's height, in pixels.
+  ///   - format: The data format of the pixels contained in `data`.
+  public init(pixels: Data, width: Int, height: Int, format: PixelFormat) {
+    self.width = width
+    self.height = height
+    self.format = format
+
+    self.data = .allocate(capacity: pixels.count)
+    pixels.copyBytes(to: self.data, count: pixels.count)
+  }
+
+  /// Initializes an image with a matrix of pixel data.
+  ///
+  /// - Parameters:
   ///   - pixels: An array of `width * height` colors. The matrix should be in row-order and its
   ///     first element should correspond to the top-left corner of the image.
   ///   - width: The image's width, in pixels.
@@ -15,6 +34,7 @@ public final class Image: TextureSource, InitializableFromFile {
     assert(pixels.count >= width * height)
     self.width = width
     self.height = height
+    self.format = .rgba
 
     self.data = .allocate(capacity: 4 * width * height)
     for i in 0 ..< width * height {
@@ -45,6 +65,7 @@ public final class Image: TextureSource, InitializableFromFile {
 
     self.width = Int(w)
     self.height = Int(h)
+    self.format = .rgba
   }
 
   /// Initializes an image with the contents of the specified file.
@@ -65,6 +86,26 @@ public final class Image: TextureSource, InitializableFromFile {
 
   /// The image's height, in pixels.
   public private(set) var height: Int
+
+  /// The image's pixel data format.
+  public var format: PixelFormat
+
+  /// A pixel data format.
+  public enum PixelFormat {
+
+    case gray
+
+    case rgba
+
+    /// Returns the number of components per pixel required to encode this format.
+    public var componentCountPerPixel: Int {
+      switch self {
+      case .gray: return 1
+      case .rgba: return 4
+      }
+    }
+
+  }
 
   public func withUnsafePointer<Result>(
     _ body: (UnsafePointer<UInt8>) throws -> Result
