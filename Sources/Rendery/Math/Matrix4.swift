@@ -350,6 +350,66 @@ public struct Matrix4: Hashable {
     return result
   }
 
+  /// Initializes a perspective projection matrix.
+  ///
+  /// - Parameters:
+  ///   - top: The top screen coordinate.
+  ///   - bottom: The bottom screen coordinate.
+  ///   - right: The right screen coordinate.
+  ///   - left: The left screen coordinate.
+  ///   - far: The distance to the far plane.
+  ///   - near: The distance to the near plane.
+  public static func perspective(
+    top   : Double,
+    bottom: Double,
+    right : Double,
+    left  : Double,
+    far   : Double,
+    near  : Double
+  ) -> Matrix4 {
+    var result = Matrix4.zero
+
+    result[0,0] = (2.0 * near) / (right - left)
+    result[0,3] = (right + left) / (right - left)
+    result[1,1] = (2.0 * near) / (top - bottom)
+    result[1,2] = (top + bottom) / (top - bottom)
+    result[2,2] = -(far + near) / (far - near)
+    result[2,3] = (-2.0 * far * near) / (far - near)
+    result[3,2] = -1.0
+
+    return result
+  }
+
+  /// Initializes an orthographic projection matrix.
+  ///
+  /// - Parameters:
+  ///   - top: The top screen coordinate.
+  ///   - bottom: The bottom screen coordinate.
+  ///   - right: The right screen coordinate.
+  ///   - left: The left screen coordinate.
+  ///   - far: The distance to the far plane.
+  ///   - near: The distance to the near plane.
+  public static func orthographic(
+    top   : Double,
+    bottom: Double,
+    right : Double,
+    left  : Double,
+    far   : Double,
+    near  : Double
+  ) -> Matrix4 {
+    var result = Matrix4.zero
+
+    result[0,0] = 2.0 / (right - left)
+    result[0,3] = -(right + left) / (right - left)
+    result[1,1] = 2.0 / (top - bottom)
+    result[1,3] = -(top + bottom) / (top - bottom)
+    result[2,2] = -2.0 / (far - near)
+    result[2,3] = -(far + near) / (far - near);
+    result[3,3] = 1.0
+
+    return result
+  }
+
   /// The matrix whose all components are zero.
   public static var zero: Matrix4 {
     return Matrix4(columnMajor: Array(repeating: 0.0, count: 16))

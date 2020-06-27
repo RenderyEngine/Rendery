@@ -90,55 +90,31 @@ public struct Camera {
       ratio = region.width / region.height
     }
 
-    switch projectionType {
-    case .perspective:
-      return perspectiveMatrix(aspectRatio: ratio)
-    case .orthographic:
-      return orthographicMatrix(aspectRatio: ratio)
-    }
-  }
-
-  /// Computes a perspective projection matrix.
-  private func perspectiveMatrix(aspectRatio: Double) -> Matrix4 {
     // Compute screen coordinates.
     let top = Double.tan(fovY.radians / 2.0) * nearDistance
     let bottom = -top
-    let right = top * aspectRatio
+    let right = top * ratio
     let left = -right
 
-    // Compute the corresponding perspective projection matrix.
-    var result = Matrix4.zero
-    result[0,0] = (2.0 * nearDistance) / (right - left)
-    result[0,3] = (right + left) / (right - left)
-    result[1,1] = (2.0 * nearDistance) / (top - bottom)
-    result[1,2] = (top + bottom) / (top - bottom)
-    result[2,2] = -(farDistance + nearDistance) / (farDistance - nearDistance)
-    result[2,3] = (-2.0 * farDistance * nearDistance) / (farDistance - nearDistance)
-    result[3,2] = -1.0
+    switch projectionType {
+    case .perspective:
+      return Matrix4.perspective(
+        top   : top,
+        bottom: bottom,
+        right : right,
+        left  : left,
+        far   : farDistance,
+        near  : nearDistance)
 
-    return result
-  }
-
-  /// Computes an orthographic projection matrix.
-  private func orthographicMatrix(aspectRatio: Double) -> Matrix4 {
-    // Compute screen coordinates.
-    // let top = fovY.radians / 2.0
-    let top = Double.tan(fovY.radians / 2.0) * focusDistance
-    let bottom = -top
-    let right = top * aspectRatio
-    let left = -right
-
-    // Compute the corresponding orthographic projection matrix.
-    var result = Matrix4.zero
-    result[0,0] = 2.0 / (right - left)
-    result[0,3] = -(right + left) / (right - left)
-    result[1,1] = 2.0 / (top - bottom)
-    result[1,3] = -(top + bottom) / (top - bottom)
-    result[2,2] = -2.0 / (farDistance - nearDistance)
-    result[2,3] = -(farDistance + nearDistance) / (farDistance - nearDistance);
-    result[3,3] = 1.0
-
-    return result
+    case .orthographic:
+      return Matrix4.orthographic(
+        top   : top,
+        bottom: bottom,
+        right : right,
+        left  : left,
+        far   : farDistance,
+        near  : nearDistance)
+    }
   }
 
 }
