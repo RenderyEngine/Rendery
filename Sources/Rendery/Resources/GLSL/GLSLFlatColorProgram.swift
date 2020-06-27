@@ -11,7 +11,7 @@ public struct GLSLFlatColorProgram: GLSLProgramDelegate {
     // Extract parameters from context.
     let parameters = context.assumingMemoryBound(to: Parameters.self).pointee
 
-    program.assign(color: parameters.color, at: "outlineColor")
+    program.assign(color: parameters.color, at: "color")
     program.assign(matrix4: parameters.mvp, at: "mvp")
   }
 
@@ -30,12 +30,11 @@ void main() {
 
 private let _fragmentSource = """
 #version 330 core
-
-uniform vec3 outlineColor;
+uniform vec3 color;
 
 out vec4 finalColor;
 
 void main() {
-  finalColor = vec4(outlineColor, 1.0);
+  finalColor = vec4(color, 1.0);
 }
 """
