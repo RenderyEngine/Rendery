@@ -194,54 +194,61 @@ public final class Window {
     glClearColor(scene.backgroundColor)
     glClear(GL.COLOR_BUFFER_BIT)
 
-    // Draw the scene tree.
-    if let pov = viewport.pointOfView  {
-      // Apply the transform constraints on the point of view so that all camera properties are
-      // up to date before computing the view-projection matrix.
-      scene.updateConstraints(on: pov, generation: generation)
+    AppContext.shared.restoreSettingsAfter({
+      // Draw the scene tree.
+      if let pov = viewport.pointOfView  {
+        AppContext.shared.isDepthTestingEnabled = true
 
-      // Compute the view-projection matrix. This may "fail" if the viewport has no camera.
-      guard let viewProjectionMatrix = viewport.viewProjectionMatrix
-        else { return }
+        // Apply the transform constraints on the point of view so that all camera properties are
+        // up to date before computing the view-projection matrix.
+        scene.updateConstraints(on: pov, generation: generation)
 
-      // Collect the scene's renderable objects.
-      let renderableNodes = Array(scene.root.descendants(.satisfying({ $0.model != nil })))
+        // Compute the view-projection matrix. This may "fail" if the viewport has no camera.
+        guard let viewProjectionMatrix = viewport.viewProjectionMatrix
+          else { return }
 
-      // Compute the model-view-matrix for each object.
-      var mvpMatrices: [Node: Matrix4] = [:]
-      for node in renderableNodes {
-        let model = node.model!
+        // Collect the scene's renderable objects.
+        let renderableNodes = Array(scene.root.descendants(.satisfying({ $0.model != nil })))
 
-        // Compute the model's transformation matrix.
-        var modelMatrix = node.sceneTransform
-        if model.pivotPoint != Vector3(x: 0.5, y: 0.5, z: 0.5) {
-          let bb = model.aabb
-          let translation = (Vector3.unitScale - model.pivotPoint) * bb.dimensions + bb.origin
-          modelMatrix = modelMatrix * Matrix4(translation: translation)
+        // Compute the model-view-matrix for each object.
+        var mvpMatrices: [Node: Matrix4] = [:]
+        for node in renderableNodes {
+          let model = node.model!
+
+          // Compute the model's transformation matrix.
+          var modelMatrix = node.sceneTransform
+          if model.pivotPoint != Vector3(x: 0.5, y: 0.5, z: 0.5) {
+            let bb = model.aabb
+            let translation = (Vector3.unitScale - model.pivotPoint) * bb.dimensions + bb.origin
+            modelMatrix = modelMatrix * Matrix4(translation: translation)
+          }
+
+          // Compute the model-view-projection matrix.
+          let modelViewProjectionMatrix = viewProjectionMatrix * modelMatrix
+
+          // Cache the matrices for subsequent render passes.
+          mvpMatrices[node] = modelViewProjectionMatrix
         }
 
-        // Compute the model-view-projection matrix.
-        let modelViewProjectionMatrix = viewProjectionMatrix * modelMatrix
+        // TODO: Culling should be performed here to filter renderable objects.
+        // TODO: Z-ordering should be performed here if needed (e.g. for 2D).
 
-        // Cache the matrices for subsequent render passes.
-        mvpMatrices[node] = modelViewProjectionMatrix
+        // Render the color pass (a.k.a. the beauty pass).
+        colorPass(renderable: renderableNodes, scene: scene, mvpMatrices: &mvpMatrices)
+
+        // Render the outline pass.
+        outlinePass(renderable: renderableNodes, scene: scene, mvpMatrices: &mvpMatrices)
       }
 
-      // TODO: Culling should be performed here to filter renderable objects.
-      // TODO: Z-ordering should be performed here if needed (e.g. for 2D).
+      // Draw the scene's HUD.
+      if let hud = scene.hud {
+        AppContext.shared.isBlendingEnabled = true
+        AppContext.shared.isDepthTestingEnabled = false
 
-      // Render the color pass (a.k.a. the beauty pass).
-      colorPass(renderable: renderableNodes, scene: scene, mvpMatrices: &mvpMatrices)
-
-      // Render the outline pass.
-      outlinePass(renderable: renderableNodes, scene: scene, mvpMatrices: &mvpMatrices)
-    }
-
-    // Draw the scene's HUD.
-    if let hud = scene.hud {
-      var viewRenderer = ViewRenderer()
-      viewRenderer.render(view: hud)
-    }
+        var viewRenderer = ViewRenderer(width: width, height: height)
+        viewRenderer.render(view: hud)
+      }
+    })
   }
 
   private func colorPass(
