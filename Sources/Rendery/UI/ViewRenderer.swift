@@ -84,8 +84,10 @@ public struct ViewRenderer {
         // ViewRenderer.quad.update(Rectangle(origin: .zero, dimensions: .unitScale * 138))
 
         // Bind the glyph texture.
-        glyph.texture.load()
-        glBindTexture(GL.TEXTURE_2D, glyph.texture.handle)
+        if let texture = glyph.texture {
+          texture.load()
+          glBindTexture(GL.TEXTURE_2D, texture.handle)
+        }
 
         // Draw the glyph.
         ViewRenderer.quad.draw()

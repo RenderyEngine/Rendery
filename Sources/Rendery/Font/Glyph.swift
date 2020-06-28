@@ -2,7 +2,7 @@
 public struct Glyph {
 
   /// The texture representing the glyph.
-  public let texture: Texture
+  public let texture: Texture?
 
   /// The glyph's size.
   public let size: Vector2

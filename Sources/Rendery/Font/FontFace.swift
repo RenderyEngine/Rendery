@@ -9,8 +9,10 @@ public class FontFace {
   }
 
   public func glyph(for character: Character) -> Glyph? {
-    if let glyph = cache[character], glyph.texture.state != .gone {
-      return glyph
+    if let glyph = cache[character] {
+      if glyph.texture == nil || glyph.texture!.state != .gone {
+        return glyph
+      }
     }
 
     // Load the character glyph.
@@ -29,14 +31,17 @@ public class FontFace {
     let width = Int(ftGlyph.bitmap.width)
     let height = Int(ftGlyph.bitmap.rows)
 
-    let image = Image(
-      pixels: Data(bytes: ftGlyph.bitmap.buffer, count: width * height),
-      width: width,
-      height: height,
-      format: .gray)
-    let texture = Texture(
-      source: image,
-      wrappingMethod: (u: .clampedToEdge, v: .clampedToEdge))
+    var texture: Texture?
+    if let buffer = ftGlyph.bitmap.buffer {
+      let image = Image(
+        pixels: Data(bytes: buffer, count: width * height),
+        width: width,
+        height: height,
+        format: .gray)
+      texture = Texture(
+        source: image,
+        wrappingMethod: (u: .clampedToEdge, v: .clampedToEdge))
+    }
 
     // Create the glyph.
     let glyph = Glyph(
