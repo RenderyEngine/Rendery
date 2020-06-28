@@ -241,7 +241,10 @@ public final class Window {
           else { return }
 
         // Collect the scene's renderable objects.
-        let renderableNodes = Array(scene.root.descendants(.satisfying({ $0.model != nil })))
+        let renderableNodes = Array(Node.NodeIterator(
+          root: scene.root,
+          criterion: .satisfying({ node in (node.model != nil) && !node.isHidden }),
+          pruning: .hidden))
 
         // Compute the model-view-matrix for each object.
         var mvpMatrices: [Node: Matrix4] = [:]
@@ -299,7 +302,10 @@ public final class Window {
     mvpMatrices: inout [Node: Matrix4]
   ) {
     // Collect the scene's light sources.
-    let lights = Array(scene.root.descendants(.satisfying({ $0.light != nil })))
+    let lights = Array(Node.NodeIterator(
+      root: scene.root,
+      criterion: .satisfying({ node in node.light != nil && !node.isHidden }),
+      pruning: .hidden))
 
     for node in renderable {
       let model = node.model!
