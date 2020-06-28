@@ -1,14 +1,14 @@
 /// A view that displays one line of text.
 public struct Text: View {
 
-  public init(verbatim content: String, face: FontFace) {
+  public init(verbatim content: String, face: FontFace? = nil) {
     self._content = content
     self._face = face
   }
 
   private var _content: String
 
-  private var _face: FontFace
+  private var _face: FontFace?
 
   private var _color: Color = .black
 
@@ -28,8 +28,10 @@ extension Text: Hashable {
 
   public func hash(into hasher: inout Hasher) {
     hasher.combine(_content)
-    hasher.combine(ObjectIdentifier(_face))
     hasher.combine(_color)
+    if let face = _face {
+      hasher.combine(ObjectIdentifier(face))
+    }
   }
 
   public static func == (lhs: Text, rhs: Text) -> Bool {

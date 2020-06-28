@@ -282,7 +282,10 @@ public final class Window {
       glStencilMask(0)
       AppContext.shared.isBlendingEnabled = true
       AppContext.shared.isDepthTestingEnabled = false
-      var viewRenderer = ViewRenderer(width: width, height: height)
+      var viewRenderer = ViewRenderer(
+        width: width,
+        height: height,
+        defaultFontFace: scene.defaultFontFace)
 
       if let hud = scene.hud {
         viewRenderer.render(view: hud)

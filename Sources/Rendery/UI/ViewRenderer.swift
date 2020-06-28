@@ -3,9 +3,10 @@ import CGLFW
 /// An object that can render views and controls on top of a scene.
 public struct ViewRenderer {
 
-  internal init(width: Int, height: Int) {
+  internal init(width: Int, height: Int, defaultFontFace: FontFace?) {
     self.width = width
     self.height = height
+    self.defaultFontFace = defaultFontFace
 
     // Create the projection matrix of a virtual ortographic camera.
     self.projection = Matrix4.orthographic(
@@ -25,6 +26,9 @@ public struct ViewRenderer {
 
   /// The render target's actual height, in pixels.
   public let height: Int
+
+  /// The default font face that is used to draw text.
+  public var defaultFontFace: FontFace?
 
   /// An orthographic projection matrix that translates view and control coordinates into the
   /// viewport's clip space.
@@ -53,7 +57,10 @@ public struct ViewRenderer {
   }
 
   /// Draws the specified text with the renderer's current settings.
-  public func draw(string: String, face: FontFace, color: Color) {
+  public func draw(string: String, face: FontFace?, color: Color) {
+    guard let textFace = face ?? defaultFontFace
+      else { return }
+
     let program = ViewRenderer.quadProgram
     try! program.load()
     program.install()
@@ -73,7 +80,7 @@ public struct ViewRenderer {
       var xOffset = 0.0
       for character in string {
         // Generate a glyph.
-        guard let glyph = face.glyph(for: character)
+        guard let glyph = textFace.glyph(for: character)
           else { continue }
 
         // Update the quad's vertices.
