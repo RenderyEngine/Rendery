@@ -91,7 +91,7 @@ public final class Node {
     var result: [Node] = []
     var current = self
     while let next = current.parent {
-      if criterion == nil || criterion!.satisfied(by: next) {
+      if criterion == nil || criterion!.isSatisfied(by: next) {
         result.append(next)
       }
       current = next
@@ -110,24 +110,42 @@ public final class Node {
 
   /// Searches for nodes satisfying the specified criterion in the scene tree rooted by this node.
   ///
-  /// - Parameter criterion: The criterion the descendant nodes should satisfy to be returned.
-  public func descendants(_ criterion: NodeFilterCriterion? = nil) -> NodeIterator {
-    return NodeIterator(root: self, includeRoot: false, criterion: criterion)
+  /// - Parameters:
+  ///   - criterion: The criterion the descendant nodes should satisfy to be returned.
+  ///   - pruningCriterion: A criterion that is used to exclude from the search all the subtrees
+  ///     rooted by the nodes that do not satisfy it.
+  public func descendants(
+    _ criterion: NodeFilterCriterion? = nil,
+    pruning pruningCriterion: NodeFilterCriterion? = nil
+  ) -> NodeIterator {
+    return NodeIterator(
+      root: self,
+      includeRoot: false,
+      criterion: criterion,
+      pruning: pruningCriterion)
   }
 
   /// A sequence that iterates over the nodes of a scene tree.
   public struct NodeIterator: IteratorProtocol, Sequence {
 
-    public init(root: Node, includeRoot: Bool = true, criterion: NodeFilterCriterion? = nil) {
+    public init(
+      root: Node,
+      includeRoot: Bool = true,
+      criterion: NodeFilterCriterion? = nil,
+      pruning pruningCriterion: NodeFilterCriterion? = nil
+    ) {
       self.stack = includeRoot
         ? [root]
         : root.children.reversed()
       self.criterion = criterion
+      self.pruningCriterion = pruningCriterion
     }
 
     private var stack: [Node]
 
-    private var criterion: NodeFilterCriterion?
+    private let criterion: NodeFilterCriterion?
+
+    private let pruningCriterion: NodeFilterCriterion?
 
     public var first: Node? {
       var iterator = makeIterator()
@@ -136,8 +154,12 @@ public final class Node {
 
     public mutating func next() -> Node? {
       while let node = stack.popLast() {
-        stack.append(contentsOf: node.children.reversed())
-        if criterion == nil || criterion!.satisfied(by: node) {
+        let isIncluded = criterion == nil || criterion!.isSatisfied(by: node)
+        if pruningCriterion == nil || !pruningCriterion!.isSatisfied(by: node) {
+          stack.append(contentsOf: node.children.reversed())
+        }
+
+        if isIncluded {
           return node
         }
       }
