@@ -31,6 +31,26 @@ public final class FontManager {
     return FontFace(face: face)
   }
 
+  public func face(system: String, size: Int = 48) -> FontFace? {
+    let fontName = "\(system).ttf"
+
+#if os(macOS)
+    guard let dir = opendir("/Library/Fonts/")
+      else { return nil }
+
+    while let entry = readdir(dir)?.pointee {
+      let mirror = Mirror(reflecting: entry.d_name)
+      let name = String(cString: mirror.children.map({ $0.value as! CChar }))
+      if name == fontName {
+        return face(fromContentsOfFile: "/Library/Fonts/\(name)", size: size)
+      }
+    }
+#else
+    LogManager.main.log("FontManager.face(system:size:) is not implemented", level: .debug)
+#endif
+    return nil
+  }
+
   /// The handle of the FreeType library object.
   private var library: FT_Library?
 

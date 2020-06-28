@@ -49,6 +49,9 @@ public class FontFace {
     return glyph
   }
 
+  /// The default font face.
+  public static var `default`: FontFace? = AppContext.shared.fontManager?.face(system: "Arial")
+
   /// The handle of the FreeType face object.
   internal let face: FT_Face?
 
