@@ -289,6 +289,13 @@ public final class Node {
   /// The light source attached to this node.
   public var light: Light?
 
+  /// A flag that indicates whether the node and its children are hidden.
+  ///
+  /// If a node or one of its parent is hidden, then nor the node's model nor its light will be
+  /// rendered into the scene. Other properties, such as cameras and collisions shapes, are not
+  /// affected by the value of this property.
+  public var isHidden: Bool = false
+
   // MARK: Collision behavior
 
   /// The node's collision shape.
