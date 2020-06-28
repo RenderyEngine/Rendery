@@ -186,6 +186,8 @@ public final class AppContext {
   /// A structure that keeps track of the user inputs.
   public var inputs: InputState = InputState()
 
+  // MARK: Renderer settings
+
   /// The number of frames per second Rendery should try to render.
   ///
   /// This property instructs Rendery to try to run each rendering cycle at the specified frame
@@ -197,9 +199,6 @@ public final class AppContext {
   /// should use the `currentTime` argument that is provided to frame listeners.
   public var targetFrameRate: Int?
 
-  /// A flag that indicates whether the rendering loop should stop before the next frame.
-  public var shouldStopRendering = false
-
   /// The width of the lines that are drawn as `Mesh.PrimitiveType.lines`.
   ///
   /// This property should be used for debugging purposes only. The actual range of widths that can
@@ -208,6 +207,60 @@ public final class AppContext {
   public var lineWidth: Double = 1.0 {
     didSet { glLineWidth(Float(lineWidth)) }
   }
+
+  /// A flag that indicates whether blending is enabled.
+  internal var isBlendingEnabled: Bool = true {
+    didSet {
+      if isBlendingEnabled {
+        glEnable(GL.BLEND)
+      } else {
+        glDisable(GL.BLEND)
+      }
+    }
+  }
+
+  /// A flag that indicates whether transparent textures have their alpha-channel premultiplied.
+  internal var isAlphaPremultiplied: Bool = true {
+    didSet {
+      if isAlphaPremultiplied {
+        glBlendFunc(GL.ONE, GL.ONE_MINUS_SRC_ALPHA)
+      } else {
+        glBlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
+      }
+    }
+  }
+
+  /// A flag that indicates whether depth testing is enabled.
+  internal var isDepthTestingEnabled: Bool = true {
+    didSet {
+      if isDepthTestingEnabled {
+        glEnable(GL.DEPTH_TEST)
+      } else {
+        glDisable(GL.DEPTH_TEST)
+      }
+    }
+  }
+
+  /// Execute the specified closure and restore all renderer settings to their value before the
+  /// closure ran.
+  internal func restoreSettingsAfter<Result>(_ block: () -> Result) -> Result {
+    let wasBlendingEnabled = isBlendingEnabled
+    let wasAlphaPremultiplied = isAlphaPremultiplied
+    let wasDepthTestingEnabled = isDepthTestingEnabled
+
+    defer {
+      isBlendingEnabled = wasBlendingEnabled
+      isAlphaPremultiplied = wasAlphaPremultiplied
+      isDepthTestingEnabled = wasDepthTestingEnabled
+    }
+
+    return block()
+  }
+
+  // MARK: Rendering loop
+
+  /// A flag that indicates whether the rendering loop should stop before the next frame.
+  public var shouldStopRendering = false
 
   /// Starts Rendery's rendering loop.
   ///
@@ -285,57 +338,6 @@ public final class AppContext {
         }
       }
     }
-  }
-
-  // MARK: Renderer settings
-
-  /// A flag that indicates whether blending is enabled.
-  internal var isBlendingEnabled: Bool = true {
-    didSet {
-      if isBlendingEnabled {
-        glEnable(GL.BLEND)
-      } else {
-        glDisable(GL.BLEND)
-      }
-    }
-  }
-
-  /// A flag that indicates whether transparent textures have their alpha-channel premultiplied.
-  internal var isAlphaPremultiplied: Bool = true {
-    didSet {
-      if isAlphaPremultiplied {
-        glBlendFunc(GL.ONE, GL.ONE_MINUS_SRC_ALPHA)
-      } else {
-        glBlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
-      }
-    }
-  }
-
-  /// A flag that indicates whether depth testing is enabled.
-  internal var isDepthTestingEnabled: Bool = true {
-    didSet {
-      if isDepthTestingEnabled {
-        glEnable(GL.DEPTH_TEST)
-      } else {
-        glDisable(GL.DEPTH_TEST)
-      }
-    }
-  }
-
-  /// Execute the specified closure and restore all renderer settings to their value before the
-  /// closure ran.
-  internal func restoreSettingsAfter<Result>(_ block: () -> Result) -> Result {
-    let wasBlendingEnabled = isBlendingEnabled
-    let wasAlphaPremultiplied = isAlphaPremultiplied
-    let wasDepthTestingEnabled = isDepthTestingEnabled
-
-    defer {
-      isBlendingEnabled = wasBlendingEnabled
-      isAlphaPremultiplied = wasAlphaPremultiplied
-      isDepthTestingEnabled = wasDepthTestingEnabled
-    }
-
-    return block()
   }
 
   // MARK: Internal API
