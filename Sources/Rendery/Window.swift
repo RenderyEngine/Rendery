@@ -222,8 +222,10 @@ public final class Window {
     defer { glDisable(GL.SCISSOR_TEST) }
 
     // Clear the scene's background.
-    glClearColor(scene.backgroundColor)
-    glClear(GL.COLOR_BUFFER_BIT)
+    if let color = scene.backgroundColor {
+      glClearColor(color)
+      glClear(GL.COLOR_BUFFER_BIT)
+    }
 
     AppContext.shared.restoreSettingsAfter({
       // Draw the scene tree.
@@ -243,6 +245,8 @@ public final class Window {
 
         // Compute the model-view-matrix for each object.
         var mvpMatrices: [Node: Matrix4] = [:]
+        mvpMatrices.reserveCapacity(renderableNodes.count)
+
         for node in renderableNodes {
           let model = node.model!
 

@@ -9,7 +9,14 @@ open class Scene {
   }
 
   /// The color of the scene's background.
-  open var backgroundColor: Color = .white
+  ///
+  /// When this property is `nil`, the scene's background is not cleared to any color. Instead, it
+  /// is simply rendered over the surface covered by its viewport.
+  ///
+  /// - Note: For reasons of performance, it is recommended to leave this property unassigned and
+  ///   modify the background color of your rendering surface instead, unless you wish to render
+  ///   different scenes with different background onto the same surface.
+  open var backgroundColor: Color? = nil
 
   /// The root of scene tree.
   open var root = Node()
