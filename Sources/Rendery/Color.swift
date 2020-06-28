@@ -99,6 +99,25 @@ public struct Color: Hashable {
     return Color(hue: h, saturation: s, lightness: min(1, l + 0.1), alpha: a)
   }
 
+  /// Returns this color with the alpha channel set to the specified value.
+  ///
+  /// - Parameters:
+  ///   - alpha: The alpha value to set, in the range `0 ... 255`.
+  ///   - premultiplied: A flag that indicates whether `alpha` should be premultiplied with the
+  ///     color channels.
+  public func with(alpha: UInt8, premultiplied: Bool = false) -> Color {
+    if !premultiplied {
+      return Color(red: red, green: green, blue: blue, alpha: alpha)
+    } else {
+      let iAlpha = Double(alpha) / 255.0
+      return Color(
+        red  : UInt8(Double(red) * iAlpha),
+        green: UInt8(Double(green) * iAlpha),
+        blue : UInt8(Double(blue) * iAlpha),
+        alpha: alpha)
+    }
+  }
+
   /// The white color.
   public static var white = Color(red: 255, green: 255, blue: 255, alpha: 255)
 
