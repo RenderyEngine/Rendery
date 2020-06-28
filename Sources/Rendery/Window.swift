@@ -4,6 +4,9 @@ import Dispatch
 /// A Rendery window.
 public final class Window {
 
+  /// The pointer to the GLFW's window.
+  internal let handle: OpaquePointer?
+
   /// The window's delegate.
   public weak var delegate: WindowDelegate?
 
@@ -140,10 +143,38 @@ public final class Window {
     // key events that led to the production of the unicode character. It will probably be very
     // useful to implement text fields.
     // glfwSetCharCallback(handle, windowCharCallback)
+
+    AppContext.shared.subscribe(frameListener: frameRateObserver)
   }
 
-  /// The pointer to the GLFW's window.
-  internal let handle: OpaquePointer?
+  // MARK: Debugging
+
+  /// The current frame rate of the window.
+  public var frameRate: Int { frameRateObserver.frameRate }
+
+  /// The window's frame rate observer.
+  private var frameRateObserver = FrameRateObserver()
+
+  /// A frame listener that computes the average frame rate over a short time window.
+  private class FrameRateObserver: FrameListener {
+
+    private var start: Milliseconds = 0
+
+    var frameCount = 1
+
+    var frameRate = 0
+
+    func frameWillRender(currentTime: Milliseconds, delta: Milliseconds) {
+      // Report the average frame rate every 10 frames.
+      if frameCount % 10 == 0 {
+        frameRate = Int(1.0 / Double(currentTime - start) * 10000)
+        start = currentTime
+        frameCount = 0
+      }
+      frameCount += 1
+    }
+
+  }
 
   // MARK: Rendering
 
@@ -241,12 +272,19 @@ public final class Window {
       }
 
       // Draw the scene's HUD.
-      if let hud = scene.hud {
-        AppContext.shared.isBlendingEnabled = true
-        AppContext.shared.isDepthTestingEnabled = false
+      glStencilMask(0)
+      AppContext.shared.isBlendingEnabled = true
+      AppContext.shared.isDepthTestingEnabled = false
+      var viewRenderer = ViewRenderer(width: width, height: height)
 
-        var viewRenderer = ViewRenderer(width: width, height: height)
+      if let hud = scene.hud {
         viewRenderer.render(view: hud)
+      }
+
+      if viewport.showsFrameRate, let face = FontFace.default {
+        viewRenderer.penPosition = Vector2(x: 16.0, y: Double(height - 16 - 48))
+        viewRenderer.render(
+          view: Text(verbatim: "\(frameRate)", face: face).color(.red))
       }
     })
   }
@@ -362,6 +400,7 @@ public final class Window {
   }
 
   deinit {
+    AppContext.shared.unsubscribe(frameListener: frameRateObserver)
     close()
   }
 

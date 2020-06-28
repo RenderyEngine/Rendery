@@ -44,6 +44,9 @@ public final class Viewport {
   /// The scene will not be rendered if `pointOfView` is `nil`, or if it has no camera attached.
   public weak var pointOfView: Node?
 
+  /// A flag that indicates whether the viewport displayes a frame reate indicator.
+  public var showsFrameRate: Bool = false
+
   /// Sets the specified scene as the viewport's rendered contents.
   ///
   /// The new scene immediately replaces the current scene, if one exists.
