@@ -1,6 +1,6 @@
 public struct Overlay<Subview> where Subview: View {
 
-  public init(_ elements: [Element]) {
+  public init(_ elements: [Element] = []) {
     _elements = elements
   }
 
@@ -12,9 +12,21 @@ public struct Overlay<Subview> where Subview: View {
     return newOverlay
   }
 
+  public func add(_ element: Element) -> Overlay {
+    var newOverlay = self
+    newOverlay._elements.append(element)
+    return newOverlay
+  }
+
+  public func add(_ subview: Subview, offset: Vector2) -> Overlay {
+    var newOverlay = self
+    newOverlay._elements.append(Element(subview, offset: offset))
+    return newOverlay
+  }
+
   public struct Element {
 
-    public init(_ subview: Subview, offset: Vector2 = .zero) {
+    public init(_ subview: Subview, offset: Vector2) {
       self.subview = subview
       self._offset = offset
     }
@@ -36,11 +48,21 @@ public struct Overlay<Subview> where Subview: View {
 extension Overlay: View {
 
   public func render(into renderer: inout ViewRenderer) {
-    let penPosition = renderer.penPosition
+    let currentPenPosition = renderer.penPosition
     for element in _elements {
       element.render(into: &renderer)
     }
-    renderer.penPosition = penPosition
+    renderer.penPosition = currentPenPosition
+  }
+
+}
+
+extension Overlay where Subview == AnyView {
+
+  public func add<V>(_ subview: V, offset: Vector2) -> Overlay where V: View {
+    var newOverlay = self
+    newOverlay._elements.append(Element(AnyView(subview), offset: offset))
+    return newOverlay
   }
 
 }
@@ -48,7 +70,7 @@ extension Overlay: View {
 extension Overlay.Element: View {
 
   public func render(into renderer: inout ViewRenderer) {
-    renderer.penPosition = _offset
+    renderer.penPosition = renderer.penPosition + _offset
     subview.render(into: &renderer)
   }
 
