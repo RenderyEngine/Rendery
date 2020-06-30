@@ -257,6 +257,9 @@ public final class AppContext {
     return block()
   }
 
+  /// An interceptor that caches calls to OpenGL's API.
+  internal var interceptor = GL.APIInterceptor()
+
   // MARK: Rendering loop
 
   /// A flag that indicates whether the rendering loop should stop before the next frame.

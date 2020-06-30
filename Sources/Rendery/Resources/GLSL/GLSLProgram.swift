@@ -26,8 +26,9 @@ public final class GLSLProgram: GraphicsResource {
   ///   - boolean: The boolean value to assign.
   ///   - location: The name of the variable to which the value should be assigned.
   public func assign(boolean: Bool, at location: String) {
-    let locID = glGetUniformLocation(handle, location)
-    glUniform1i(locID, boolean ? 1 : 0)
+    let interceptor = AppContext.shared.interceptor
+    let locID = interceptor.getUniformLocation(program: handle, name: location)
+    interceptor.uniform(location: locID, value: boolean ? 1 : 0)
   }
 
   /// Assigns an integer at the specified location.
@@ -38,8 +39,9 @@ public final class GLSLProgram: GraphicsResource {
   ///   - integer: The integer value to assign.
   ///   - location: The name of the variable to which the value should be assigned.
   public func assign(integer: Int, at location: String) {
-    let locID = glGetUniformLocation(handle, location)
-    glUniform1i(locID, Int32(integer))
+    let interceptor = AppContext.shared.interceptor
+    let locID = interceptor.getUniformLocation(program: handle, name: location)
+    interceptor.uniform(location: locID, value: GL.Int(integer))
   }
 
   /// Assigns a color value at the specified location.
@@ -51,20 +53,20 @@ public final class GLSLProgram: GraphicsResource {
   ///   - location: The name of the variable to which the value should be assigned.
   ///   - discardingAlpha: A flag that indicates whether the alpha channel should be discarded.
   public func assign(color: Color, at location: String, discardingAlpha: Bool = true) {
-    let locID = glGetUniformLocation(handle, location)
+    let interceptor = AppContext.shared.interceptor
+    let locID = interceptor.getUniformLocation(program: handle, name: location)
+
     if discardingAlpha {
-      glUniform3f(
-        locID,
-        Float(color.red) / 255.0,
-        Float(color.green) / 255.0,
-        Float(color.blue) / 255.0)
+      interceptor.uniform(location: locID, value: GLSL.Vec3(
+        x: Float(color.red) / 255.0,
+        y: Float(color.green) / 255.0,
+        z: Float(color.blue) / 255.0))
     } else {
-      glUniform4f(
-        locID,
-        Float(color.red) / 255.0,
-        Float(color.green) / 255.0,
-        Float(color.blue) / 255.0,
-        Float(color.alpha) / 255.0)
+      interceptor.uniform(location: locID, value: GLSL.Vec4(
+        x: Float(color.red) / 255.0,
+        y: Float(color.green) / 255.0,
+        z: Float(color.blue) / 255.0,
+        w: Float(color.alpha) / 255.0))
     }
   }
 
@@ -76,8 +78,11 @@ public final class GLSLProgram: GraphicsResource {
   ///   - vector2: The vector value to assign.
   ///   - location: The name of the variable to which the value should be assigned.
   public func assign(vector2: Vector2, at location: String) {
-    let locID = glGetUniformLocation(handle, location)
-    glUniform2f(locID, Float(vector2.x), Float(vector2.y))
+    let interceptor = AppContext.shared.interceptor
+    let locID = interceptor.getUniformLocation(program: handle, name: location)
+    interceptor.uniform(location: locID, value: GLSL.Vec2(
+      x: Float(vector2.x),
+      y: Float(vector2.y)))
   }
 
   /// Assigns a 3D vector at the specified location.
@@ -88,8 +93,12 @@ public final class GLSLProgram: GraphicsResource {
   ///   - vector3: The vector value to assign.
   ///   - location: The name of the variable to which the value should be assigned.
   public func assign(vector3: Vector3, at location: String) {
-    let locID = glGetUniformLocation(handle, location)
-    glUniform3f(locID, Float(vector3.x), Float(vector3.y), Float(vector3.z))
+    let interceptor = AppContext.shared.interceptor
+    let locID = interceptor.getUniformLocation(program: handle, name: location)
+    interceptor.uniform(location: locID, value: GLSL.Vec3(
+      x: Float(vector3.x),
+      y: Float(vector3.y),
+      z: Float(vector3.z)))
   }
 
   /// Assigns a 3x3 matrix at the specified location.
@@ -100,7 +109,9 @@ public final class GLSLProgram: GraphicsResource {
   ///   - matrix3: The matrix value to assign.
   ///   - location: The name of the variable to which the value should be assigned.
   public func assign(matrix3: Matrix3, at location: String) {
-    let locID = glGetUniformLocation(handle, location)
+    let interceptor = AppContext.shared.interceptor
+    let locID = interceptor.getUniformLocation(program: handle, name: location)
+
     let data = matrix3.components.map(Float.init)
     glUniformMatrix3fv(locID, 1, 0, data)
   }
@@ -113,7 +124,9 @@ public final class GLSLProgram: GraphicsResource {
   ///   - matrix4: The matrix value to assign.
   ///   - location: The name of the variable to which the value should be assigned.
   public func assign(matrix4: Matrix4, at location: String) {
-    let locID = glGetUniformLocation(handle, location)
+    let interceptor = AppContext.shared.interceptor
+    let locID = interceptor.getUniformLocation(program: handle, name: location)
+
     let data = matrix4.components.map(Float.init)
     glUniformMatrix4fv(locID, 1, 0, data)
   }
@@ -205,6 +218,7 @@ public final class GLSLProgram: GraphicsResource {
   internal func unload() {
     if handle > 0 {
       glDeleteProgram(handle)
+      AppContext.shared.interceptor.clearProgramCache(program: handle)
       LogManager.main.log("GLSL program '\(handle)' successfully unloaded.", level: .debug)
       handle = 0
     }
@@ -216,7 +230,7 @@ public final class GLSLProgram: GraphicsResource {
   internal func install() {
     assert(glfwGetCurrentContext() != nil)
     assert(state == .loaded)
-    glUseProgram(handle)
+    AppContext.shared.interceptor.useProgram(handle)
   }
 
   /// Compiles a shader.
