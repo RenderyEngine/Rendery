@@ -241,7 +241,7 @@ public final class Window {
     }
 
     // Update transform constraints.
-    for node in Node.NodeIterator(root: scene.root) {
+    for node in scene.constraintCache.keys {
       scene.updateConstraints(on: node, generation: generation)
     }
 
