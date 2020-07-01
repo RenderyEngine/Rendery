@@ -227,30 +227,35 @@ public final class Window {
       glClear(GL.COLOR_BUFFER_BIT)
     }
 
+    // Iterate over the entire scene to extract renderable nodes and light sources.
+    var renderable: [Node] = []
+    var lights: [Node] = []
+
+    for node in Node.NodeIterator(root: scene.root, pruning: .hidden) {
+      if (node.model != nil) && !node.isHidden {
+        renderable.append(node)
+      }
+      if (node.light != nil) && !node.isHidden {
+        lights.append(node)
+      }
+    }
+
+    // Update transform constraints.
+    for node in Node.NodeIterator(root: scene.root) {
+      scene.updateConstraints(on: node, generation: generation)
+    }
+
     AppContext.shared.restoreSettingsAfter({
       // Draw the scene tree.
-      if let pov = viewport.pointOfView  {
-        AppContext.shared.isDepthTestingEnabled = true
+      AppContext.shared.isDepthTestingEnabled = true
 
-        // Apply the transform constraints on the point of view so that all camera properties are
-        // up to date before computing the view-projection matrix.
-        scene.updateConstraints(on: pov, generation: generation)
-
-        // Compute the view-projection matrix. This may "fail" if the viewport has no camera.
-        guard let viewProjectionMatrix = viewport.viewProjectionMatrix
-          else { return }
-
-        // Collect the scene's renderable objects.
-        let renderableNodes = Array(Node.NodeIterator(
-          root: scene.root,
-          criterion: .satisfying({ node in (node.model != nil) && !node.isHidden }),
-          pruning: .hidden))
-
+      // Compute the view-projection matrix. This may "fail" if the viewport has no camera.
+      if let viewProjectionMatrix = viewport.viewProjectionMatrix {
         // Compute the model-view-matrix for each object.
         var mvpMatrices: [Node: Matrix4] = [:]
-        mvpMatrices.reserveCapacity(renderableNodes.count)
+        mvpMatrices.reserveCapacity(renderable.count)
 
-        for node in renderableNodes {
+        for node in renderable {
           let model = node.model!
 
           // Compute the model's transformation matrix.
@@ -268,48 +273,47 @@ public final class Window {
           mvpMatrices[node] = modelViewProjectionMatrix
         }
 
-        // TODO: Culling should be performed here to filter renderable objects.
+        // TODO: Culling should be performed here to avoid unnecessary draw calls.
         // TODO: Z-ordering should be performed here if needed (e.g. for 2D).
 
         // Render the color pass (a.k.a. the beauty pass).
-        colorPass(renderable: renderableNodes, scene: scene, mvpMatrices: &mvpMatrices)
+        colorPass(renderable: renderable, lights: lights, scene: scene, mvpMatrices: &mvpMatrices)
 
         // Render the outline pass.
-        outlinePass(renderable: renderableNodes, scene: scene, mvpMatrices: &mvpMatrices)
+        outlinePass(renderable: renderable, scene: scene, mvpMatrices: &mvpMatrices)
       }
 
-      // Draw the scene's HUD.
+      // Prepare the OpenGL context to draw UI elements.
       glStencilMask(0)
       AppContext.shared.isBlendingEnabled = true
       AppContext.shared.isDepthTestingEnabled = false
-      var viewRenderer = ViewRenderer(
-        width: width,
-        height: height,
-        defaultFontFace: scene.defaultFontFace)
 
       if let hud = scene.hud {
+        // Configure the UI view renderer.
+        viewRenderer.dimensions = region.dimensions
+        viewRenderer.penPosition = .zero
+        viewRenderer.defaultFontFace = scene.defaultFontFace
+
+        // Draw the scene's HUD.
         viewRenderer.render(view: hud)
       }
 
       if viewport.showsFrameRate, let face = FontFace.default {
-        viewRenderer.penPosition = Vector2(x: 16.0, y: Double(height - 16 - 48))
+        viewRenderer.penPosition = Vector2(x: 16.0, y: 16.0)
         viewRenderer.render(
           view: Text(verbatim: "\(frameRate)", face: face).color(.red))
       }
     })
   }
 
+  private var viewRenderer = ViewRenderer()
+
   private func colorPass(
     renderable: [Node],
+    lights: [Node],
     scene: Scene,
     mvpMatrices: inout [Node: Matrix4]
   ) {
-    // Collect the scene's light sources.
-    let lights = Array(Node.NodeIterator(
-      root: scene.root,
-      criterion: .satisfying({ node in node.light != nil && !node.isHidden }),
-      pruning: .hidden))
-
     for node in renderable {
       let model = node.model!
 
