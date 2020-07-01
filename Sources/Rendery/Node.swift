@@ -2,7 +2,8 @@
 public final class Node {
 
   /// Initializes an empty 3D node.
-  public init() {
+  internal init(scene: Scene) {
+    self.scene = scene
   }
 
   /// The node's name.
@@ -25,6 +26,9 @@ public final class Node {
 
   // MARK: Scene tree
 
+  /// The scene to which the node belongs.
+  public unowned let scene: Scene
+
   /// The node's parent.
   public private(set) weak var parent: Node? {
     didSet { shouldUpdateSceneProperties = true }
@@ -34,11 +38,20 @@ public final class Node {
   public private(set) var children: [Node] = []
 
   /// Creates a new child node.
+  public func createChild() -> Node {
+    let child = Node(scene: scene)
+    child.parent = self
+    children.append(child)
+
+    return child
+  }
+
+  /// Creates a new child node.
   ///
   /// - Parameter setup: A closure that accepts the newly created child to setup its properties.
   @discardableResult
   public func createChild(suchThat setup: (Node) throws -> Void) rethrows -> Node {
-    let child = Node()
+    let child = Node(scene: scene)
     child.parent = self
     children.append(child)
 
@@ -58,7 +71,7 @@ public final class Node {
     suchThat setup: (_ node: Node, _ offset: Int) throws -> Void
   ) rethrows -> [Node] {
     return try (0 ..< count).map({ offset in
-      let child = Node()
+      let child = Node(scene: scene)
       child.parent = self
       children.append(child)
 
@@ -292,7 +305,12 @@ public final class Node {
   ///   transform properties. Hence, if you read transform properties of a node under constraint
   ///   to update your scene behavior from a frame listener, keep in mind that their values will
   ///   correspond to the results from the last frame.
-  public var constraints: [TransformConstraint] = []
+  public var constraints: [TransformConstraint] = [] {
+    didSet {
+      // Invalidate the constraint cache for this node.
+      scene.constraintCache[self] = 0
+    }
+  }
 
   // MARK: Visual behavior
 

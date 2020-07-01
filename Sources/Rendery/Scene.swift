@@ -1,4 +1,4 @@
-/// An object that organizes the content of a scene hierarchically.
+/// An object that organizes the contents of a scene hierarchically.
 ///
 /// - Important: Make sure your scene does **not** retain any strong reference to the a window or
 ///   any of its viewports. This would result in a strong reference cycle.
@@ -19,7 +19,7 @@ open class Scene {
   open var backgroundColor: Color? = nil
 
   /// The root of scene tree.
-  open var root = Node()
+  open lazy var root = Node(scene: self)
 
   /// The root view of the scene's HUD.
   open var hud: AnyView?
