@@ -18,17 +18,23 @@ public final class Window {
 
   /// The window's width, in pixels.
   ///
-  /// This property denotes the number of distinct pixels that can be displayed on the window,
-  /// horizontally. On some displays (e.g., retina), it may be different than the `width` argument
-  /// specified in the window's initializer.
+  /// This property relates to the width of the window's frame buffer and denotes the number of
+  /// distinct pixels that can be displayed on the window, horizontally. On some devices, such as
+  /// retina displays, it may be larger than the window's `screenWidth`.
   public fileprivate(set) var width: Int
 
   /// The window's height, in pixels.
   ///
-  /// This property denotes the number of distinct pixels that can be displayed on the window,
-  /// vertically. On some displays (e.g., retina), it may be different than the `width` argument
-  /// specified in the window's initializer.
+  /// This property relates to the width of the window's frame buffer and denotes the number of
+  /// distinct pixels that can be displayed on the window, vertically. On some devices, such as
+  /// retina displays, it may be larger than the window's `screenHeight`.
   public fileprivate(set) var height: Int
+
+  /// The window's width, in screen coordinates.
+  public fileprivate(set) var screenWidth: Int
+
+  /// The window's height, in screen coordinates.
+  public fileprivate(set) var screenHeight: Int
 
   /// The window's title.
   public let title: String
@@ -86,14 +92,11 @@ public final class Window {
   /// The position of the cursor, in normalized window coordinates.
   public var cursorPosition: Vector2 {
     get {
-      var screenWidth: Int32 = 0
-      var screenHeight: Int32 = 0
-      glfwGetWindowSize(handle, &screenWidth, &screenHeight);
-      let screenSize = Vector2(x: Double(screenWidth), y: Double(screenHeight))
-
       // Get the cursor position.
       var cursorPosition: Vector2 = .zero
       glfwGetCursorPos(handle, &cursorPosition.x, &cursorPosition.y)
+
+      let screenSize = Vector2(x: Double(screenWidth), y: Double(screenHeight))
       return cursorPosition / screenSize
     }
   }
@@ -103,8 +106,8 @@ public final class Window {
   /// Initializes a window.
   ///
   /// - Parameters:
-  ///   - width: The window's width, in pixels.
-  ///   - height: The window's height, in pixels.
+  ///   - width: The window's width, in screen coordinates.
+  ///   - height: The window's height, in screen coordinates.
   ///   - title: The window's title.
   ///   - other: An another window whose OpenGL context should be shared.
   internal init?(width: Int, height: Int, title: String, sharingContextWith other: Window?) {
@@ -120,6 +123,9 @@ public final class Window {
       LogManager.main.log("Failed to initialize GLFW window.", level: .error)
       return nil
     }
+
+    self.screenWidth = width
+    self.screenHeight = height
 
     // Get the actual window resolution. On some displays (e.g., retina), it may differ from the
     // width and height that were given arguments.
@@ -465,6 +471,9 @@ private func windowCloseCallback(handle: OpaquePointer?) {
 private func windowSizeCallback(handle: OpaquePointer?, width: Int32, height: Int32) {
   guard let window = windowFrom(handle: handle)
     else { return }
+
+  window.screenWidth = Int(width)
+  window.screenHeight = Int(height)
 
   var actualWidth: Int32 = 0
   var actualHeight: Int32 = 0
