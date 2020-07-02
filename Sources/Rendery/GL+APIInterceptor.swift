@@ -14,11 +14,12 @@ extension GL {
       glUseProgram(program)
       self.program = program
 
-      intUniforms     = [:]
-      vec2Uniforms    = [:]
-      vec3Uniforms    = [:]
-      mat3Uniforms    = [:]
-      mat4Uniforms    = [:]
+      intUniforms  = [:]
+      vec2Uniforms = [:]
+      vec3Uniforms = [:]
+      vec4Uniforms = [:]
+      mat3Uniforms = [:]
+      mat4Uniforms = [:]
     }
 
     internal func clearProgramCache(program: GL.UInt) {
