@@ -14,19 +14,9 @@ public struct AnyView {
 
 }
 
-extension AnyView: Hashable {
-
-  public func hash(into hasher: inout Hasher) {
-    box.hash(into: &hasher)
-  }
-
-  public static func == (lhs: AnyView, rhs: AnyView) -> Bool {
-    lhs.box.isEqual(to: rhs.box)
-  }
-
-}
-
 extension AnyView: View {
+
+  public var dimensions: Vector2 { box.dimensions }
 
   public func render(into renderer: inout ViewRenderer) {
     box.render(into: &renderer)
@@ -38,11 +28,9 @@ private protocol AnyViewBox {
 
   var base: Any { get }
 
+  var dimensions: Vector2 { get }
+
   func render(into renderer: inout ViewRenderer)
-
-  func hash(into hasher: inout Hasher)
-
-  func isEqual(to other: AnyViewBox) -> Bool
 
 }
 
@@ -52,19 +40,10 @@ private struct ConcreteViewBox<Base: View>: AnyViewBox {
 
   var base: Any { baseView }
 
+  var dimensions: Vector2 { baseView.dimensions }
+
   func render(into renderer: inout ViewRenderer) {
     baseView.render(into: &renderer)
-  }
-
-  func hash(into hasher: inout Hasher) {
-    baseView.hash(into: &hasher)
-  }
-
-  func isEqual(to other: AnyViewBox) -> Bool {
-    if let rhs = other.base as? Base {
-      return baseView == rhs
-    }
-    return false
   }
 
 }

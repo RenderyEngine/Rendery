@@ -3,47 +3,52 @@ import CGLFW
 /// An object that can render views and controls on top of a scene.
 public struct ViewRenderer {
 
-  internal init(width: Int, height: Int, defaultFontFace: FontFace?) {
-    self.width = width
-    self.height = height
-    self.defaultFontFace = defaultFontFace
+  internal init() {
+  }
 
-    // Create the projection matrix of a virtual ortographic camera.
-    self.projection = Matrix4.orthographic(
-      top   : Double(height),
-      bottom: 0.0,
-      right : Double(width),
-      left  : 0.0,
-      far   : 0.0,
-      near  : 1.0)
+  /// The dimensions of the viewport, in pixels.
+  public internal(set) var dimensions: Vector2 = .zero {
+    didSet {
+      if dimensions != oldValue {
+        self.projection = Matrix4.orthographic(
+          top   : dimensions.y,
+          bottom: 0.0,
+          right : dimensions.x,
+          left  : 0.0,
+          far   : 0.0,
+          near  : 1.0)
+      }
+    }
   }
 
   /// The current position of the renderer's pen.
   public var penPosition: Vector2 = .zero
-
-  /// The render target's actual width, in pixels.
-  public let width: Int
-
-  /// The render target's actual height, in pixels.
-  public let height: Int
 
   /// The default font face that is used to draw text.
   public var defaultFontFace: FontFace?
 
   /// An orthographic projection matrix that translates view and control coordinates into the
   /// viewport's clip space.
-  private var projection: Matrix4
+  private var projection: Matrix4 = .identity
 
   internal mutating func render<V>(view: V) where V: View {
     view.render(into: &self)
   }
 
-  public func draw(rectangle: Rectangle, texture: Texture = .default, color: Color = .white) {
+  public func draw(
+    rectangleOfSize dimensions: Vector2,
+    texture: Texture = .default,
+    color: Color = .white
+  ) {
     let program = ViewRenderer.quadProgram
     try! program.load()
     program.install()
 
-    let transform = Matrix4(translation: Vector3(x: penPosition.x, y: penPosition.y, z: 0.0))
+    let transform = Matrix4(translation: Vector3(
+      x: penPosition.x,
+      y: self.dimensions.y - penPosition.y - dimensions.y,
+      z: 0.0))
+
     let context = QuadProgram.Parameters(
       texture: texture,
       shouldSampleQuadTexture: false,
@@ -52,12 +57,12 @@ public struct ViewRenderer {
     withUnsafePointer(to: context) { program.bind($0) }
 
     ViewRenderer.quad.load()
-    ViewRenderer.quad.update(rectangle)
+    ViewRenderer.quad.update(Rectangle(origin: .zero, dimensions: dimensions))
     ViewRenderer.quad.draw()
   }
 
   /// Draws the specified text with the renderer's current settings.
-  public func draw(string: String, face: FontFace?, color: Color) {
+  public func draw(string: String, face: FontFace?, color: Color, scale: Double) {
     guard let textFace = face ?? defaultFontFace
       else { return }
 
@@ -67,7 +72,14 @@ public struct ViewRenderer {
 
     ViewRenderer.quad.load()
 
-    let transform = Matrix4(translation: Vector3(x: penPosition.x, y: penPosition.y, z: 0.0))
+    let transform = Matrix4(
+      translation: Vector3(
+        x: penPosition.x,
+        y: self.dimensions.y - penPosition.y - textFace.height * scale,
+        z: 0.0),
+      rotation: .identity,
+      scale: Vector3(x: scale, y: scale, z: scale))
+
     program.assign(matrix4: projection * transform, at: "mvp")
     program.assign(boolean: true, at: "shouldSampleQuadTexture")
     program.assign(color: color, at: "multiply", discardingAlpha: false)
@@ -88,7 +100,6 @@ public struct ViewRenderer {
           x: glyph.bearing.x + xOffset,
           y: -(glyph.size.y - glyph.bearing.y))
         ViewRenderer.quad.update(Rectangle(origin: origin, dimensions: glyph.size))
-        // ViewRenderer.quad.update(Rectangle(origin: .zero, dimensions: .unitScale * 138))
 
         // Bind the glyph texture.
         if let texture = glyph.texture {
@@ -102,12 +113,6 @@ public struct ViewRenderer {
         xOffset += glyph.advance / 64.0
       }
     })
-
-//    TextRenderer.shared.draw(
-//      string: string,
-//      face: face,
-//      color: color,
-//      modelViewProjectionMatrix: projection * Matrix4(scale: .unitScale * 2))
   }
 
   private static var quad = Quad()
@@ -118,7 +123,7 @@ public struct ViewRenderer {
 
 // MARK: Geometry
 
-/// A flat, quadrilateral geometry that can be used to draw basic 2D contents.
+/// A flat, quadrilateral geometry that can be used to draw 2D elements.
 private final class Quad: GraphicsResource {
 
   internal func update(_ rectangle: Rectangle) {

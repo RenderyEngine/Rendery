@@ -90,6 +90,9 @@ public final class Window {
   }
 
   /// The position of the cursor, in normalized window coordinates.
+  ///
+  /// Normalized window coordinates range from `0.0` to `1.0` on both axes, where `(0.0, 0.0)`
+  /// deisgnates the window's top-left corner.
   public var cursorPosition: Vector2 {
     get {
       // Get the cursor position.
@@ -307,7 +310,7 @@ public final class Window {
       if viewport.showsFrameRate, let face = FontFace.default {
         viewRenderer.penPosition = Vector2(x: 16.0, y: 16.0)
         viewRenderer.render(
-          view: Text(verbatim: "\(frameRate)", face: face).color(.red))
+          view: TextView(verbatim: "\(frameRate)", face: face).color(.red))
       }
     })
   }

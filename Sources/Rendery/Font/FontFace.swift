@@ -8,6 +8,11 @@ public class FontFace {
     self.face = face
   }
 
+  public var height: Double {
+    let y = face?.pointee.size.pointee.metrics.y_ppem
+    return y.map(Double.init) ?? 0.0
+  }
+
   public func glyph(for character: Character) -> Glyph? {
     if let glyph = cache[character] {
       if glyph.texture == nil || glyph.texture!.state != .gone {

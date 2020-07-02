@@ -117,8 +117,8 @@ public final class AppContext {
   /// Creates a new window.
   ///
   /// - Parameters:
-  ///   - width: The window's width, in pixels.
-  ///   - height: The window's height, in pixels.
+  ///   - width: The window's width, in screen coordinates.
+  ///   - height: The window's height, in screen corrdinates.
   ///   - title: The window's title.
   public func createWindow(width: Int, height: Int, title: String) -> Window? {
     guard let window = Window(
