@@ -35,6 +35,32 @@ public struct Rectangle: Hashable {
     self.dimensions = dimensions
   }
 
+  /// Initializes a minimal rectangle that encloses a sequence of other rectangles.
+  ///
+  /// - Parameter rectangles: A sequence of rectangles to enclose.
+  public init<S>(enclosing rectangles: S) where S: Sequence, S.Element == Rectangle {
+    var minPoint: Vector2 = Vector2(x: Double(Int.max), y: Double(Int.max))
+    var maxPoint: Vector2 = Vector2(x: Double(Int.min), y: Double(Int.min))
+
+    for rectangle in rectangles {
+      if rectangle.minX < minPoint.x {
+        minPoint.x = rectangle.minX
+      }
+      if rectangle.maxX > maxPoint.x {
+        maxPoint.x = rectangle.maxX
+      }
+
+      if rectangle.minY < minPoint.y {
+        minPoint.y = rectangle.minY
+      }
+      if rectangle.maxY > maxPoint.y {
+        maxPoint.y = rectangle.maxY
+      }
+    }
+
+    self.init(origin: minPoint, dimensions: maxPoint)
+  }
+
   /// The rectangle's origin (e.g., its left-bottom corner).
   public var origin: Vector2
 
