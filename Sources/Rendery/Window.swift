@@ -93,16 +93,7 @@ public final class Window {
   ///
   /// Normalized window coordinates range from `0.0` to `1.0` on both axes, where `(0.0, 0.0)`
   /// deisgnates the window's top-left corner.
-  public var cursorPosition: Vector2 {
-    get {
-      // Get the cursor position.
-      var cursorPosition: Vector2 = .zero
-      glfwGetCursorPos(handle, &cursorPosition.x, &cursorPosition.y)
-
-      let screenSize = Vector2(x: Double(screenWidth), y: Double(screenHeight))
-      return cursorPosition / screenSize
-    }
-  }
+  public fileprivate(set) var cursorPosition: Vector2 = .zero
 
   // MARK: Initialization
 
@@ -147,6 +138,7 @@ public final class Window {
     glfwSetWindowFocusCallback(handle, windowFocusCallback)
     glfwSetKeyCallback(handle, windowKeyCallback)
     glfwSetMouseButtonCallback(handle, windowMouseButtonCallback)
+    glfwSetCursorPosCallback(handle, windowCursorPosCallback)
 
     // TODO: This callback gets called when a Unicode character is input, but not the individual
     // key events that led to the production of the unicode character. It will probably be very
@@ -603,6 +595,14 @@ private func windowMouseButtonCallback(
  } else {
    responder.respondToMousePress(with: event)
  }
+}
+
+private func windowCursorPosCallback(handle: OpaquePointer?, x: Double, y: Double) {
+  guard let window = windowFrom(handle: handle)
+    else { return }
+
+  window.cursorPosition.x = x / Double(window.screenWidth)
+  window.cursorPosition.y = y / Double(window.screenHeight)
 }
 
 private extension KeyModifierSet {
