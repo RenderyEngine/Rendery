@@ -278,8 +278,8 @@ public final class Node {
     // Update the scene transforms, unless the node is an orphan.
     if let parent = self.parent {
       // Note that we post-multiply, since the matrix are stored as column-major.
-      _sceneScale = scale * parent.sceneScale
-      _sceneRotation = rotation * parent.sceneRotation
+      _sceneScale = parent.sceneScale * scale
+      _sceneRotation = parent.sceneRotation * rotation
 
       // Compute the derived translation after applying the parent's global scale and rotation.
       let derivedTranslation = parent.sceneRotation * (parent.sceneScale * translation)
