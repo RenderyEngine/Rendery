@@ -86,6 +86,9 @@ public final class AppContext {
     glStencilFunc(GL.NOTEQUAL, 1, 0xff)
     glStencilOp(GL.KEEP, GL.KEEP, GL.REPLACE)
 
+    // Enable face culling.
+    glEnable(GL.CULL_FACE)
+
     return mainWindow
   }
 
@@ -208,6 +211,17 @@ public final class AppContext {
     didSet { glLineWidth(Float(lineWidth)) }
   }
 
+  /// A flat that indicates whether face culling is enabled.
+  public var isCullingEnabled: Bool = true {
+    didSet {
+      if isDepthTestingEnabled {
+        glEnable(GL.CULL_FACE)
+      } else {
+        glDisable(GL.CULL_FACE)
+      }
+    }
+  }
+
   /// A flag that indicates whether blending is enabled.
   internal var isBlendingEnabled: Bool = true {
     didSet {
@@ -244,13 +258,15 @@ public final class AppContext {
   /// Execute the specified closure and restore all renderer settings to their value before the
   /// closure ran.
   internal func restoreSettingsAfter<Result>(_ block: () -> Result) -> Result {
-    let wasBlendingEnabled = isBlendingEnabled
-    let wasAlphaPremultiplied = isAlphaPremultiplied
+    let wasCullingEnabled      = isCullingEnabled
+    let wasBlendingEnabled     = isBlendingEnabled
+    let wasAlphaPremultiplied  = isAlphaPremultiplied
     let wasDepthTestingEnabled = isDepthTestingEnabled
 
     defer {
-      isBlendingEnabled = wasBlendingEnabled
-      isAlphaPremultiplied = wasAlphaPremultiplied
+      isCullingEnabled      = wasCullingEnabled
+      isBlendingEnabled     = wasBlendingEnabled
+      isAlphaPremultiplied  = wasAlphaPremultiplied
       isDepthTestingEnabled = wasDepthTestingEnabled
     }
 

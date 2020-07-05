@@ -31,6 +31,7 @@ internal enum GL {
   static var CLAMP_TO_BORDER      : Enum { Enum(GL_CLAMP_TO_BORDER) }
   static var CLAMP_TO_EDGE        : Enum { Enum(GL_CLAMP_TO_EDGE) }
   static var COMPILE_STATUS       : Enum { Enum(GL_COMPILE_STATUS) }
+  static var CULL_FACE            : Enum { Enum(GL_CULL_FACE) }
   static var DEPTH_TEST           : Enum { Enum(GL_DEPTH_TEST) }
   static var DOUBLE               : Enum { Enum(GL_DOUBLE) }
   static var DYNAMIC_DRAW         : Enum { Enum(GL_DYNAMIC_DRAW) }
