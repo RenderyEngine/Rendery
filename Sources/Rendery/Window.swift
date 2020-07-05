@@ -289,12 +289,12 @@ public final class Window {
       AppContext.shared.isBlendingEnabled = true
       AppContext.shared.isDepthTestingEnabled = false
 
-      if let hud = scene.hud {
-        // Configure the UI view renderer.
-        viewRenderer.dimensions = region.dimensions
-        viewRenderer.penPosition = .zero
-        viewRenderer.defaultFontFace = scene.defaultFontFace
+      // Configure the UI view renderer.
+      viewRenderer.dimensions = region.dimensions
+      viewRenderer.penPosition = .zero
+      viewRenderer.defaultFontFace = scene.defaultFontFace
 
+      if let hud = scene.hud {
         // Draw the scene's HUD.
         viewRenderer.render(view: hud)
       }
