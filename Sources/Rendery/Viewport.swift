@@ -73,6 +73,28 @@ public final class Viewport {
     scene = nil
   }
 
+  /// The viewport's view-projection matrix.
+  public var viewProjectionMatrix: Matrix4? {
+    guard let pov = pointOfView, let camera = pov.camera
+      else { return nil }
+
+    let scaledRegion = region.scaled(x: Double(target.width), y: Double(target.height))
+    let projection = camera.projection(onto: scaledRegion)
+
+    let view = pov.sceneTransform.inverted
+    return projection * view
+  }
+
+  /// Unprojects the specified normalized device coordinates into the scene space.
+  public func unproject(ndc: Vector3, with ivp: Matrix4) -> Vector3 {
+    let x = ivp[0,0] * ndc.x + ivp[0,1] * ndc.y + ivp[0,2] * ndc.z + ivp[0,3]
+    let y = ivp[1,0] * ndc.x + ivp[1,1] * ndc.y + ivp[1,2] * ndc.z + ivp[1,3]
+    let z = ivp[2,0] * ndc.x + ivp[2,1] * ndc.y + ivp[2,2] * ndc.z + ivp[2,3]
+    let w = ivp[3,0] * ndc.x + ivp[3,1] * ndc.y + ivp[3,2] * ndc.z + ivp[3,3]
+
+    return Vector3(x: x / w, y: y / w, z: z / w)
+  }
+
   /// Returns a ray that starts at the specified screen coordinates and points at the back of the
   /// viewport's frustum.
   ///
@@ -105,29 +127,6 @@ public final class Viewport {
     let np = unproject(ndc: Vector3(x: devicePoint.x, y: devicePoint.y, z: -1.0), with: ivp)
     let fp = unproject(ndc: Vector3(x: devicePoint.x, y: devicePoint.y, z: 0.99), with: ivp)
     return Ray(origin: np, direction: (fp - np).normalized)
-  }
-
-  /// The viewport's view-projection matrix.
-  public var viewProjectionMatrix: Matrix4? {
-    guard let pov = pointOfView, let camera = pov.camera
-      else { return nil }
-
-    // FIXME: Cache the projection matrix.
-    let scaledRegion = region.scaled(x: Double(target.width), y: Double(target.height))
-    let projection = camera.projection(onto: scaledRegion)
-
-    let view = pov.sceneTransform.inverted
-    return projection * view
-  }
-
-  /// Unprojects the specified normalized device coordinates into the scene space.
-  public func unproject(ndc: Vector3, with ivp: Matrix4) -> Vector3 {
-    let x = ivp[0,0] * ndc.x + ivp[0,1] * ndc.y + ivp[0,2] * ndc.z + ivp[0,3]
-    let y = ivp[1,0] * ndc.x + ivp[1,1] * ndc.y + ivp[1,2] * ndc.z + ivp[1,3]
-    let z = ivp[2,0] * ndc.x + ivp[2,1] * ndc.y + ivp[2,2] * ndc.z + ivp[2,3]
-    let w = ivp[3,0] * ndc.x + ivp[3,1] * ndc.y + ivp[3,2] * ndc.z + ivp[3,3]
-
-    return Vector3(x: x / w, y: y / w, z: z / w)
   }
 
 }
