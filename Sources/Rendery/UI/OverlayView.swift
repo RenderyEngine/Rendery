@@ -6,7 +6,7 @@ public struct OverlayView<Subview> where Subview: View {
   }
 
   public init<S>(_ elements: S) where S: Sequence, S.Element == (Subview, Vector2) {
-    self.init(elements.map({ pair in Element(pair.0, offset: pair.1) }))
+    self.init(elements.map({ pair in Element(subview: pair.0, offset: pair.1) }))
   }
 
   public var elements: [Element]
@@ -25,13 +25,13 @@ public struct OverlayView<Subview> where Subview: View {
 
   public func append(_ subview: Subview, offset: Vector2) -> OverlayView {
     var newView = self
-    newView.elements.append(Element(subview, offset: offset))
+    newView.elements.append(Element(subview: subview, offset: offset))
     return newView
   }
 
   public struct Element {
 
-    public init(_ subview: Subview, offset: Vector2) {
+    public init(subview: Subview, offset: Vector2) {
       self.subview = subview
       self._offset = offset
     }
@@ -54,7 +54,7 @@ extension OverlayView where Subview == AnyView {
 
   public func append<V>(_ subview: V, offset: Vector2) -> OverlayView where V: View {
     var newView = self
-    newView.elements.append(Element(AnyView(subview), offset: offset))
+    newView.elements.append(Element(subview: AnyView(subview), offset: offset))
     return newView
   }
 
