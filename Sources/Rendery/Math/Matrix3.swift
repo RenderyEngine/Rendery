@@ -57,11 +57,11 @@ public struct Matrix3 {
     result[2,2] = self[0,0] * self[1,1] - self[0,1] * self[1,0]
 
     // Compute the determinant (no solution if det = 0).
-    let det = self[0,0] * result[0,0] + self[0,1] * result[0,1] + self[0,2] * result[0,2]
+    let det = self[0,0] * result[0,0] + self[0,1] * result[1,0] + self[0,2] * result[2,0]
     let invDet = 1.0 / det
 
-    for col in 0 ..< 4 {
-      for row in 0 ..< 4 {
+    for col in 0 ..< 3 {
+      for row in 0 ..< 3 {
         result[row,col] = result[row,col] * invDet
       }
     }
