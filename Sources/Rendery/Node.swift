@@ -283,7 +283,7 @@ public final class Node {
 
       // Compute the derived translation after applying the parent's global scale and rotation.
       let derivedTranslation = parent.sceneRotation * (parent.sceneScale * translation)
-      _sceneTranslation = derivedTranslation + parent.sceneTranslation
+      _sceneTranslation = parent.sceneTranslation + derivedTranslation
     } else {
       // If the node is an orphan, then its scene transform is equal to its local transform.
       _sceneScale = scale

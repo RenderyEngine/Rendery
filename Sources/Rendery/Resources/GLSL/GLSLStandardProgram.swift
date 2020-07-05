@@ -34,8 +34,8 @@ public struct GLSLStandardProgram: GLSLProgramDelegate {
 
     // FIXME: Computing the inverse of a 3x3 matrix is faster, but results in much harsher lighting
     // transitions. To be investigated...
-    let normalMatrix = parameters.modelMatrix.inverted.transposed
-    program.assign(matrix3: Matrix3(upperLeftOf: normalMatrix), at: "normalMatrix")
+    let normalMatrix = Matrix3(upperLeftOf: parameters.modelMatrix).inverted.transposed
+    program.assign(matrix3: normalMatrix, at: "normalMatrix")
   }
 
 }
