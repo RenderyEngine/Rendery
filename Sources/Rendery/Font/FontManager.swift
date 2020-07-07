@@ -17,18 +17,21 @@ public final class FontManager {
     size: Int = 48,
     index: Int = 0
   ) -> FontFace? {
-    var face: FT_Face?
-    guard FT_New_Face(library, filename, index, &face) == 0
+    var handle: FT_Face?
+    guard FT_New_Face(library, filename, index, &handle) == 0
       else { return nil }
 
     // Set the font's size.
-    guard FT_Set_Pixel_Sizes(face, 0, FT_UInt(size)) == 0 else {
+    guard FT_Set_Pixel_Sizes(handle, 0, FT_UInt(size)) == 0 else {
       LogManager.main.log("Failed to set the font size.", level: .warning)
-      FT_Done_Face(face)
+      FT_Done_Face(handle)
       return nil
     }
 
-    return FontFace(face: face)
+    // Store the font face handle.
+    faceHandles.append(handle)
+
+    return FontFace(handle: handle)
   }
 
   public func face(system: String, size: Int = 48) -> FontFace? {
@@ -54,7 +57,15 @@ public final class FontManager {
   /// The handle of the FreeType library object.
   private var library: FT_Library?
 
+  /// The handles of the FreeType font face objects created by this manager.
+  private var faceHandles: [FT_Face?] = []
+
   deinit {
+    // Destroy the FreeType font face objects
+    for handle in faceHandles {
+      FT_Done_Face(handle)
+    }
+
     // Destroy the FreeType library object.
     FT_Done_FreeType(library)
   }

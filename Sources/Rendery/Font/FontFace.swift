@@ -4,8 +4,8 @@ import Foundation
 /// A typographic face object.
 public class FontFace {
 
-  internal init(face: FT_Face?) {
-    self.face = face
+  internal init(handle: FT_Face?) {
+    self.face = handle
   }
 
   public var height: Double {
@@ -59,17 +59,10 @@ public class FontFace {
     return glyph
   }
 
-  /// The default font face.
-  public static var `default`: FontFace? = AppContext.shared.fontManager?.face(system: "Arial")
-
   /// The handle of the FreeType face object.
   internal let face: FT_Face?
 
   /// A cache mapping character glyphs to textures.
   internal var cache: [Character: Glyph] = [:]
-
-  deinit {
-    FT_Done_Face(face)
-  }
 
 }
