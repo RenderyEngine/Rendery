@@ -292,17 +292,18 @@ public final class Window {
       // Configure the UI view renderer.
       viewRenderer.dimensions = region.dimensions
       viewRenderer.penPosition = .zero
-      viewRenderer.defaultFontFace = scene.defaultFontFace
+      viewRenderer.defaultFontFace = AppContext.shared.defaultFontFace
 
-      if let hud = scene.hud {
+      if let hud = viewport.hud {
         // Draw the scene's HUD.
-        viewRenderer.render(view: hud)
+        hud.render(into: &viewRenderer)
       }
 
-      if viewport.showsFrameRate, let face = FontFace.default {
+      if viewport.showsFrameRate {
         viewRenderer.penPosition = Vector2(x: 16.0, y: 16.0)
-        viewRenderer.render(
-          view: TextView(verbatim: "\(frameRate)", face: face).color(.red))
+        TextView(verbatim: "\(frameRate)", face: AppContext.shared.defaultFontFace)
+          .color(.red)
+          .render(into: &viewRenderer)
       }
     })
   }

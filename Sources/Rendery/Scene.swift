@@ -24,9 +24,6 @@ open class Scene {
   /// The root view of the scene's HUD.
   open var hud: AnyView?
 
-  /// The default font face that is used to render text in the scene's HUD.
-  open var defaultFontFace: FontFace? = AppContext.shared.fontManager?.face(system: "Arial")
-
   /// The scene's ambient light.
   ///
   /// The ambient light is an omni-directional light source that affects all objects in the scene

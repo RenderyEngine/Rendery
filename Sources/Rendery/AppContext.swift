@@ -101,6 +101,9 @@ public final class AppContext {
   /// The application context's font manager.
   public let fontManager = FontManager()
 
+  /// The application context's default font face.
+  public lazy var defaultFontFace = fontManager?.face(system: "Arial")
+
   /// The windows created with this application context.
   ///
   /// - Note: The order in which windows appear in the array is irrelevant.
