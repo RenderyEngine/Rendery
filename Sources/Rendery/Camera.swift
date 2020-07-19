@@ -1,6 +1,6 @@
 import Numerics
 
-/// A camera from which the content of a scene will be rendered.
+/// A camera from which a scene will be rendered.
 public struct Camera {
 
   /// Initializes a camera.

@@ -21,9 +21,6 @@ open class Scene {
   /// The root of scene tree.
   open lazy var root = Node(scene: self)
 
-  /// The root view of the scene's HUD.
-  open var hud: AnyView?
-
   /// The scene's ambient light.
   ///
   /// The ambient light is an omni-directional light source that affects all objects in the scene
@@ -73,6 +70,12 @@ open class Scene {
   ///   - viewport: The viewport that is currently presenting the scene.
   ///   - successor: The scene that will replace the current one, if any.
   open func willMove(from viewport: Viewport, successor: Scene?) {
+  }
+
+  // MARK: Nodes
+
+  open func createNode() -> Node {
+    return Node(scene: self)
   }
 
   // MARK: Node constraints

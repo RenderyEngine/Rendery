@@ -1,61 +1,62 @@
-/// A view container that positions its subviews wifth offsets along both axes.
-public struct OverlayView<Subview> where Subview: View {
+/// A view container that overlays its subviews, allowing them to be offset along both axes.
+public final class OverlayView {
 
-  public init(_ elements: [Element] = []) {
-    self.elements = elements
-  }
+  /// Initializes an overlay view with the subviews it contains.
+  ///
+  /// - Parameter elements: The subviews to add to this container, with their associated offset.
+  public init<S>(_ elements: S) where S: Sequence, S.Element == (subview: View, offset: Vector2) {
+    self.elements = Array(elements)
 
-  public init<S>(_ elements: S) where S: Sequence, S.Element == (Subview, Vector2) {
-    self.init(elements.map({ pair in Element(subview: pair.0, offset: pair.1) }))
-  }
-
-  public var elements: [Element]
-
-  public func elements(_ value: [Element]) -> OverlayView {
-    var newView = self
-    newView.elements = value
-    return newView
-  }
-
-  public func append(_ value: Element) -> OverlayView {
-    var newView = self
-    newView.elements.append(value)
-    return newView
-  }
-
-  public func append(_ subview: Subview, offset: Vector2) -> OverlayView {
-    var newView = self
-    newView.elements.append(Element(subview: subview, offset: offset))
-    return newView
-  }
-
-  public struct Element {
-
-    public init(subview: Subview, offset: Vector2) {
-      self.subview = subview
-      self._offset = offset
+    for (subview, _) in self.elements {
+      subview.container = self
     }
-
-    public let subview: Subview
-
-    fileprivate var _offset: Vector2
-
-    public func offset(_ offset: Vector2) -> Element {
-      var newView = self
-      newView._offset = offset
-      return newView
-    }
-
   }
 
-}
+  /// Initializes an empty overlay view.
+  public convenience init() {
+    self.init([])
+  }
 
-extension OverlayView where Subview == AnyView {
+  public weak var container: View?
 
-  public func append<V>(_ subview: V, offset: Vector2) -> OverlayView where V: View {
-    var newView = self
-    newView.elements.append(Element(subview: AnyView(subview), offset: offset))
-    return newView
+  /// The contained subviews, with their associated offset in this container's coordinate system.
+  public private(set) var elements: [(subview: View, offset: Vector2)]
+
+  /// Appends a new subview to this container.
+  ///
+  /// - Parameters:
+  ///   - subview: The subview to add to this container.
+  ///   - offset: The subview's offset in this container's coordinate system.
+  public func append(_ subview: View, offsetBy offset: Vector2) {
+    elements.append((subview, offset))
+    subview.container = self
+  }
+
+  /// Appends a new subview to this container, and returns the updated container.
+  ///
+  /// - Parameters:
+  ///   - subview: The subview to add to this container.
+  ///   - offset: The subview's offset in this container's coordinate system.
+  public func appending(_ subview: View, offsetBy offset: Vector2) -> OverlayView {
+    append(subview, offsetBy: offset)
+    return self
+  }
+
+  /// Removes the specified subview from this container.
+  ///
+  /// - Parameter subview: The subview to remove.
+  public func remove(_ subview: View) {
+    guard let i = elements.firstIndex(where: { (s, _) in s === subview })
+      else { return }
+    elements.remove(at: i)
+  }
+
+  /// Removes the specified subview from this container, and returns the updated container.
+  ///
+  /// - Parameter subview: The subview to remove.
+  public func removing(_ subview: View) -> OverlayView {
+    remove(subview)
+    return self
   }
 
 }
@@ -63,38 +64,38 @@ extension OverlayView where Subview == AnyView {
 extension OverlayView: View {
 
   public var dimensions: Vector2 {
-    var max = Vector2.zero
+    var dimensions = Vector2.zero
 
-    for element in elements {
-      let dim = element.subview.dimensions
-      if dim.x + element._offset.x > max.x {
-        max.x = dim.x + element._offset.x
+    for (subview, offset) in elements {
+      let subviewDimensions = subview.dimensions
+      if subviewDimensions.x + offset.x > dimensions.x {
+        dimensions.x = subviewDimensions.x + offset.x
       }
-      if dim.y + element._offset.y > max.y {
-        max.x = dim.x + element._offset.y
+      if subviewDimensions.y + offset.y > dimensions.y {
+        dimensions.y = subviewDimensions.y + offset.y
       }
     }
 
-    return max
+    return dimensions
   }
 
-  public func render(into renderer: inout ViewRenderer) {
-    let currentPenPosition = renderer.penPosition
-    for element in elements {
-      element.render(into: &renderer)
-      renderer.penPosition = currentPenPosition
+  public func view(at point: Vector2) -> View? {
+    for (subview, offset) in elements {
+      if let child = subview.view(at: point - offset) {
+        return child
+      }
     }
+
+    return nil
   }
 
-}
+  public func draw<Context>(in context: inout Context) where Context: ViewDrawingContext {
+    let initialPenPosition = context.penPosition
 
-extension OverlayView.Element: View {
-
-  public var dimensions: Vector2 { subview.dimensions }
-
-  public func render(into renderer: inout ViewRenderer) {
-    renderer.penPosition = renderer.penPosition + _offset
-    subview.render(into: &renderer)
+    for (subview, offset) in elements {
+      context.penPosition = initialPenPosition + offset
+      subview.draw(in: &context)
+    }
   }
 
 }

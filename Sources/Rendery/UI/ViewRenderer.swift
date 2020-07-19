@@ -1,8 +1,9 @@
 import CGLFW
 
-/// An object that can render views and controls on top of a scene.
-public struct ViewRenderer {
+/// A drawing environment to render view elements.
+public struct ViewRenderer: ViewDrawingContext {
 
+  /// Initializes a view renderer.
   internal init() {
   }
 
@@ -31,37 +32,28 @@ public struct ViewRenderer {
   /// viewport's clip space.
   private var projection: Matrix4 = .identity
 
-  internal mutating func render<V>(view: V) where V: View {
-    view.render(into: &self)
-  }
-
-  public func draw(
-    rectangleOfSize dimensions: Vector2,
-    texture: Texture = .default,
-    color: Color = .white
-  ) {
+  public func fill(rectangle: Rectangle, color: Color) {
     let program = ViewRenderer.quadProgram
     try! program.load()
     program.install()
 
     let transform = Matrix4(translation: Vector3(
       x: penPosition.x,
-      y: self.dimensions.y - penPosition.y - dimensions.y,
+      y: dimensions.y - penPosition.y - rectangle.dimensions.y,
       z: 0.0))
 
     let context = QuadProgram.Parameters(
-      texture: texture,
+      texture: .default,
       shouldSampleQuadTexture: false,
       multiply: color,
       mvp: projection * transform)
     withUnsafePointer(to: context) { program.bind($0) }
 
     ViewRenderer.quad.load()
-    ViewRenderer.quad.update(Rectangle(origin: .zero, dimensions: dimensions))
+    ViewRenderer.quad.update(rectangle)
     ViewRenderer.quad.draw()
   }
 
-  /// Draws the specified text with the renderer's current settings.
   public func draw(string: String, face: FontFace?, color: Color, scale: Double) {
     guard let textFace = face ?? defaultFontFace
       else { return }

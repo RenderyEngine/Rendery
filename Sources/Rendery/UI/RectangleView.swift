@@ -1,32 +1,24 @@
-public struct RectangleView {
+public final class RectangleView {
 
-  public init(dimensions: Vector2, fill: Color) {
+  public init(dimensions: Vector2, color: Color) {
     self.dimensions = dimensions
-    self.fill = fill
+    self.color = color
   }
 
   public var dimensions: Vector2
 
-  public func dimensions(_ value: Vector2) -> RectangleView {
-    var newView = self
-    newView.dimensions = value
-    return newView
-  }
+  public weak var container: View?
 
-  public var fill: Color
-
-  public func fill(_ value: Color) -> RectangleView {
-    var newView = self
-    newView.fill = value
-    return newView
-  }
+  /// The rectangle's color.
+  public var color: Color
 
 }
 
 extension RectangleView: View {
 
-  public func render(into renderer: inout ViewRenderer) {
-    renderer.draw(rectangleOfSize: dimensions, color: fill)
+  public func draw<Context>(in context: inout Context) where Context : ViewDrawingContext {
+    context.fill(
+      rectangle: Rectangle(origin: .zero, dimensions: dimensions), color: color)
   }
 
 }

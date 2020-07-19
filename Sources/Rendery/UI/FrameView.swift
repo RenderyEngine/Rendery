@@ -1,134 +1,150 @@
-/// A frame within which a subview can be positioned.
-public struct FrameView<Subview> where Subview: View {
+public final class FrameView {
 
-  public init(
-    _ subview: Subview,
-    width: Double? = nil,
-    height: Double? = nil,
-    alignment: FrameViewAlignment = .center
-  ) {
+  /// Initializes a frame view.
+  ///
+  /// - Parameters subview: The subview that is contained in the frame.
+  public init(around subview: View) {
     self.subview = subview
-    self.width = width
-    self.height = height
+    self.dimensions = subview.dimensions
+
+    subview.container = self
+  }
+
+  public var dimensions: Vector2
+
+  /// Updates the frame's dimensions.
+  ///
+  /// - Parameter dimensions: The dimensions to assign.
+  public func setting(dimensions: Vector2) -> FrameView {
+    self.dimensions = dimensions
+    return self
+  }
+
+  /// Updates the frame's width.
+  ///
+  /// - Parameter width: The width to assign.
+  public func setting(width: Double) -> FrameView {
+    self.dimensions.x = width
+    return self
+  }
+
+  /// Updates the frame's height.
+  ///
+  /// - Parameter height: The height to assign.
+  public func setting(height: Double) -> FrameView {
+    self.dimensions.y = height
+    return self
+  }
+
+  public weak var container: View?
+
+  /// The subview contained in this frame.
+  public let subview: View
+
+  /// The alignment of the contained subview.
+  public var alignment: Alignment = .center
+
+  /// Updates the frame's content alignemnt.
+  ///
+  /// - Parameter alignment: The content alignment to assign.
+  public func setting(alignment: Alignment) -> FrameView {
     self.alignment = alignment
+    return self
   }
 
-  public var subview: Subview
+  /// The alignment of a subview in a frame.
+  public enum Alignment {
 
-  /// The frame's extrinsic width, if defined.
-  private var width: Double?
+    /// The top-left edge of the frame.
+    case topLeft
 
-  public func width(_ value: Double?) -> FrameView {
-    var newView = self
-    newView.width = value
-    return newView
+    /// The top edge of the frame.
+    case top
+
+    /// The top-right edge of the frame.
+    case topRight
+
+    /// The left edge of the frame.
+    case left
+
+    /// The center of the frame.
+    case center
+
+    /// The right edge of the frame.
+    case right
+
+    /// The bottom-left edge of the frame.
+    case bottomLeft
+
+    /// The bottom edge of the frame.
+    case bottom
+
+    /// The bottom-right edge of the frame.
+    case bottomRight
+
   }
 
-  /// The frame's extrinsic height, if defined.
-  private var height: Double?
+  /// The frame's background.
+  public var background: Color?
 
-  public func height(_ value: Double?) -> FrameView {
-    var newView = self
-    newView.height = value
-    return newView
-  }
-
-  public var alignment: FrameViewAlignment
-
-  public func alignment(_ value: FrameViewAlignment) -> FrameView {
-    var newView = self
-    newView.alignment = value
-    return newView
-  }
-
-  public var padding = EdgeInsets()
-
-  public func padding(_ value: EdgeInsets) -> FrameView {
-    var newView = self
-    newView.padding = value
-    return newView
-  }
-
-  public func padding(_ value: Double) -> FrameView {
-    var newView = self
-    newView.padding = EdgeInsets(top: value, left: value, bottom: value, right: value)
-    return newView
-  }
-
-  public func padding(horizontal value: Double) -> FrameView {
-    var newView = self
-    newView.padding.top = value
-    newView.padding.bottom = value
-    return newView
-  }
-
-  public func padding(vertical value: Double) -> FrameView {
-    var newView = self
-    newView.padding.left = value
-    newView.padding.right = value
-    return newView
-  }
-
-  public var background: Color = .transparent
-
-  public func background(_ value: Color) -> FrameView {
-    var newView = self
-    newView.background = value
-    return newView
+  /// Updates the frame's background.
+  ///
+  /// - Parameter background: The background to assign.
+  public func setting(background: Color?) -> FrameView {
+    self.background = background
+    return self
   }
 
 }
 
 extension FrameView: View {
 
-  public var dimensions: Vector2 {
-    let content = subview.dimensions
-    return Vector2(
-      x: width ?? content.x + padding.left + padding.right,
-      y: height ?? content.y + padding.top + padding.bottom)
+  /// Computes the offset of the subview in this frame.
+  private func subviewOffset() -> Vector2 {
+    let subviewDimensions = subview.dimensions
+    var offset: Vector2 = .zero
+
+    if dimensions.x > subviewDimensions.x {
+      switch alignment {
+      case .topLeft, .left, .bottomLeft:
+        break
+      case .top, .center, .bottom:
+        offset.x += (dimensions.x - subviewDimensions.x) / 2.0
+      case .topRight, .right, .bottomRight:
+        offset.x += (dimensions.x - subviewDimensions.x)
+      }
+    }
+
+    if dimensions.y > subviewDimensions.y {
+      switch alignment {
+      case .topLeft, .top, .topRight:
+        break
+      case .left, .center, .right:
+        offset.y += (dimensions.y - subviewDimensions.y) / 2.0
+      case .bottomLeft, .bottom, .bottomRight:
+        offset.y += (dimensions.y - subviewDimensions.y)
+      }
+    }
+
+    return offset
   }
 
-  public func render(into renderer: inout ViewRenderer) {
-    if background.alpha != 0 {
-      renderer.draw(rectangleOfSize: dimensions, color: background)
+  public func view(at point: Vector2) -> View? {
+    guard (point.x >= 0.0) && (point.x <= dimensions.x)
+      else { return nil }
+    guard (point.y >= 0.0) && (point.y <= dimensions.y)
+      else { return nil }
+
+    return subview.view(at: point - subviewOffset()) ?? self
+  }
+
+  public func draw<Context>(in context: inout Context) where Context: ViewDrawingContext {
+    if let background = self.background {
+      context.fill(rectangle: Rectangle(origin: .zero, dimensions: dimensions), color: background)
     }
 
-    let currentPenPosition = renderer.penPosition
-    defer { renderer.penPosition = currentPenPosition }
-
-    // Apply the subview's vertical alignment, if possible.
-    if let width = self.width {
-      let contentWidth = width - (padding.left + padding.right)
-      if contentWidth > subview.dimensions.x {
-        switch alignment {
-        case .topLeft, .left, .bottomLeft:
-          break
-        case .top, .center, .bottom:
-          renderer.penPosition.x += (contentWidth - subview.dimensions.x) / 2.0
-        case .topRight, .right, .bottomRight:
-          renderer.penPosition.x += (contentWidth - subview.dimensions.x)
-        }
-      }
-    }
-
-    // Apply the subview's horizontal alignment, if possible.
-    if let height = self.height {
-      let contentHeight = height - (padding.top + padding.bottom)
-      if contentHeight > subview.dimensions.y {
-        switch alignment {
-        case .topLeft, .top, .topRight:
-          break
-        case .left, .center, .right:
-          renderer.penPosition.y += (contentHeight - subview.dimensions.y) / 2.0
-        case .bottomLeft, .bottom, .bottomRight:
-          renderer.penPosition.y += (contentHeight - subview.dimensions.y)
-        }
-      }
-    }
-
-    renderer.penPosition.x += padding.left
-    renderer.penPosition.y += padding.top
-    subview.render(into: &renderer)
+    context.penPosition += subviewOffset()
+    subview.draw(in: &context)
   }
 
 }

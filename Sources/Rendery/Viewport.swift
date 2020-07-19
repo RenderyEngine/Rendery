@@ -44,6 +44,9 @@ public final class Viewport {
   /// The scene will not be rendered if `pointOfView` is `nil`, or if it has no camera attached.
   public weak var pointOfView: Node?
 
+  /// The root view of the viewport's heads-up display (HUD).
+  public lazy var hud = ViewportRootView(viewport: self)
+
   /// A flag that indicates whether the viewport displayes a frame reate indicator.
   public var showsFrameRate: Bool = false
 
@@ -95,16 +98,24 @@ public final class Viewport {
     return Vector3(x: x / w, y: y / w, z: z / w)
   }
 
-  /// Returns a ray that starts at the specified screen coordinates and points at the back of the
-  /// viewport's frustum.
+  /// Converts a point from the the normalized coordinate system of the viewport's target to the
+  /// normalized coordinate system of this viewport.
+  ///
+  /// - Parameter screenPoint: A point in the coordinate system of the viewport's target.
+  public func convert(fromScreenSpace screenPoint: Vector2) -> Vector2 {
+    return (screenPoint - region.origin) / region.dimensions
+  }
+
+  /// Returns a ray that starts at the camera's position and is oriented so that it intersects the
+  /// back of the viewport's frustrum at the specified screen coordinates.
   ///
   /// The ray's origin and direction is computed by unprojecting the specified screen point (i.e.,
   /// a position on the viewport's target) into the scene space. The origin corresponds to the
   /// unprojection on the camera's near plane, while the direction is determined by the position
   /// of the screen point on the far plane.
   ///
-  /// If the viewport does not cover the entire rendering Area, the specified screen coordinates
-  /// projected to clip space before computing scene coordinates.
+  /// If the viewport does not cover the entire rendering Area, the specified screen point is
+  /// projected to viewport space (a.k.a. clip space) before computing scene coordinates.
   ///
   /// - Parameter screenPoint: The screen point from which the ray should shoot.
   ///
@@ -115,7 +126,7 @@ public final class Viewport {
       else { return nil }
 
     // Compute the screen point in NDCs.
-    let clipPoint = screenPoint / region.dimensions + region.origin
+    let clipPoint = convert(fromScreenSpace: screenPoint)
     let devicePoint = Vector2(x: 2.0 * clipPoint.x - 1.0, y: 1.0 - 2.0 * clipPoint.y)
 
     // The usual technique is to unproject the near point at 0 on the z-axis. However, its position
@@ -127,6 +138,12 @@ public final class Viewport {
     let np = unproject(ndc: Vector3(x: devicePoint.x, y: devicePoint.y, z: -1.0), with: ivp)
     let fp = unproject(ndc: Vector3(x: devicePoint.x, y: devicePoint.y, z: 0.99), with: ivp)
     return Ray(origin: np, direction: (fp - np).normalized)
+  }
+
+  /// Returns a ray that starts at the camera's position and is oriented so that it intersects the
+  /// back of the viewport's frustrum at the cursor's position.
+  public func mouseRay() -> Ray? {
+    return ray(fromScreenPoint: target.cursorPosition)
   }
 
 }

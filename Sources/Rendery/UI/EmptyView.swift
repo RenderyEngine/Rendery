@@ -1,16 +1,15 @@
-public struct EmptyView {
+/// An empty view, that can be used to create spacers.
+public final class EmptyView: View {
 
+  /// Initializes an empty view.
   public init() {
   }
 
-}
-
-extension EmptyView: View {
-
   public var dimensions: Vector2 { .zero }
 
-  public func render(into renderer: inout ViewRenderer) {
-  }
+  public weak var container: View?
 
+  public func draw<Context>(in context: inout Context) where Context : ViewDrawingContext {
+  }
 
 }

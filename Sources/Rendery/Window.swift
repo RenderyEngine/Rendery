@@ -294,16 +294,14 @@ public final class Window {
       viewRenderer.penPosition = .zero
       viewRenderer.defaultFontFace = AppContext.shared.defaultFontFace
 
-      if let hud = viewport.hud {
-        // Draw the scene's HUD.
-        hud.render(into: &viewRenderer)
-      }
+      // Draw the scene's HUD.
+      viewport.hud.draw(in: &viewRenderer)
 
       if viewport.showsFrameRate {
         viewRenderer.penPosition = Vector2(x: 16.0, y: 16.0)
         TextView(verbatim: "\(frameRate)", face: AppContext.shared.defaultFontFace)
-          .color(.red)
-          .render(into: &viewRenderer)
+          .setting(color: .red)
+          .draw(in: &viewRenderer)
       }
     })
   }
@@ -575,13 +573,33 @@ private func windowMouseButtonCallback(
      AppContext.shared.inputs.mouseButtonPressed.remove(code)
    }
 
-  // Get the cursor position.
+  // Identify the first responder.
   let cursorPosition = window.cursorPosition
+  var responder: InputResponder?
 
   // Determine the viewport in which the event should be dispatched.
-  let responder: InputResponder = window.viewports.first(where: { (viewport) -> Bool in
+  let viewport = window.viewports.first(where: { (viewport) -> Bool in
     viewport.region.contains(cursorPosition)
-  }) ?? window
+  })
+
+  // Check if the event occured on a view that can become responder.
+  if let hud = viewport?.hud, hud.subview != nil {
+    let scale = Vector2(x: Double(window.width), y: Double(window.height))
+    let point = (cursorPosition - viewport!.region.origin) * scale
+    var view = hud.view(at: point)
+
+    while view != nil {
+      if let resp = view as? InputResponder {
+        responder = resp
+        break
+      }
+      view = view?.container
+    }
+  }
+
+  if responder == nil {
+    responder = viewport ?? window
+  }
 
   // Dispatch the event to the first responder for mouse events.
   let event = MouseEvent(
@@ -592,9 +610,9 @@ private func windowMouseButtonCallback(
     timestamp: DispatchTime.now().uptimeNanoseconds / 1_000_000)
 
  if action == GLFW_RELEASE {
-   responder.respondToMouseRelease(with: event)
+   responder!.respondToMouseRelease(with: event)
  } else {
-   responder.respondToMousePress(with: event)
+   responder!.respondToMousePress(with: event)
  }
 }
 
