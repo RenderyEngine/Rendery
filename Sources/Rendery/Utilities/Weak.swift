@@ -99,6 +99,11 @@ public struct WeakDictionary<Key, Value> where Key: AnyObject & Hashable {
   /// A collection containing just the values of the dictionary.
   public var values: [Value] { indices.map({ self[$0].value }) }
 
+  /// Removes the entries for whose key has been deallocated.
+  public mutating func clean() {
+    storage = storage.filter({ (key, _) in key.ref != nil })
+  }
+
 }
 
 extension WeakDictionary: Collection {
