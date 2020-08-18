@@ -6,7 +6,7 @@ public protocol InitializableFromFile {
   /// - Parameter filename: A full or relative path name specifying the image.
   ///
   /// - Returns: An initialized instance of this type or `nil` if the specified file could not be
-  ///   located, or if its content could not be decoded.
+  ///   located, or if its contents could not be decoded.
   init?(contentsOfFile filename: String)
 
 }

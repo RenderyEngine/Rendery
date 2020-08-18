@@ -1,7 +1,7 @@
 /// A structure that stores a 32-bit RGBA color value.
 public struct Color: Hashable {
 
-  /// Initializes a color in the Generic RGB color space.
+  /// Initializes a color with the specified components.
   ///
   /// - Parameters:
   ///   - red: The color's red component, in the range `0 ... 255`.

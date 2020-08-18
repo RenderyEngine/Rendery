@@ -30,7 +30,7 @@ public struct VertexAttributeDescriptor {
 
     /// Vertex position data.
     ///
-    /// The corresponding components should form triplets of `Float` values..
+    /// The corresponding components should form triplets of `Float` values.
     case position
 
     /// Surface normal data.
