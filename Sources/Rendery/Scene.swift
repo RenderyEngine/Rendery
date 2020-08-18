@@ -82,7 +82,7 @@ open class Scene {
 
   /// A cache that stores the generation number of the rendering loop at which a node's constraints
   /// have been last updated.
-  internal final var constraintCache: [Node: UInt64] = [:]
+  internal final var constraintCache: WeakDictionary<Node, UInt64> = [:]
 
   /// Applies the transformation constraints on `node`.
   internal final func updateConstraints(on node: Node, generation: UInt64) {
