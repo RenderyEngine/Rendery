@@ -194,16 +194,16 @@ public struct Vector2: Hashable {
   }
 
   /// The vector whose 2 components are zero.
-  public static var zero: Vector2 { Vector2(x: 0.0, y: 0.0) }
+  public static let zero = Vector2(x: 0.0, y: 0.0)
 
   /// The vector whose 2 components are one.
-  public static var unitScale: Vector2 { Vector2(x: 1.0, y: 1.0) }
+  public static let unitScale = Vector2(x: 1.0, y: 1.0)
 
   /// The vector whose x-component is one and y-component it zero.
-  public static var unitX: Vector2 { Vector2(x: 1.0, y: 0.0) }
+  public static let unitX = Vector2(x: 1.0, y: 0.0)
 
   /// The vector whose y-component is one and x-component is zero.
-  public static var unitY: Vector2 { Vector2(x: 0.0, y: 1.0) }
+  public static let unitY = Vector2(x: 0.0, y: 1.0)
 
 }
 

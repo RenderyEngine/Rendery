@@ -204,19 +204,19 @@ public struct Vector3: Hashable {
   }
 
   /// The vector whose 3 components are zero.
-  public static var zero: Vector3 { Vector3(x: 0.0, y: 0.0, z: 0.0) }
+  public static let zero = Vector3(x: 0.0, y: 0.0, z: 0.0)
 
   /// The vector whose 3 components are one.
-  public static var unitScale: Vector3 { Vector3(x: 1.0, y: 1.0, z: 1.0) }
+  public static let unitScale = Vector3(x: 1.0, y: 1.0, z: 1.0)
 
   /// The vector whose x-component is one and other components are zero.
-  public static var unitX: Vector3 { Vector3(x: 1.0, y: 0.0, z: 0.0) }
+  public static let unitX = Vector3(x: 1.0, y: 0.0, z: 0.0)
 
   /// The vector whose y-component is one and other components are zero.
-  public static var unitY: Vector3 { Vector3(x: 0.0, y: 1.0, z: 0.0) }
+  public static let unitY = Vector3(x: 0.0, y: 1.0, z: 0.0)
 
   /// The vector whose z-component is one and other components are zero.
-  public static var unitZ: Vector3 { Vector3(x: 0.0, y: 0.0, z: 1.0) }
+  public static let unitZ = Vector3(x: 0.0, y: 0.0, z: 1.0)
 
 }
 

@@ -406,10 +406,10 @@ public struct Quaternion: Hashable {
   }
 
   /// The quaternion whose 4 components are zero.
-  public static var zero: Quaternion { Quaternion(w: 0.0, x: 0.0, y: 0.0, z: 0.0) }
+  public static let zero = Quaternion(w: 0.0, x: 0.0, y: 0.0, z: 0.0)
 
   /// The unit quaternion representing the identity rotation.
-  public static var identity: Quaternion { Quaternion(w: 1.0, x: 0.0, y: 0.0, z: 0.0) }
+  public static let identity = Quaternion(w: 1.0, x: 0.0, y: 0.0, z: 0.0)
 
 }
 
