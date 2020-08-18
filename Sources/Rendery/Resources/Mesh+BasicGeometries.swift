@@ -14,9 +14,7 @@ extension Mesh {
   /// Creates the mesh of a rectangle on the xy-plane with the given specification.
   ///
   /// - Parameter spec: The rectangle's specification.
-  public static func rectangle(
-    _ spec: Rectangle = Rectangle(x: -1.0, y: -1.0, width: 2.0, height: 2.0)
-  ) -> Mesh {
+  public static func rectangle(_ spec: Rectangle) -> Mesh {
     let (lx, ly) = (Float(spec.minX), Float(spec.minY))
     let (gx, gy) = (Float(spec.maxX), Float(spec.maxY))
 
