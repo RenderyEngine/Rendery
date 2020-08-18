@@ -11,13 +11,30 @@ public final class Texture: GraphicsResource {
   ///   - usesMipmaps: Indicates whether the texture should be generated with mipmaps.
   public init<Source>(
     source: Source,
-    wrappingMethod: (u: WrappingMethod, v: WrappingMethod) = (.repeat, .repeat),
-    usesMipmaps: Bool = false
+    wrappingMethod: (u: WrappingMethod, v: WrappingMethod),
+    usesMipmaps: Bool
   ) where Source: TextureSource {
     self.wrappingMethod = wrappingMethod
     self.usesMipmaps = usesMipmaps
     self.source = source
     self.state = .unloaded
+  }
+
+  /// Initializes a texture from a texture source.
+  ///
+  /// - Parameters:
+  ///   - source: The texture's source.
+  ///   - wrappingMethod: The texture's wrapping behavior.
+  ///   - usesMipmaps: Indicates whether the texture should be generated with mipmaps.
+  public convenience init?<Source>(
+    source: Source,
+    wrappingMethod: WrappingMethod = .repeat,
+    usesMipmaps: Bool = false
+  ) where Source: TextureSource {
+    self.init(
+      source: source,
+      wrappingMethod: (wrappingMethod, wrappingMethod),
+      usesMipmaps: usesMipmaps)
   }
 
   /// The method that should be used to wrap the texture on a mesh.

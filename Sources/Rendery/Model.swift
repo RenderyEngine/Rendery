@@ -125,7 +125,8 @@ public struct Model {
     var material = Material(program: .default)
     material.diffuse = .texture(Texture(
       source: image,
-      wrappingMethod: (u: .clampedToBorder, v: .clampedToBorder)))
+      wrappingMethod: (u: .clampedToBorder, v: .clampedToBorder),
+      usesMipmaps: true))
 
     // Creates the model's material
     return Model(meshes: [mesh],  materials: [material])
