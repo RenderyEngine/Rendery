@@ -132,13 +132,37 @@ public final class Mesh: GraphicsResource {
     })
 
     for descriptor in source!.attributeDescriptors {
-      glVertexAttribPointer(
-        GL.UInt(descriptor.shaderLocation),
-        GL.Int(descriptor.componentCountPerVertex),
-        glTypeSymbol(of: descriptor.componentType)!,
-        0,
-        GL.Size(descriptor.stride),
-        UnsafeRawPointer(bitPattern: descriptor.offset))
+      let type = glTypeSymbol(of: descriptor.componentType)
+      switch type {
+      case GL.FLOAT:
+        glVertexAttribPointer(
+          GL.UInt(descriptor.shaderLocation),
+          GL.Int(descriptor.componentCountPerVertex),
+          GL.FLOAT,
+          0,
+          GL.Size(descriptor.stride),
+          UnsafeRawPointer(bitPattern: descriptor.offset))
+
+      case GL.DOUBLE:
+        glVertexAttribLPointer(
+          GL.UInt(descriptor.shaderLocation),
+          GL.Int(descriptor.componentCountPerVertex),
+          GL.DOUBLE,
+          GL.Size(descriptor.stride),
+          UnsafeRawPointer(bitPattern: descriptor.offset))
+
+      case GL.INT, GL.UNSIGNED_INT:
+        glVertexAttribIPointer(
+          GL.UInt(descriptor.shaderLocation),
+          GL.Int(descriptor.componentCountPerVertex),
+          type!,
+          GL.Size(descriptor.stride),
+          UnsafeRawPointer(bitPattern: descriptor.offset))
+
+      default:
+        assertionFailure("Unsupported attribute type '\(descriptor.componentType)'")
+      }
+
       glEnableVertexAttribArray(GL.UInt(descriptor.shaderLocation))
     }
 
