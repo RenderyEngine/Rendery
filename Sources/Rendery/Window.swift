@@ -95,6 +95,34 @@ public final class Window {
   /// deisgnates the window's top-left corner.
   public fileprivate(set) var cursorPosition: Vector2 = .zero
 
+  /// The mode with which cursor motion inputs are handled.
+  public var cursorMotionMode: CursorMotionMode = .normal {
+    didSet {
+      switch cursorMotionMode {
+      case .normal  : glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL)
+      case .managed : glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
+      case .hidden  : glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN)
+      }
+    }
+  }
+
+  /// A mode of cursor motion inputs handling.
+  public enum CursorMotionMode {
+
+    /// The cursor is represented as an icon (e.g., a regular arrow).
+    case normal
+
+    /// The cursor is hidden and its motion is managed by Rendery.
+    ///
+    /// This mode is typcially used to implement motion based camera control. The cursor is assumed
+    /// to be placed in the center.
+    case managed
+
+    /// The cursor's icon is hidden, but the cursor otherwise behave normally.
+    case hidden
+
+  }
+
   // MARK: Initialization
 
   /// Initializes a window.
