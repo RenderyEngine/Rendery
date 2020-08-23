@@ -18,9 +18,6 @@ open class Scene {
   ///   different scenes with different background onto the same surface.
   open var backgroundColor: Color? = nil
 
-  /// The root of scene tree.
-  open lazy var root = Node(scene: self)
-
   /// The scene's ambient light.
   ///
   /// The ambient light is an omni-directional light source that affects all objects in the scene
@@ -73,6 +70,41 @@ open class Scene {
   }
 
   // MARK: Nodes
+
+  /// The root of scene tree.
+  open lazy var root = Node(scene: self)
+
+  /// A list with all the renderable nodes in the scene.
+  ///
+  /// This property is cached between two frames and updated only when renderable nodes are added
+  /// or removed from the visible scene tree.
+  internal final var renderable: [Node] = []
+
+  /// A list with all the light sources in the scene.
+  ///
+  /// This property is cached between two frames and updated only when lightener nodes are added
+  /// or removed from the visible scene tree.
+  internal final var lighteners: [Node] = []
+
+  /// A flag indicating whether the lists of renderable and lighteners should be updated.
+  internal final var shoudUpdateRenderableAndLighteners: Bool = false
+
+  /// Updates the lists of renderable and lighteners.
+  internal func updateRenderableAndLighteners() {
+    renderable.removeAll()
+    lighteners.removeAll()
+
+    for node in Node.NodeIterator(root: root, pruning: .hidden) {
+      if (node.model != nil) && !node.isHidden {
+        renderable.append(node)
+      }
+      if (node.light != nil) && !node.isHidden {
+        lighteners.append(node)
+      }
+    }
+
+    shoudUpdateRenderableAndLighteners = false
+  }
 
   open func createNode() -> Node {
     return Node(scene: self)

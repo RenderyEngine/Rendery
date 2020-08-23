@@ -200,7 +200,49 @@ public final class Window {
     for viewport in viewports {
       // Draw the scene (if any) in each defined viewport.
       if let scene = viewport.scene {
-        render(scene: scene, on: viewport, generation: generation)
+        // Update the scene's renderable and lightener lists if necessary.
+        if scene.shoudUpdateRenderableAndLighteners {
+          scene.updateRenderableAndLighteners()
+        }
+
+        // Update transform constraints.
+        for node in scene.constraintCache.keys {
+          scene.updateConstraints(on: node, generation: generation)
+        }
+
+        // Compute the actual region of the rendering area designated by the viewport.
+        let region = viewport.region.scaled(x: Double(width), y: Double(height))
+        glViewport(region: region)
+
+        // Enable the scissor test so that rendering can only occur in the viewport's region.
+        glScissor(region: region)
+        glEnable(GL.SCISSOR_TEST)
+        defer { glDisable(GL.SCISSOR_TEST) }
+
+        AppContext.shared.restoreSettingsAfter({
+          // Send the scene through the viewport's render pipeline.
+          viewport.pipeline.render(scene: scene, on: viewport)
+
+          // Prepare the OpenGL context to draw UI elements.
+          glStencilMask(0)
+          AppContext.shared.isBlendingEnabled = true
+          AppContext.shared.isDepthTestingEnabled = false
+
+          // Configure the UI view renderer.
+          viewRenderer.dimensions = region.dimensions
+          viewRenderer.penPosition = .zero
+          viewRenderer.defaultFontFace = AppContext.shared.defaultFontFace
+
+          // Draw the scene's HUD.
+          viewport.hud.draw(in: &viewRenderer)
+
+          if viewport.showsFrameRate {
+            viewRenderer.penPosition = Vector2(x: 16.0, y: 16.0)
+            TextView(verbatim: "\(frameRate)", face: AppContext.shared.defaultFontFace)
+              .setting(color: .red)
+              .draw(in: &viewRenderer)
+          }
+        })
       }
     }
 
@@ -211,198 +253,7 @@ public final class Window {
     glfwSwapBuffers(handle)
   }
 
-  /// Renders the specified scene on the specified viewport.
-  private func render(scene: Scene, on viewport: Viewport, generation: UInt64) {
-    // Compute the actual region of the rendering area designated by the viewport.
-    let region = viewport.region.scaled(x: Double(width), y: Double(height))
-    glViewport(region: region)
-
-    // Enable the scissor test so that rendering can only occur in the viewport's region.
-    glScissor(region: region)
-    glEnable(GL.SCISSOR_TEST)
-    defer { glDisable(GL.SCISSOR_TEST) }
-
-    // Clear the scene's background.
-    if let color = scene.backgroundColor {
-      glClearColor(color)
-      glClear(GL.COLOR_BUFFER_BIT)
-    }
-
-    // Iterate over the entire scene to extract renderable nodes and light sources.
-    var renderable: [Node] = []
-    var lights: [Node] = []
-
-    for node in Node.NodeIterator(root: scene.root, pruning: .hidden) {
-      if (node.model != nil) && !node.isHidden {
-        renderable.append(node)
-      }
-      if (node.light != nil) && !node.isHidden {
-        lights.append(node)
-      }
-    }
-
-    // Update transform constraints.
-    for node in scene.constraintCache.keys {
-      scene.updateConstraints(on: node, generation: generation)
-    }
-
-    AppContext.shared.restoreSettingsAfter({
-      // Draw the scene tree.
-      AppContext.shared.isDepthTestingEnabled = true
-
-      // Compute the view-projection matrix. This may "fail" if the viewport has no camera.
-      if let viewProjectionMatrix = viewport.viewProjectionMatrix {
-        // Compute the model-view-matrix for each object.
-        var mvpMatrices: [Node: Matrix4] = [:]
-        mvpMatrices.reserveCapacity(renderable.count)
-
-        for node in renderable {
-          let model = node.model!
-
-          // Compute the model's transformation matrix.
-          var modelMatrix = node.sceneTransform
-          if model.pivotPoint != Vector3(x: 0.5, y: 0.5, z: 0.5) {
-            let bb = model.aabb
-            let translation = (Vector3.unitScale - model.pivotPoint) * bb.dimensions + bb.origin
-            modelMatrix = modelMatrix * Matrix4(translation: translation)
-          }
-
-          // Compute the model-view-projection matrix.
-          let modelViewProjectionMatrix = viewProjectionMatrix * modelMatrix
-
-          // Cache the matrices for subsequent render passes.
-          mvpMatrices[node] = modelViewProjectionMatrix
-        }
-
-        // TODO: Culling should be performed here to avoid unnecessary draw calls.
-        // TODO: Z-ordering should be performed here if needed (e.g. for 2D).
-
-        // Render the color pass (a.k.a. the beauty pass).
-        colorPass(renderable: renderable, lights: lights, scene: scene, mvpMatrices: &mvpMatrices)
-
-        // Render the outline pass.
-        outlinePass(renderable: renderable, scene: scene, mvpMatrices: &mvpMatrices)
-      }
-
-      // Prepare the OpenGL context to draw UI elements.
-      glStencilMask(0)
-      AppContext.shared.isBlendingEnabled = true
-      AppContext.shared.isDepthTestingEnabled = false
-
-      // Configure the UI view renderer.
-      viewRenderer.dimensions = region.dimensions
-      viewRenderer.penPosition = .zero
-      viewRenderer.defaultFontFace = AppContext.shared.defaultFontFace
-
-      // Draw the scene's HUD.
-      viewport.hud.draw(in: &viewRenderer)
-
-      if viewport.showsFrameRate {
-        viewRenderer.penPosition = Vector2(x: 16.0, y: 16.0)
-        TextView(verbatim: "\(frameRate)", face: AppContext.shared.defaultFontFace)
-          .setting(color: .red)
-          .draw(in: &viewRenderer)
-      }
-    })
-  }
-
   private var viewRenderer = ViewRenderer()
-
-  private func colorPass(
-    renderable: [Node],
-    lights: [Node],
-    scene: Scene,
-    mvpMatrices: inout [Node: Matrix4]
-  ) {
-    for node in renderable {
-      let model = node.model!
-
-      // Write the mesh's fragement to the stencil buffer if the model is outlined so that they are
-      // not overridden during the object outlining pass.
-      if model.isOutlined {
-        glStencilMask(0xff)
-        glStencilFunc(GL.ALWAYS, 1, 0xff)
-      } else {
-        glStencilMask(0)
-      }
-
-      for (offset, mesh) in model.meshes.enumerated() {
-        // Makes sure the mesh is loaded.
-        mesh.load()
-
-        // Determine the mesh's material.
-        var material: Material
-        if model.materials.isEmpty {
-          material = Material(program: .default)
-        } else {
-          material = model.meshes.count <= model.materials.count
-            ? model.materials[offset]
-            : model.materials[offset % model.materials.count]
-        }
-
-        // Makes sure the material's shader program is loaded.
-        do {
-          try material.shader.load()
-        } catch {
-          // Fallback on the default material.
-          LogManager.main.log(error, level: .error)
-          material = Material(program: .default)
-        }
-
-        // Install the shader program.
-        material.shader.install()
-        let context = Model.ColorPassContext(
-          material: material,
-          ambient: scene.ambientLight,
-          lightNodes: lights,
-          modelMatrix: node.sceneTransform,
-          modelViewProjectionMatrix: mvpMatrices[node]!)
-        withUnsafePointer(to: context, { ptr in material.shader.bind(UnsafeRawPointer(ptr)) })
-
-        // Draw the mesh.
-        mesh.draw()
-      }
-    }
-  }
-
-  private func outlinePass(
-    renderable: [Node],
-    scene: Scene,
-    mvpMatrices: inout [Node: Matrix4]
-  ) {
-    let outlined = renderable.filter({ node in node.model!.isOutlined })
-    if !outlined.isEmpty {
-      // Disable depth testing so that outlines are drawn on top of everything.
-      let wasDepthTestingEnabled = AppContext.shared.isDepthTestingEnabled
-      AppContext.shared.isDepthTestingEnabled = false
-
-      // Setup the stencil testing.
-      glStencilFunc(GL.NOTEQUAL, 1, 0xff)
-      glStencilMask(0)
-
-      let shader = GLSLProgram.flat
-      try! shader.load()
-      shader.install()
-
-      let scaleMatrix = Matrix4(scale: Vector3.unitScale * 1.1)
-      for node in outlined {
-        let context: GLSLFlatColorProgram.Parameters = (
-          color: node.model!.outlineColor,
-          mvp: mvpMatrices[node]! * scaleMatrix)
-        withUnsafePointer(to: context, { ptr in shader.bind(UnsafeRawPointer(ptr)) })
-
-        for mesh in node.model!.meshes {
-          mesh.draw()
-        }
-      }
-
-      glStencilMask(0xff)
-      glStencilFunc(GL.ALWAYS, 1, 0xff)
-
-      // Restore depth testing.
-      AppContext.shared.isDepthTestingEnabled = wasDepthTestingEnabled
-    }
-  }
 
   // MARK: Deinitialization
 

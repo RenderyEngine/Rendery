@@ -76,6 +76,8 @@ public final class Node {
       children.append(child)
 
       try setup(child, offset)
+      scene.shoudUpdateRenderableAndLighteners = true
+
       return child
     })
   }
@@ -87,6 +89,7 @@ public final class Node {
     child.removeFromParent()
     child.parent = self
     children.append(child)
+    scene.shoudUpdateRenderableAndLighteners = true
   }
 
   /// Removes the node from its parent.
@@ -95,6 +98,7 @@ public final class Node {
       parent!.children.remove(at: i)
     }
     parent = nil
+    scene.shoudUpdateRenderableAndLighteners = true
   }
 
   /// Search for ancestor nodes satisfying the specified criterion, from parent to root.
@@ -167,13 +171,11 @@ public final class Node {
 
     public mutating func next() -> Node? {
       while let node = stack.popLast() {
-        let isIncluded = criterion == nil || criterion!.isSatisfied(by: node)
-        if pruningCriterion == nil || !pruningCriterion!.isSatisfied(by: node) {
+        if !(pruningCriterion?.isSatisfied(by: node) ?? false) {
           stack.append(contentsOf: node.children.reversed())
-        }
-
-        if isIncluded {
-          return node
+          if criterion?.isSatisfied(by: node) ?? true {
+            return node
+          }
         }
       }
 
@@ -318,23 +320,23 @@ public final class Node {
   public var camera: Camera?
 
   /// The model attached to this node.
-  ///
-  /// Setting this property automatically assignes the model's bounding box to `collisionShape`.
   public var model: Model? {
-    didSet {
-      collisionShape = model?.aabb
-    }
+    didSet { scene.shoudUpdateRenderableAndLighteners = true }
   }
 
   /// The light source attached to this node.
-  public var light: Light?
+  public var light: Light? {
+    didSet { scene.shoudUpdateRenderableAndLighteners = true }
+  }
 
   /// A flag that indicates whether the node and its children are hidden.
   ///
   /// If a node or one of its parent is hidden, then nor the node's model nor its light will be
   /// rendered into the scene. Other properties, such as cameras and collisions shapes, are not
   /// affected by the value of this property.
-  public var isHidden: Bool = false
+  public var isHidden: Bool = false {
+    didSet { scene.shoudUpdateRenderableAndLighteners = true }
+  }
 
   // MARK: Collision behavior
 

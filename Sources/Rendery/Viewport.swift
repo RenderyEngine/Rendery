@@ -32,6 +32,9 @@ public final class Viewport {
   /// The viewport's region.
   public var region: Rectangle
 
+  /// The viewport's render pipeline.
+  public var pipeline: RenderPipeline = DefaultRenderPipeline()
+
   /// The scene currently presented by the viewport.
   public private(set) var scene: Scene?
 

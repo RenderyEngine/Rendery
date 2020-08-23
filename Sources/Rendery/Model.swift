@@ -92,19 +92,19 @@ public struct Model {
   public struct ColorPassContext {
 
     /// The mesh's material.
-    var material: Material
+    public var material: Material
 
     /// The scene's ambient light.
-    var ambient: Color
+    public var ambient: Color
 
     /// The nodes with an attached light source that may impact the mesh's appearence.
-    var lightNodes: [Node]
+    public var lighteners: [Node]
 
     /// The model matrix that transforms local coordinates into the scene's coordinates.
-    var modelMatrix: Matrix4
+    public var modelMatrix: Matrix4
 
     /// The model-view-projection matrix that transforms local coordinates into the clip space.
-    var modelViewProjectionMatrix: Matrix4
+    public var modelViewProjectionMatrix: Matrix4
 
   }
 
