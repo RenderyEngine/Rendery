@@ -16,7 +16,7 @@ public struct GLSLStandardProgram: GLSLProgramDelegate {
 
     // Bind the positional lights' configuration.
     // FIXME: Use an array.
-    if let node = parameters.lightNodes.first {
+    if let node = parameters.lighteners.first {
       program.assign(integer: 1, at: "light.enabled")
       program.assign(color: node.light!.color, at: "light.color")
       program.assign(vector3: node.sceneTranslation, at: "light.position")
@@ -32,8 +32,6 @@ public struct GLSLStandardProgram: GLSLProgramDelegate {
     program.assign(matrix4: parameters.modelMatrix, at: "model")
     program.assign(matrix4: parameters.modelViewProjectionMatrix, at: "mvp")
 
-    // FIXME: Computing the inverse of a 3x3 matrix is faster, but results in much harsher lighting
-    // transitions. To be investigated...
     let normalMatrix = Matrix3(upperLeftOf: parameters.modelMatrix).inverted.transposed
     program.assign(matrix3: normalMatrix, at: "normalMatrix")
   }
@@ -110,9 +108,9 @@ void main() {
   vec4 diffuse = diffuseProperty.isColor
     ? diffuseProperty.color
     : texture(diffuseProperty.texture, fragmentUVs);
-    if (diffuse.a < 0.1) {
-      discard;
-    }
+  if (diffuse.a < 0.1) {
+    discard;
+  }
 
   vec3 normal = normalize(fragmentNormal);
   vec3 lightDirection = normalize(light.position - fragmentPosition);
