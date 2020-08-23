@@ -245,7 +245,7 @@ public final class AppContext {
   /// A flat that indicates whether face culling is enabled.
   public var isCullingEnabled: Bool = true {
     didSet {
-      if isDepthTestingEnabled {
+      if isCullingEnabled {
         glEnable(GL.CULL_FACE)
       } else {
         glDisable(GL.CULL_FACE)
