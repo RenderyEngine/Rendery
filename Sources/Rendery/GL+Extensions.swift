@@ -36,13 +36,16 @@ internal enum GL {
   static var DOUBLE               : Enum { Enum(GL_DOUBLE) }
   static var DYNAMIC_DRAW         : Enum { Enum(GL_DYNAMIC_DRAW) }
   static var ELEMENT_ARRAY_BUFFER : Enum { Enum(GL_ELEMENT_ARRAY_BUFFER) }
+  static var FILL                 : Enum { Enum(GL_FILL) }
   static var FLOAT                : Enum { Enum(GL_FLOAT) }
+  static var FRONT_AND_BACK       : Enum { Enum(GL_FRONT_AND_BACK) }
   static var FRAGMENT_SHADER      : Enum { Enum(GL_FRAGMENT_SHADER) }
   static var INFO_LOG_LENGTH      : Enum { Enum(GL_INFO_LOG_LENGTH) }
   static var INT                  : Enum { Enum(GL_INT) }
   static var KEEP                 : Enum { Enum(GL_KEEP) }
   static var LESS                 : Enum { Enum(GL_LESS) }
   static var LINEAR               : Enum { Enum(GL_LINEAR) }
+  static var LINE                 : Enum { Enum(GL_LINE) }
   static var LINES                : Enum { Enum(GL_LINES) }
   static var LINK_STATUS          : Enum { Enum(GL_LINK_STATUS) }
   static var MIRRORED_REPEAT      : Enum { Enum(GL_MIRRORED_REPEAT) }
@@ -51,6 +54,7 @@ internal enum GL {
   static var NOTEQUAL             : Enum { Enum(GL_NOTEQUAL) }
   static var ONE                  : Enum { Enum(GL_ONE) }
   static var ONE_MINUS_SRC_ALPHA  : Enum { Enum(GL_ONE_MINUS_SRC_ALPHA) }
+  static var POINT                : Enum { Enum(GL_POINT) }
   static var POINTS               : Enum { Enum(GL_POINTS) }
   static var RED                  : Enum { Enum(GL_RED) }
   static var REPEAT               : Enum { Enum(GL_REPEAT) }

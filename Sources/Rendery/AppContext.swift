@@ -205,6 +205,34 @@ public final class AppContext {
   /// should use the `currentTime` argument that is provided to frame listeners.
   public var targetFrameRate: Int?
 
+  /// The renderer's polygon rasterization mode.
+  ///
+  /// By default, polygons are interpreted as faces when rasterized. This behavior can be modified
+  /// to only render their edges (a.k.a. wireframes) or points.
+  public var polygonMode: PolygonMode = .face {
+    didSet {
+      switch polygonMode {
+      case .face      : glPolygonMode(GL.FRONT_AND_BACK, GL.FILL)
+      case .wireframe : glPolygonMode(GL.FRONT_AND_BACK, GL.LINE)
+      case .vertex    : glPolygonMode(GL.FRONT_AND_BACK, GL.POINT)
+      }
+    }
+  }
+
+  /// A mode of polygon rasterization.
+  public enum PolygonMode {
+
+    /// Polygons are interpreted as faces.
+    case face
+
+    /// Polygons are interpreted as sets of edges.
+    case wireframe
+
+    /// Polygons are interpreted as sets of vertices.
+    case vertex
+
+  }
+
   /// The width of the lines that are drawn as `Mesh.PrimitiveType.lines`.
   ///
   /// This property should be used for debugging purposes only. The actual range of widths that can
