@@ -1,4 +1,11 @@
 /// A structure that represents a 3x3 matrix.
+///
+/// Memory layout:
+/// --------------
+///
+/// Rendery adopt OpenGL's default memory layout to represent matrices. A 3x3 matrix is represented
+/// by 9 values laid out contiguously in memory, each consecutive set of 3 values representing one
+/// of the matrix's columns. This memory layout, often dubbed a _column-major_ order.
 public struct Matrix3 {
 
   /// Initializes a 3x3 matrix with its components.

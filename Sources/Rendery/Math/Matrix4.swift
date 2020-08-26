@@ -1,4 +1,14 @@
 /// A structure that represents a 4x4 matrix.
+///
+/// Memory layout:
+/// --------------
+///
+/// Rendery adopt OpenGL's default memory layout to represent matrices. A 4x4 matrix is represented
+/// by 16 values laid out contiguously in memory, each consecutive set of 4 values representing one
+/// of the matrix's columns. This memory layout, often dubbed a _column-major_ order.
+///
+/// For 4x4 transformation matrices, this layout implies that the translation components occupy the
+/// 12th, 13th and 14th positions in the matrix's contiguous memory, assuming 0-based indices.
 public struct Matrix4: Hashable {
 
   /// Initializes a 4x4 matrix with its components.
