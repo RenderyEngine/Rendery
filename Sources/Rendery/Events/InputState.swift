@@ -8,6 +8,13 @@ public struct InputState {
     return keyPressed.contains(keyCode)
   }
 
+  /// Returns whether the specified key is being pressed.
+  ///
+  /// - Parameter code: The layout-independant code that identifies the desired key.
+  public func isPressed<T>(key keyCode: T) -> Bool where T: RawRepresentable, T.RawValue == Int {
+    return keyPressed.contains(keyCode.rawValue)
+  }
+
   /// Returns whether the specified mouse button is being pressed.
   ///
   /// - Parameter buttonCode: The code that identifies the desired button.
