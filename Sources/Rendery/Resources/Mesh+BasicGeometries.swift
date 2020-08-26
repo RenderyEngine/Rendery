@@ -58,9 +58,9 @@ extension Mesh {
       gx, gy, gz,   0.0,  0.0,  1.0,  0.0, 1.0, // front ne
 
       gx, gy, gz,   1.0,  0.0,  0.0,  0.0, 1.0, // right nw
-      gx, ly, gz,   1.0,  0.0,  0.0,  0.0, 1.0, // front sw
-      gx, ly, lz,   1.0,  0.0,  0.0,  0.0, 1.0, // front se
-      gx, gy, lz,   1.0,  0.0,  0.0,  0.0, 1.0, // front ne
+      gx, ly, gz,   1.0,  0.0,  0.0,  0.0, 1.0, // right sw
+      gx, ly, lz,   1.0,  0.0,  0.0,  0.0, 1.0, // right se
+      gx, gy, lz,   1.0,  0.0,  0.0,  0.0, 1.0, // right ne
 
       gx, gy, lz,   0.0,  0.0, -1.0,  0.0, 1.0, // back nw
       gx, ly, lz,   0.0,  0.0, -1.0,  0.0, 1.0, // back sw
