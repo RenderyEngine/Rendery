@@ -347,7 +347,12 @@ public final class Node {
   ///
   /// You may also assign a collision shape to a node without any model, so that it also respond to
   /// collision testing. This can be useful to implement invisible sensors.
-  public var collisionShape: CollisionShape?
+  public var collisionShape: CollisionShape? {
+    get { _collisionShape ?? model?.aabb }
+    set { _collisionShape = newValue }
+  }
+
+  private var _collisionShape: CollisionShape?
 
   /// The node's collision mask.
   ///
