@@ -21,10 +21,10 @@ extension Mesh {
     // Create the vertex data of a rectangle with the specified dimensions.
     let vertexData: [Float] = [
       // Positions  // Normals    // UVs
-      lx, gy, 0.0,  0.0, 0.0, 1.0,  0.0, 1.0, // top left
-      lx, ly, 0.0,  0.0, 0.0, 1.0,  0.0, 0.0, // bottom left
-      gx, ly, 0.0,  0.0, 0.0, 1.0,  1.0, 0.0, // bottom right
-      gx, gy, 0.0,  0.0, 0.0, 1.0,  1.0, 1.0, // top right
+      lx, gy, 0.0,  0.0, 0.0, 1.0,  0.0, 0.0, // top left
+      lx, ly, 0.0,  0.0, 0.0, 1.0,  0.0, 1.0, // bottom left
+      gx, ly, 0.0,  0.0, 0.0, 1.0,  1.0, 1.0, // bottom right
+      gx, gy, 0.0,  0.0, 0.0, 1.0,  1.0, 0.0, // top right
     ]
 
     // Assign each vertex to its index in the vertex data.
@@ -52,35 +52,35 @@ extension Mesh {
     // Create the vertex data of a cube with the specified dimensions.
     let vertexData: [Float] = [
       // Positions  // Normals        // UVs
-      lx, gy, gz,   0.0,  0.0,  1.0,  0.0, 1.0, // front nw
+      lx, gy, gz,   0.0,  0.0,  1.0,  0.0, 0.0, // front nw
       lx, ly, gz,   0.0,  0.0,  1.0,  0.0, 1.0, // front sw
-      gx, ly, gz,   0.0,  0.0,  1.0,  0.0, 1.0, // front se
-      gx, gy, gz,   0.0,  0.0,  1.0,  0.0, 1.0, // front ne
+      gx, ly, gz,   0.0,  0.0,  1.0,  1.0, 1.0, // front se
+      gx, gy, gz,   0.0,  0.0,  1.0,  1.0, 0.0, // front ne
 
-      gx, gy, gz,   1.0,  0.0,  0.0,  0.0, 1.0, // right nw
+      gx, gy, gz,   1.0,  0.0,  0.0,  0.0, 0.0, // right nw
       gx, ly, gz,   1.0,  0.0,  0.0,  0.0, 1.0, // right sw
-      gx, ly, lz,   1.0,  0.0,  0.0,  0.0, 1.0, // right se
-      gx, gy, lz,   1.0,  0.0,  0.0,  0.0, 1.0, // right ne
+      gx, ly, lz,   1.0,  0.0,  0.0,  1.0, 1.0, // right se
+      gx, gy, lz,   1.0,  0.0,  0.0,  1.0, 0.0, // right ne
 
-      gx, gy, lz,   0.0,  0.0, -1.0,  0.0, 1.0, // back nw
+      gx, gy, lz,   0.0,  0.0, -1.0,  0.0, 0.0, // back nw
       gx, ly, lz,   0.0,  0.0, -1.0,  0.0, 1.0, // back sw
-      lx, ly, lz,   0.0,  0.0, -1.0,  0.0, 1.0, // back se
-      lx, gy, lz,   0.0,  0.0, -1.0,  0.0, 1.0, // back ne
+      lx, ly, lz,   0.0,  0.0, -1.0,  1.0, 1.0, // back se
+      lx, gy, lz,   0.0,  0.0, -1.0,  1.0, 0.0, // back ne
 
-      lx, gy, lz,  -1.0,  0.0,  0.0,  0.0, 1.0, // left nw
+      lx, gy, lz,  -1.0,  0.0,  0.0,  0.0, 0.0, // left nw
       lx, ly, lz,  -1.0,  0.0,  0.0,  0.0, 1.0, // left sw
-      lx, ly, gz,  -1.0,  0.0,  0.0,  0.0, 1.0, // left ne
-      lx, gy, gz,  -1.0,  0.0,  0.0,  0.0, 1.0, // left se
+      lx, ly, gz,  -1.0,  0.0,  0.0,  1.0, 1.0, // left ne
+      lx, gy, gz,  -1.0,  0.0,  0.0,  1.0, 0.0, // left se
 
-      lx, ly, gz,   0.0, -1.0,  0.0,  0.0, 1.0, // bottom nw
+      lx, ly, gz,   0.0, -1.0,  0.0,  0.0, 0.0, // bottom nw
       lx, ly, lz,   0.0, -1.0,  0.0,  0.0, 1.0, // bottom sw
-      gx, ly, lz,   0.0, -1.0,  0.0,  0.0, 1.0, // bottom se
-      gx, ly, gz,   0.0, -1.0,  0.0,  0.0, 1.0, // bottom ne
+      gx, ly, lz,   0.0, -1.0,  0.0,  1.0, 1.0, // bottom se
+      gx, ly, gz,   0.0, -1.0,  0.0,  1.0, 0.0, // bottom ne
 
-      lx, gy, lz,   0.0,  1.0,  0.0,  0.0, 1.0, // top nw
+      lx, gy, lz,   0.0,  1.0,  0.0,  0.0, 0.0, // top nw
       lx, gy, gz,   0.0,  1.0,  0.0,  0.0, 1.0, // top sw
-      gx, gy, gz,   0.0,  1.0,  0.0,  0.0, 1.0, // top se
-      gx, gy, lz,   0.0,  1.0,  0.0,  0.0, 1.0, // top ne
+      gx, gy, gz,   0.0,  1.0,  0.0,  1.0, 1.0, // top se
+      gx, gy, lz,   0.0,  1.0,  0.0,  1.0, 0.0, // top ne
     ]
 
     // Assign each vertex to its index in the vertex data.
