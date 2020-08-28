@@ -250,35 +250,17 @@ public final class AppContext {
 
   /// A flat that indicates whether face culling is enabled.
   public var isCullingEnabled: Bool = true {
-    didSet {
-      if isCullingEnabled {
-        glEnable(GL.CULL_FACE)
-      } else {
-        glDisable(GL.CULL_FACE)
-      }
-    }
+    didSet { glToggle(capability: GL.CULL_FACE, isEnabled: isCullingEnabled) }
   }
 
   /// A flag that indicates whether blending is enabled.
   internal var isBlendingEnabled: Bool = true {
-    didSet {
-      if isBlendingEnabled {
-        glEnable(GL.BLEND)
-      } else {
-        glDisable(GL.BLEND)
-      }
-    }
+    didSet { glToggle(capability: GL.BLEND, isEnabled: isBlendingEnabled) }
   }
 
   /// A flag that indicates whether depth testing is enabled.
   internal var isDepthTestingEnabled: Bool = true {
-    didSet {
-      if isDepthTestingEnabled {
-        glEnable(GL.DEPTH_TEST)
-      } else {
-        glDisable(GL.DEPTH_TEST)
-      }
-    }
+    didSet { glToggle(capability: GL.DEPTH_TEST, isEnabled: isDepthTestingEnabled) }
   }
 
   /// A flag that indicates whether transparent textures have their alpha-channel premultiplied.

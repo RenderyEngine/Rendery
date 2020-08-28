@@ -84,6 +84,15 @@ internal enum GL {
 
 // MARK: Function convenience overloads
 
+/// Convenience wrapper around `glEnable` and `glDisable`.
+internal func glToggle(capability: GL.Enum, isEnabled: Bool) {
+  if isEnabled {
+    glEnable(capability)
+  } else {
+    glDisable(capability)
+  }
+}
+
 /// Convenience wrapper around `glClearColor`.
 internal func glClearColor(_ color: Color) {
   glClearColor(
