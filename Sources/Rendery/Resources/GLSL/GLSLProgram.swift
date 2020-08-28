@@ -18,6 +18,9 @@ public final class GLSLProgram: GraphicsResource {
   /// The program's delegate.
   public let delegate: GLSLProgramDelegate
 
+  /// The maximum number of lights that are used when rendering.
+  public var maxLightCount: Int { delegate.maxLightCount }
+
   /// Assigns a boolean at the specified location.
   ///
   /// This method is intended to be used by the program's delegate to setup its variables.
