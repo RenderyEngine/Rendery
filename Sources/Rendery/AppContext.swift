@@ -294,9 +294,6 @@ public final class AppContext {
   /// The context of the render system.
   internal var renderContext = RenderContext()
 
-  /// An interceptor that caches calls to OpenGL's API.
-  internal var interceptor = GL.APIInterceptor()
-
   /// The application context's graphics resource manager.
   internal let graphicsResourceManager = GraphicsResourceManager()
 
