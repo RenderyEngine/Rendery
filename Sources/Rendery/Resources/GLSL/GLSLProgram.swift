@@ -262,7 +262,7 @@ public final class GLSLProgram: GraphicsResource {
     glGetShaderiv(shaderID, GL.COMPILE_STATUS, &success)
     guard success == GL.TRUE else {
       glDeleteShader(shaderID)
-      throw GLSLError.compilation(shader: .vertex, message: String(cString: infoLog!))
+      throw GLSLError.compilation(shader: type, message: String(cString: infoLog!))
     }
 
     if let log = infoLog {
