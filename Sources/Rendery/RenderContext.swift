@@ -133,7 +133,7 @@ public final class RenderContext {
     // If `material` was provided, install and set up the associated shader.
     if let m = material {
       m.shader.install()
-      m.shader.assign(color: ambientLight, at: "u_ambientLight")
+      m.shader.assign(ambientLight, to: "u_ambientLight")
     }
 
     // Iterate over the given list of renderable nodes to render their attached model.
@@ -161,7 +161,7 @@ public final class RenderContext {
           // Install and set up the material shader.
           try! m.shader.load()
           m.shader.install()
-          m.shader.assign(color: ambientLight, at: "u_ambientLight")
+          m.shader.assign(ambientLight, to: "u_ambientLight")
         }
 
         // Compute the transformation matrices.
@@ -181,11 +181,11 @@ public final class RenderContext {
         }
 
         // Set up "per-drawable" shader uniforms.
-        m.shader.assign(matrix4: modelMatrix, at: "u_modelMatrix")
-        m.shader.assign(matrix4: modelViewProjMatrix, at: "u_modelViewProjMatrix")
+        m.shader.assign(modelMatrix, to: "u_modelMatrix")
+        m.shader.assign(modelViewProjMatrix, to: "u_modelViewProjMatrix")
         m.shader.assign(
-          matrix3: Matrix3(upperLeftOf: modelMatrix).inverted.transposed,
-          at: "u_normalMatrix")
+          Matrix3(upperLeftOf: modelMatrix).inverted.transposed,
+          to: "u_normalMatrix")
 
         m.diffuse.assign(to: "u_diffuse", textureUnit: 0, in: m.shader)
         m.multiply.assign(to: "u_multiply", textureUnit: 1, in: m.shader)
@@ -197,11 +197,11 @@ public final class RenderContext {
             else { continue }
 
           let prefix = "u_pointLights[\(i)]"
-          m.shader.assign(color: lightNode.light!.color, at: prefix + ".color")
-          m.shader.assign(vector3: lightNode.sceneTranslation, at: prefix + ".position")
+          m.shader.assign(lightNode.light!.color, to: prefix + ".color")
+          m.shader.assign(lightNode.sceneTranslation, to: prefix + ".position")
           i += 1
         }
-        m.shader.assign(integer: i, at: "u_pointLightCount")
+        m.shader.assign(i, to: "u_pointLightCount")
 
         // Draw the mesh.
         mesh.draw()

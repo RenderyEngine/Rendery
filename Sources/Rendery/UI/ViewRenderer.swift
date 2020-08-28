@@ -42,10 +42,10 @@ public struct ViewRenderer: ViewDrawingContext {
       y: dimensions.y - penPosition.y - rectangle.dimensions.y,
       z: 0.0))
 
-    program.assign(matrix4: projection * transform, at: "mvp")
-    program.assign(texture: .default, to: "texture", at: 0)
-    program.assign(boolean: false, at: "shouldSampleQuadTexture")
-    program.assign(color: color, at: "multiply", discardingAlpha: false)
+    program.assign(projection * transform, to: "mvp")
+    program.assign(Texture.default, to: "texture", textureUnit: 0)
+    program.assign(false, to: "shouldSampleQuadTexture")
+    program.assign(color, to: "multiply", discardingAlpha: false)
 
     ViewRenderer.quad.load()
     ViewRenderer.quad.update(rectangle)
@@ -70,9 +70,9 @@ public struct ViewRenderer: ViewDrawingContext {
       rotation: .identity,
       scale: Vector3(x: scale, y: scale, z: scale))
 
-    program.assign(matrix4: projection * transform, at: "mvp")
-    program.assign(boolean: true, at: "shouldSampleQuadTexture")
-    program.assign(color: color, at: "multiply", discardingAlpha: false)
+    program.assign(projection * transform, to: "mvp")
+    program.assign(true, to: "shouldSampleQuadTexture")
+    program.assign(color, to: "multiply", discardingAlpha: false)
 
     glActiveTexture(GL.TEXTURE0)
 

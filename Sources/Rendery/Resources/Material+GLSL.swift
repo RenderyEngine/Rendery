@@ -9,12 +9,12 @@ extension Material.Property {
   public func assign(to location: String, textureUnit: Int, in program: GLSLProgram) {
     switch self {
     case .color(let color):
-      program.assign(color: color, at: "\(location).color", discardingAlpha: false)
-      program.assign(texture: .default, to: "\(location).texture", at: textureUnit)
+      program.assign(color, to: "\(location).color", discardingAlpha: false)
+      program.assign(Texture.default, to: "\(location).texture", textureUnit: textureUnit)
 
     case .texture(let texture):
-      program.assign(color: .white, at: "\(location).color", discardingAlpha: false)
-      program.assign(texture: texture, to: "\(location).texture", at: textureUnit)
+      program.assign(Color.white, to: "\(location).color", discardingAlpha: false)
+      program.assign(texture, to: "\(location).texture", textureUnit: textureUnit)
     }
   }
 

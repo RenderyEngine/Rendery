@@ -13,10 +13,21 @@ public protocol GLSLProgramDelegate {
   /// The maximum number of lights that are used when rendering.
   var maxLightCount: Int { get }
 
+  /// Notifies the delegate that the program was "installed".
+  ///
+  /// This method can be used to assign the value of the shader program's custom uniforms, using
+  /// different `assign` method overloads.
+  ///
+  /// - Parameter program: The delegator shader program.
+  func didInstall(_ program: GLSLProgram)
+
 }
 
 extension GLSLProgramDelegate {
 
   public var maxLightCount: Int { 8 }
+
+  public func didInstall(_ program: GLSLProgram) {
+  }
 
 }

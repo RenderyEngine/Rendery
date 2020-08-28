@@ -4,8 +4,8 @@ public protocol GLSLAssignable {
   /// Assigns this value to the GLSL uniform `location` in `program`.
   ///
   /// - Parameters:
-  ///   - location: The location of the uniform to which the value should be assigned.
+  ///   - name: The name of the variable to which the value should be assigned.
   ///   - program: The program in which the value should be assigned.
-  func assign(to location: String, in program: GLSLProgram)
+  func assign(to name: String, in program: GLSLProgram)
 
 }
