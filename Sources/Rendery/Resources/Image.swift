@@ -38,10 +38,10 @@ public final class Image: TextureSource, InitializableFromFile {
 
     self.data = .allocate(capacity: 4 * width * height)
     for i in 0 ..< width * height {
-      self.data[4 * i] = pixels[i].red
-      self.data[4 * i + 1] = pixels[i].green
-      self.data[4 * i + 2] = pixels[i].blue
-      self.data[4 * i + 3] = pixels[i].alpha
+      self.data[4 * i]     = UInt8(pixels[i].red * 255.0)
+      self.data[4 * i + 1] = UInt8(pixels[i].green * 255.0)
+      self.data[4 * i + 2] = UInt8(pixels[i].blue * 255.0)
+      self.data[4 * i + 3] = UInt8(pixels[i].alpha * 255.0)
     }
   }
 

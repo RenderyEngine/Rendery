@@ -68,10 +68,10 @@ public final class GLTFFile: InitializableFromFile {
       // specification, this should be used as a linear multiplier for each texture value.
       let baseColorFactors = pbr.base_color_factor
       material.multiply = .color(Color(
-        red  : UInt8(baseColorFactors.0 * 255.0),
-        green: UInt8(baseColorFactors.1 * 255.0),
-        blue : UInt8(baseColorFactors.2 * 255.0),
-        alpha: UInt8(baseColorFactors.3 * 255.0)))
+        red  : Double(baseColorFactors.0),
+        green: Double(baseColorFactors.1),
+        blue : Double(baseColorFactors.2),
+        alpha: Double(baseColorFactors.3)))
 
       // Extract the material's diffuse texture, if any.
       if let gltfTexture = pbr.base_color_texture.texture?.pointee,

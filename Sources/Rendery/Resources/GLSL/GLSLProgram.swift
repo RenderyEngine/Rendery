@@ -62,15 +62,15 @@ public final class GLSLProgram: GraphicsResource {
     let corrected = color.linear(gamma: AppContext.shared.gamma)
     if discardingAlpha {
       interceptor.uniform(location: locID, value: GLSL.Vec3(
-        x: Float(corrected.red) / 255.0,
-        y: Float(corrected.green) / 255.0,
-        z: Float(corrected.blue) / 255.0))
+        x: Float(corrected.red),
+        y: Float(corrected.green),
+        z: Float(corrected.blue)))
     } else {
       interceptor.uniform(location: locID, value: GLSL.Vec4(
-        x: Float(corrected.red) / 255.0,
-        y: Float(corrected.green) / 255.0,
-        z: Float(corrected.blue) / 255.0,
-        w: Float(corrected.alpha) / 255.0))
+        x: Float(corrected.red),
+        y: Float(corrected.green),
+        z: Float(corrected.blue),
+        w: Float(corrected.alpha)))
     }
   }
 

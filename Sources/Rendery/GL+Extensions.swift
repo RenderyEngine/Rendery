@@ -87,10 +87,10 @@ internal enum GL {
 /// Convenience wrapper around `glClearColor`.
 internal func glClearColor(_ color: Color) {
   glClearColor(
-    Float(color.red) / 255.0,
-    Float(color.green) / 255.0,
-    Float(color.blue) / 255.0,
-    Float(color.alpha) / 255.0)
+    Float(color.red),
+    Float(color.green),
+    Float(color.blue),
+    Float(color.alpha))
 }
 
 /// Convenience overload of `glScissor`.
