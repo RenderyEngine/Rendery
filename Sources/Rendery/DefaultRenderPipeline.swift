@@ -14,7 +14,7 @@ public struct DefaultRenderPipeline: RenderPipeline {
 
     // Define a function that sorts light nodes inby their distance to a specified target.
     func lightNodes(affecting target: Node) -> [Node] {
-      return scene.lighteners.sorted(by: { (a, b) -> Bool in
+      return scene.lightNodes.sorted(by: { (a, b) -> Bool in
         let ta = a.sceneTranslation.squaredDistance(to: target.sceneTranslation)
         let tb = b.sceneTranslation.squaredDistance(to: target.sceneTranslation)
         return ta < tb
@@ -25,7 +25,7 @@ public struct DefaultRenderPipeline: RenderPipeline {
     scene.backgroundColor.map(context.clear(color:))
 
     // Render all model nodes.
-    context.draw(modelNodes: scene.renderable, lightNodes: lightNodes)
+    context.draw(modelNodes: scene.modelNodes, lightNodes: lightNodes)
   }
 
 }

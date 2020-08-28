@@ -74,36 +74,36 @@ open class Scene {
   /// The root of scene tree.
   open lazy var root = Node(scene: self)
 
-  /// A list with all the renderable nodes in the scene.
+  /// An array with all the nodes in the scene to which a model is attached.
   ///
-  /// This property is cached between two frames and updated only when renderable nodes are added
-  /// or removed from the visible scene tree.
-  internal final var renderable: [Node] = []
+  /// This property is cached between two frames and updated only when models are added or removed
+  /// from the visible scene tree.
+  public internal(set) final var modelNodes: [Node] = []
 
-  /// A list with all the light sources in the scene.
+  /// An array with all the nodes in the scene to which a light source is attached.
   ///
-  /// This property is cached between two frames and updated only when lightener nodes are added
-  /// or removed from the visible scene tree.
-  internal final var lighteners: [Node] = []
+  /// This property is cached between two frames and updated only when lights are added or removed
+  /// from the visible scene tree.
+  public internal(set) final var lightNodes: [Node] = []
 
-  /// A flag indicating whether the lists of renderable and lighteners should be updated.
-  internal final var shoudUpdateRenderableAndLighteners: Bool = false
+  /// A flag indicating whether the arrays of model and light nodes should be updated.
+  internal final var shoudUpdateModelAndLightNodeCache: Bool = false
 
   /// Updates the lists of renderable and lighteners.
-  internal func updateRenderableAndLighteners() {
-    renderable.removeAll()
-    lighteners.removeAll()
+  internal func updateModelAndLightNodeCache() {
+    modelNodes.removeAll()
+    lightNodes.removeAll()
 
     for node in Node.NodeIterator(root: root, pruning: .hidden) {
       if (node.model != nil) && !node.isHidden {
-        renderable.append(node)
+        modelNodes.append(node)
       }
       if (node.light != nil) && !node.isHidden {
-        lighteners.append(node)
+        lightNodes.append(node)
       }
     }
 
-    shoudUpdateRenderableAndLighteners = false
+    shoudUpdateModelAndLightNodeCache = false
   }
 
   open func createNode() -> Node {

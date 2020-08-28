@@ -76,8 +76,6 @@ public final class Node {
       children.append(child)
 
       try setup(child, offset)
-      scene.shoudUpdateRenderableAndLighteners = true
-
       return child
     })
   }
@@ -89,7 +87,7 @@ public final class Node {
     child.removeFromParent()
     child.parent = self
     children.append(child)
-    scene.shoudUpdateRenderableAndLighteners = true
+    scene.shoudUpdateModelAndLightNodeCache = true
   }
 
   /// Removes the node from its parent.
@@ -98,7 +96,7 @@ public final class Node {
       parent!.children.remove(at: i)
     }
     parent = nil
-    scene.shoudUpdateRenderableAndLighteners = true
+    scene.shoudUpdateModelAndLightNodeCache = true
   }
 
   /// Search for ancestor nodes satisfying the specified criterion, from parent to root.
@@ -321,12 +319,12 @@ public final class Node {
 
   /// The model attached to this node.
   public var model: Model? {
-    didSet { scene.shoudUpdateRenderableAndLighteners = true }
+    didSet { scene.shoudUpdateModelAndLightNodeCache = true }
   }
 
   /// The light source attached to this node.
   public var light: Light? {
-    didSet { scene.shoudUpdateRenderableAndLighteners = true }
+    didSet { scene.shoudUpdateModelAndLightNodeCache = true }
   }
 
   /// A flag that indicates whether the node and its children are hidden.
@@ -335,7 +333,7 @@ public final class Node {
   /// rendered into the scene. Other properties, such as cameras and collisions shapes, are not
   /// affected by the value of this property.
   public var isHidden: Bool = false {
-    didSet { scene.shoudUpdateRenderableAndLighteners = true }
+    didSet { scene.shoudUpdateModelAndLightNodeCache = true }
   }
 
   // MARK: Collision behavior

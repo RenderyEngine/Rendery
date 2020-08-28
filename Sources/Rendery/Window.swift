@@ -228,9 +228,9 @@ public final class Window {
     for viewport in viewports {
       // Draw the scene (if any) in each defined viewport.
       if let scene = viewport.scene {
-        // Update the scene's renderable and lightener lists if necessary.
-        if scene.shoudUpdateRenderableAndLighteners {
-          scene.updateRenderableAndLighteners()
+        // Update the scene's arrays of model and light nodes if necessary.
+        if scene.shoudUpdateModelAndLightNodeCache {
+          scene.updateModelAndLightNodeCache()
         }
 
         // Update transform constraints.
