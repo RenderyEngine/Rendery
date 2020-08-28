@@ -76,33 +76,35 @@ public struct ViewRenderer: ViewDrawingContext {
 
     glActiveTexture(GL.TEXTURE0)
 
-    AppContext.shared.restoreSettingsAfter({
-      AppContext.shared.isAlphaPremultiplied = false
+    let wasAlphaPremultiplied = AppContext.shared.renderContext.isAlphaPremultiplied
+    AppContext.shared.renderContext.isAlphaPremultiplied = false
+    defer {
+      AppContext.shared.renderContext.isAlphaPremultiplied = wasAlphaPremultiplied
+    }
 
-      var xOffset = 0.0
-      for character in string {
-        // Generate a glyph.
-        guard let glyph = textFace.glyph(for: character)
-          else { continue }
+    var xOffset = 0.0
+    for character in string {
+      // Generate a glyph.
+      guard let glyph = textFace.glyph(for: character)
+        else { continue }
 
-        // Update the quad's vertices.
-        let origin = Vector2(
-          x: glyph.bearing.x + xOffset,
-          y: -(glyph.size.y - glyph.bearing.y))
-        ViewRenderer.quad.update(Rectangle(origin: origin, dimensions: glyph.size))
+      // Update the quad's vertices.
+      let origin = Vector2(
+        x: glyph.bearing.x + xOffset,
+        y: -(glyph.size.y - glyph.bearing.y))
+      ViewRenderer.quad.update(Rectangle(origin: origin, dimensions: glyph.size))
 
-        // Bind the glyph texture.
-        if let texture = glyph.texture {
-          texture.load()
-          glBindTexture(GL.TEXTURE_2D, texture.handle)
-        }
-
-        // Draw the glyph.
-        ViewRenderer.quad.draw()
-
-        xOffset += glyph.advance / 64.0
+      // Bind the glyph texture.
+      if let texture = glyph.texture {
+        texture.load()
+        glBindTexture(GL.TEXTURE_2D, texture.handle)
       }
-    })
+
+      // Draw the glyph.
+      ViewRenderer.quad.draw()
+
+      xOffset += glyph.advance / 64.0
+    }
   }
 
   private static var quad = Quad()

@@ -59,7 +59,7 @@ public final class GLSLProgram: GraphicsResource {
     let interceptor = AppContext.shared.interceptor
     let locID = interceptor.getUniformLocation(program: handle, name: location)
 
-    let corrected = color.linear(gamma: AppContext.shared.gamma)
+    let corrected = color.linear(gamma: AppContext.shared.renderContext.gamma)
     if discardingAlpha {
       interceptor.uniform(location: locID, value: GLSL.Vec3(
         x: Float(corrected.red),

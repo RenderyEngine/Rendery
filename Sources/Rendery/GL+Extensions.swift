@@ -26,24 +26,35 @@ internal enum GL {
 
   static var ALWAYS               : Enum { Enum(GL_ALWAYS) }
   static var ARRAY_BUFFER         : Enum { Enum(GL_ARRAY_BUFFER) }
+  static var BACK                 : Enum { Enum(GL_BACK) }
   static var BLEND                : Enum { Enum(GL_BLEND) }
   static var BYTE                 : Enum { Enum(GL_BYTE) }
   static var CLAMP_TO_BORDER      : Enum { Enum(GL_CLAMP_TO_BORDER) }
   static var CLAMP_TO_EDGE        : Enum { Enum(GL_CLAMP_TO_EDGE) }
   static var COMPILE_STATUS       : Enum { Enum(GL_COMPILE_STATUS) }
   static var CULL_FACE            : Enum { Enum(GL_CULL_FACE) }
+  static var DECR                 : Enum { Enum(GL_DECR) }
+  static var DECR_WRAP            : Enum { Enum(GL_DECR_WRAP) }
   static var DEPTH_TEST           : Enum { Enum(GL_DEPTH_TEST) }
   static var DOUBLE               : Enum { Enum(GL_DOUBLE) }
   static var DYNAMIC_DRAW         : Enum { Enum(GL_DYNAMIC_DRAW) }
   static var ELEMENT_ARRAY_BUFFER : Enum { Enum(GL_ELEMENT_ARRAY_BUFFER) }
+  static var EQUAL                : Enum { Enum(GL_EQUAL) }
   static var FILL                 : Enum { Enum(GL_FILL) }
   static var FLOAT                : Enum { Enum(GL_FLOAT) }
   static var FRAMEBUFFER_SRGB     : Enum { Enum(GL_FRAMEBUFFER_SRGB) }
+  static var FRONT                : Enum { Enum(GL_FRONT) }
   static var FRONT_AND_BACK       : Enum { Enum(GL_FRONT_AND_BACK) }
   static var FRAGMENT_SHADER      : Enum { Enum(GL_FRAGMENT_SHADER) }
+  static var GEQUAL               : Enum { Enum(GL_GEQUAL) }
+  static var GREATER              : Enum { Enum(GL_GREATER) }
+  static var INCR                 : Enum { Enum(GL_INCR) }
+  static var INCR_WRAP            : Enum { Enum(GL_INCR_WRAP) }
   static var INFO_LOG_LENGTH      : Enum { Enum(GL_INFO_LOG_LENGTH) }
   static var INT                  : Enum { Enum(GL_INT) }
+  static var INVERT               : Enum { Enum(GL_INVERT) }
   static var KEEP                 : Enum { Enum(GL_KEEP) }
+  static var LEQUAL               : Enum { Enum(GL_LEQUAL) }
   static var LESS                 : Enum { Enum(GL_LESS) }
   static var LINEAR               : Enum { Enum(GL_LINEAR) }
   static var LINE                 : Enum { Enum(GL_LINE) }
@@ -79,6 +90,7 @@ internal enum GL {
   static var UNSIGNED_INT         : Enum { Enum(GL_UNSIGNED_INT) }
   static var UNSIGNED_SHORT       : Enum { Enum(GL_UNSIGNED_SHORT) }
   static var VERTEX_SHADER        : Enum { Enum(GL_VERTEX_SHADER) }
+  static var ZERO                 : Enum { Enum(GL_ZERO) }
 
 }
 

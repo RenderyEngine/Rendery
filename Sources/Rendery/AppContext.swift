@@ -68,29 +68,8 @@ public final class AppContext {
     // Disable V-Sync.
     glfwSwapInterval(0)
 
-    // Enable blending and specifies how OpenGL should handle transparency. This requires textures
-    // to be loaded with premultiplied alpha (i.e., (αR,αG,αB,α) rather than (R,G,B,α)).
-    glEnable(GL.BLEND)
-    glBlendFunc(GL.ONE, GL.ONE_MINUS_SRC_ALPHA)
-    // glBlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA) // <- without premultiplied alpha
-
-    // Enable depth testing.
-    // FIXME: It's been suggested that depth testing should be removed when drawing 2D sprites with
-    // some transparency, but it is needed to render 3D. It feature could be exposed as a property
-    // of the app context.
-    glEnable(GL.DEPTH_TEST)
-    glDepthFunc(GL.LESS)
-
-    // Enable stencil testing.
-    glEnable(GL.STENCIL_TEST)
-    glStencilFunc(GL.NOTEQUAL, 1, 0xff)
-    glStencilOp(GL.KEEP, GL.KEEP, GL.REPLACE)
-
-    // Enable face culling.
-    glEnable(GL.CULL_FACE)
-
-    // Configure OpenGL so that it performs gamma correction when writing to a sRGB target.
-    glEnable(GL.FRAMEBUFFER_SRGB)
+    // Initialize the render context.
+    renderContext.reset()
 
     return mainWindow
   }
@@ -195,110 +174,21 @@ public final class AppContext {
   /// A structure that keeps track of the user inputs.
   public var inputs: InputState = InputState()
 
-  // MARK: Render system settings
+  // MARK: Rendering loop
 
-  /// The number of frames per second Rendery should try to render.
+  /// A flag that indicates whether the rendering loop should stop before the next frame.
+  public var shouldStopRendering = false
+
+  /// The number of frames per second the system should try to render.
   ///
-  /// This property instructs Rendery to try to run each rendering cycle at the specified frame
-  /// rate. If it is left unassigned, then Rendery will try to render frames as fast as possible.
+  /// This property controls how often new frames should be rendered. If it is left unassigned,
+  /// then Rendery will try to render frames as fast as possible.
   ///
   /// Setting this property does not guarantee that the specified frame rate will be achieved.
   /// While Rendery will not go above, it might fall below if it has too much to compute between
   /// two frames. Hence, you should not rely on this property to update your logic. Instead, you
   /// should use the `currentTime` argument that is provided to frame listeners.
   public var targetFrameRate: Int?
-
-  /// The render system's polygon rasterization mode.
-  ///
-  /// By default, polygons are interpreted as faces when rasterized. This behavior can be modified
-  /// to only render their edges (a.k.a. wireframes) or points.
-  public var polygonMode: PolygonMode = .face {
-    didSet {
-      switch polygonMode {
-      case .face      : glPolygonMode(GL.FRONT_AND_BACK, GL.FILL)
-      case .wireframe : glPolygonMode(GL.FRONT_AND_BACK, GL.LINE)
-      case .vertex    : glPolygonMode(GL.FRONT_AND_BACK, GL.POINT)
-      }
-    }
-  }
-
-  /// A mode of polygon rasterization.
-  public enum PolygonMode {
-
-    /// Polygons are interpreted as faces.
-    case face
-
-    /// Polygons are interpreted as sets of edges.
-    case wireframe
-
-    /// Polygons are interpreted as sets of vertices.
-    case vertex
-
-  }
-
-  /// The gamma of the monitor.
-  public var gamma = 2.2
-
-  /// The width of the lines that are drawn as `Mesh.PrimitiveType.lines`.
-  ///
-  /// This property should be used for debugging purposes only. The actual range of widths that can
-  /// be supported is driver-dependent, which may lead to inconsistent results. If you need to use
-  /// lines as part of a scene, consider creating a mesh with `Mesh.polyline(segments:thickness:)`.
-  public var lineWidth: Double = 1.0 {
-    didSet { glLineWidth(Float(lineWidth)) }
-  }
-
-  /// A flat that indicates whether face culling is enabled.
-  public var isCullingEnabled: Bool = true {
-    didSet { glToggle(capability: GL.CULL_FACE, isEnabled: isCullingEnabled) }
-  }
-
-  /// A flag that indicates whether blending is enabled.
-  internal var isBlendingEnabled: Bool = true {
-    didSet { glToggle(capability: GL.BLEND, isEnabled: isBlendingEnabled) }
-  }
-
-  /// A flag that indicates whether depth testing is enabled.
-  internal var isDepthTestingEnabled: Bool = true {
-    didSet { glToggle(capability: GL.DEPTH_TEST, isEnabled: isDepthTestingEnabled) }
-  }
-
-  /// A flag that indicates whether transparent textures have their alpha-channel premultiplied.
-  internal var isAlphaPremultiplied: Bool = true {
-    didSet {
-      if isAlphaPremultiplied {
-        glBlendFunc(GL.ONE, GL.ONE_MINUS_SRC_ALPHA)
-      } else {
-        glBlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
-      }
-    }
-  }
-
-  /// Execute the specified closure and restore all renderer settings to their value before the
-  /// closure ran.
-  internal func restoreSettingsAfter<Result>(_ block: () -> Result) -> Result {
-    let wasCullingEnabled      = isCullingEnabled
-    let wasBlendingEnabled     = isBlendingEnabled
-    let wasAlphaPremultiplied  = isAlphaPremultiplied
-    let wasDepthTestingEnabled = isDepthTestingEnabled
-
-    defer {
-      isCullingEnabled      = wasCullingEnabled
-      isBlendingEnabled     = wasBlendingEnabled
-      isAlphaPremultiplied  = wasAlphaPremultiplied
-      isDepthTestingEnabled = wasDepthTestingEnabled
-    }
-
-    return block()
-  }
-
-  /// An interceptor that caches calls to OpenGL's API.
-  internal var interceptor = GL.APIInterceptor()
-
-  // MARK: Rendering loop
-
-  /// A flag that indicates whether the rendering loop should stop before the next frame.
-  public var shouldStopRendering = false
 
   /// Starts Rendery's rendering loop.
   ///
@@ -388,9 +278,6 @@ public final class AppContext {
     }
   }
 
-  /// The application context's graphics resource manager.
-  internal let graphicsResourceManager = GraphicsResourceManager()
-
   deinit {
     // Close all windows.
     for window in windows {
@@ -403,5 +290,14 @@ public final class AppContext {
     // Terminate GLFW.
     glfwTerminate()
   }
+
+  /// The context of the render system.
+  internal var renderContext = RenderContext()
+
+  /// An interceptor that caches calls to OpenGL's API.
+  internal var interceptor = GL.APIInterceptor()
+
+  /// The application context's graphics resource manager.
+  internal let graphicsResourceManager = GraphicsResourceManager()
 
 }

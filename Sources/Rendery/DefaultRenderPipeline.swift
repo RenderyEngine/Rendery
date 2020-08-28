@@ -3,10 +3,13 @@ import CGLFW
 /// Rendery's built-in default pipeline.
 public struct DefaultRenderPipeline: RenderPipeline {
 
-  public func render(scene: Scene, to viewport: Viewport, in context: inout RenderContext) {
+  public func render(scene: Scene, to viewport: Viewport, in context: RenderContext) {
     // Compute the view-projection matrix.
     guard let viewProjMatrix = viewport.viewProjMatrix
       else { return }
+
+    // Enable depth test.
+    context.isDepthTestEnabled = true
 
     // Assign some global properties.
     context.ambientLight = scene.ambientLight

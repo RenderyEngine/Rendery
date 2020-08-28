@@ -218,9 +218,11 @@ public final class Window {
     // Set the window as the current OpenGL context.
     glfwMakeContextCurrent(handle)
 
+    let appContext = AppContext.shared
+
     // Clear the screen buffers. Note that default values have to be explicitly reset for `glClear`
     // to have an effect (see https://stackoverflow.com/questions/58640953).
-    glClearColor(backgroundColor.linear(gamma: AppContext.shared.gamma))
+    glClearColor(backgroundColor.linear(gamma: appContext.renderContext.gamma))
     glStencilMask(0xff)
     glClear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
 
@@ -247,31 +249,34 @@ public final class Window {
         glEnable(GL.SCISSOR_TEST)
         defer { glDisable(GL.SCISSOR_TEST) }
 
-        AppContext.shared.restoreSettingsAfter({
-          // Send the scene through the viewport's render pipeline.
-          var renderContext = RenderContext()
-          viewport.renderPipeline.render(scene: scene, to: viewport, in: &renderContext)
+        // Clear the render context's cache.
+        appContext.renderContext.modelViewProjMatrices.removeAll(keepingCapacity: true)
+        appContext.renderContext.normalMatrices.removeAll(keepingCapacity: true)
 
-          // Prepare the OpenGL context to draw UI elements.
-          glStencilMask(0)
-          AppContext.shared.isBlendingEnabled = true
-          AppContext.shared.isDepthTestingEnabled = false
+        // Send the scene through the viewport's render pipeline.
+        viewport.renderPipeline.render(
+          scene: scene,
+          to: viewport,
+          in: appContext.renderContext)
 
-          // Configure the UI view renderer.
-          viewRenderer.dimensions = region.dimensions
-          viewRenderer.penPosition = .zero
-          viewRenderer.defaultFontFace = AppContext.shared.defaultFontFace
+        // Prepare the render state to draw UI elements.
+        appContext.renderContext.isBlendingEnabled = true
+        appContext.renderContext.isDepthTestEnabled = false
 
-          // Draw the scene's HUD.
-          viewport.hud.draw(in: &viewRenderer)
+        // Configure the UI view renderer.
+        viewRenderer.dimensions = region.dimensions
+        viewRenderer.penPosition = .zero
+        viewRenderer.defaultFontFace = appContext.defaultFontFace
 
-          if viewport.showsFrameRate {
-            viewRenderer.penPosition = Vector2(x: 16.0, y: 16.0)
-            TextView(verbatim: "\(frameRate)", face: AppContext.shared.defaultFontFace)
-              .setting(color: Color.red)
-              .draw(in: &viewRenderer)
-          }
-        })
+        // Draw the scene's HUD.
+        viewport.hud.draw(in: &viewRenderer)
+
+        if viewport.showsFrameRate {
+          viewRenderer.penPosition = Vector2(x: 16.0, y: 16.0)
+          TextView(verbatim: "\(frameRate)", face: appContext.defaultFontFace)
+            .setting(color: Color.red)
+            .draw(in: &viewRenderer)
+        }
       }
     }
 

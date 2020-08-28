@@ -1,7 +1,99 @@
 import CGLFW
 
 /// An object that can be used to interact with Rendery's low level graphics API.
-public struct RenderContext {
+public final class RenderContext {
+
+  // MARK: Render state
+
+  /// Reinitializes a render context to its default settings.
+  internal func reset() {
+    // Enable blending and specifies how OpenGL should handle transparency.
+    isBlendingEnabled = true
+    isAlphaPremultiplied = true
+
+    // Enable face culling.
+    isCullingEnabled = true
+
+    // Enable depth test.
+    isDepthTestEnabled = true
+
+    // Disable stencil test.
+    stencil.isEnabled = false
+    stencil.setWriteMask(0xff)
+    stencil.setFunction(.always(reference: 0, mask: 0xff))
+    stencil.setActions(
+      onStencilFailure: .keep,
+      onStencilSuccessAndDepthFailure: .keep,
+      onStencilAndDepthSuccess: .keep)
+
+    // Interpret polygons as faces.
+    polygonMode = .face
+
+    // Configure OpenGL so that it performs gamma correction when writing to a sRGB target.
+    glEnable(GL.FRAMEBUFFER_SRGB)
+  }
+
+  /// The the gamma of the monitor, used for color correction.
+  public var gamma = 2.2
+
+  /// A flag that indicates whether transparent textures have their alpha-channel premultiplied.
+  public var isAlphaPremultiplied = true {
+    didSet {
+      if isAlphaPremultiplied {
+        glBlendFunc(GL.ONE, GL.ONE_MINUS_SRC_ALPHA)
+      } else {
+        glBlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
+      }
+    }
+  }
+
+  /// A flag that indicates whether blending is enabled.
+  public var isBlendingEnabled = true {
+    didSet { glToggle(capability: GL.BLEND, isEnabled: isBlendingEnabled) }
+  }
+
+  /// A flat that indicates whether face culling is enabled.
+  public var isCullingEnabled = true {
+    didSet { glToggle(capability: GL.CULL_FACE, isEnabled: isCullingEnabled) }
+  }
+
+  // A flag that indicates whether depth testing is enabled.
+  public var isDepthTestEnabled = true {
+    didSet { glToggle(capability: GL.DEPTH_TEST, isEnabled: isDepthTestEnabled) }
+  }
+
+  /// The stencil state of the render system.
+  public var stencil = StencilState()
+
+  /// The render system's polygon rasterization mode.
+  ///
+  /// By default, polygons are interpreted as faces when rasterized. This behavior can be modified
+  /// to only render their edges (a.k.a. wireframes) or points.
+  public var polygonMode: PolygonMode = .face {
+    didSet {
+      switch polygonMode {
+      case .face      : glPolygonMode(GL.FRONT_AND_BACK, GL.FILL)
+      case .wireframe : glPolygonMode(GL.FRONT_AND_BACK, GL.LINE)
+      case .vertex    : glPolygonMode(GL.FRONT_AND_BACK, GL.POINT)
+      }
+    }
+  }
+
+  /// A mode of polygon rasterization.
+  public enum PolygonMode {
+
+    /// Polygons are interpreted as faces.
+    case face
+
+    /// Polygons are interpreted as sets of edges.
+    case wireframe
+
+    /// Polygons are interpreted as sets of vertices.
+    case vertex
+
+  }
+
+  // MARK: Scene properties
 
   // The ambient light.
   public var ambientLight: Color = .white
@@ -10,20 +102,16 @@ public struct RenderContext {
   public var viewProjMatrix: Matrix4 = .zero
 
   /// A cache mapping nodes to their corresponding model-view-projection.
-  public var modelViewProjMatrices: [Node: Matrix4] = [:]
+  internal var modelViewProjMatrices: [Node: Matrix4] = [:]
 
   /// A cache mapping nodes to their corresponding normal transformation matrix.
-  public var normalMatrices: [Node: Matrix4] = [:]
+  internal var normalMatrices: [Node: Matrix4] = [:]
 
-  // A flag that indicates whether depth testing is enabled.
-  public var isDepthTestingEnabled: Bool {
-    get { AppContext.shared.isDepthTestingEnabled }
-    set { AppContext.shared.isDepthTestingEnabled = newValue }
-  }
+  // MARK: Graphics commands
 
   /// Clears the color buffer of the render target.
   public func clear(color: Color) {
-    glClearColor(color.linear(gamma: AppContext.shared.gamma))
+    glClearColor(color.linear(gamma: gamma))
     glClear(GL.COLOR_BUFFER_BIT)
   }
 
@@ -37,7 +125,7 @@ public struct RenderContext {
   ///     defined by their containing model. The material must be loaded.
   ///   - lightNodes: A function that accepts a node and returns a sequence with the lights that
   ///     affect its rendering.
-  public mutating func draw<M>(
+  public func draw<M>(
     modelNodes: M,
     material: Material? = nil,
     lightNodes: (Node) -> [Node]
