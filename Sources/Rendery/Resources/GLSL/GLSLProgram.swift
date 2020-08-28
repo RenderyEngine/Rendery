@@ -162,18 +162,8 @@ public final class GLSLProgram: GraphicsResource {
     value.assign(to: location, in: self)
   }
 
-  /// Handles the setup if the program’s parameters.
-  ///
-  /// - Parameter context: The program's binding context.
-  internal func bind(_ context: UnsafeRawPointer) {
-    delegate.bind(self, in: context)
-  }
-
   /// The default shader program.
   public static let `default` = GLSLProgram(delegate: GLSLStandardProgram())
-
-  /// The flat color shader program.
-  public static let flat = GLSLProgram(delegate: GLSLFlatColorProgram())
 
   /// A shader type.
   public enum ShaderType {
@@ -200,7 +190,7 @@ public final class GLSLProgram: GraphicsResource {
 
   internal private(set) var state: GraphicsResourceState
 
-  internal func load() throws {
+  public func load() throws {
     assert(state != .gone)
     guard state != .loaded
       else { return }
@@ -228,7 +218,7 @@ public final class GLSLProgram: GraphicsResource {
     AppContext.shared.graphicsResourceManager.store(self)
   }
 
-  internal func unload() {
+  public func unload() {
     if handle > 0 {
       glDeleteProgram(handle)
       AppContext.shared.interceptor.clearProgramCache(program: handle)

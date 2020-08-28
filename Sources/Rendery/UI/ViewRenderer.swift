@@ -42,12 +42,10 @@ public struct ViewRenderer: ViewDrawingContext {
       y: dimensions.y - penPosition.y - rectangle.dimensions.y,
       z: 0.0))
 
-    let context = QuadProgram.Parameters(
-      texture: .default,
-      shouldSampleQuadTexture: false,
-      multiply: color,
-      mvp: projection * transform)
-    withUnsafePointer(to: context) { program.bind($0) }
+    program.assign(matrix4: projection * transform, at: "mvp")
+    program.assign(texture: .default, to: "texture", at: 0)
+    program.assign(boolean: false, at: "shouldSampleQuadTexture")
+    program.assign(color: color, at: "multiply", discardingAlpha: false)
 
     ViewRenderer.quad.load()
     ViewRenderer.quad.update(rectangle)
@@ -220,16 +218,6 @@ private struct QuadProgram: GLSLProgramDelegate {
   var vertexSource: String { _textureQuadVertexSource }
 
   var fragmentSource: String { _textureQuadFragmentSource }
-
-  func bind(_ program: GLSLProgram, in context: UnsafeRawPointer) {
-    // Extract parameters from context.
-    let parameters = context.assumingMemoryBound(to: Parameters.self).pointee
-
-    program.assign(matrix4: parameters.mvp, at: "mvp")
-    program.assign(texture: parameters.texture, to: "texture", at: 0)
-    program.assign(boolean: parameters.shouldSampleQuadTexture, at: "shouldSampleQuadTexture")
-    program.assign(color: parameters.multiply, at: "multiply", discardingAlpha: false)
-  }
 
 }
 

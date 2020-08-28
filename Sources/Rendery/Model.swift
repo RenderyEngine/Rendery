@@ -82,12 +82,6 @@ public struct Model {
   ///   node positions are considered to compute z-ordering while rendering 2D scenes.
   public var pivotPoint: Vector3 = Vector3(x: 0.5, y: 0.5, z: 0.5)
 
-  /// A flag that indicates whether the model should be drawn with an outline.
-  public var isOutlined: Bool = false
-
-  /// The color of the border when the model is outlined.
-  public var outlineColor: Color = .blue
-
   /// The drawing context of provided to a shader program to render the color pass of a model.
   public struct ColorPassContext {
 

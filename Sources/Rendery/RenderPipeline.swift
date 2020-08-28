@@ -26,9 +26,4 @@ public protocol RenderPipeline {
   ///   - context: An interface to Rendery's low-level graphics API.
   func render(scene: Scene, to viewport: Viewport, in context: inout RenderContext)
 
-  /// Renders the specified scene on the specified viewport.
-  ///
-  /// This method is called once per frame for each rendering viewport.
-  func render(scene: Scene, on viewport: Viewport)
-
 }

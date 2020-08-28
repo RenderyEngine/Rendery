@@ -7,35 +7,6 @@ public struct GLSLStandardProgram: GLSLProgramDelegate {
 
   public var fragmentSource: String { _fragmentSource }
 
-  public func bind(_ program: GLSLProgram, in context: UnsafeRawPointer) {
-    // Extract parameters from context.
-    let parameters = context.assumingMemoryBound(to: Model.ColorPassContext.self).pointee
-
-    // Bind the scene's ambient light.
-    program.assign(color: parameters.ambient, at: "u_ambientLight")
-
-    // Bind the positional lights' configuration.
-    // FIXME: Use an array.
-    if let node = parameters.lighteners.first {
-      program.assign(integer: 1, at: "lights[0].enabled")
-      program.assign(color: node.light!.color, at: "lights[0].color")
-      program.assign(vector3: node.sceneTranslation, at: "lights[0].position")
-    } else {
-      program.assign(integer: 0, at: "lights[0].enabled")
-    }
-
-    // Bind the mesh's material properties.
-    parameters.material.diffuse.assign(to: "material.diffuse", textureUnit: 0, in: program)
-    parameters.material.multiply.assign(to: "material.multiply", textureUnit: 1, in: program)
-
-    // Bind the transformation matrices.
-    program.assign(matrix4: parameters.modelMatrix, at: "model")
-    program.assign(matrix4: parameters.modelViewProjectionMatrix, at: "mvp")
-
-    let normalMatrix = Matrix3(upperLeftOf: parameters.modelMatrix).inverted.transposed
-    program.assign(matrix3: normalMatrix, at: "normalMatrix")
-  }
-
 }
 
 private let _vertexSource = """
