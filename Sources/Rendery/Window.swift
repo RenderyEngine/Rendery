@@ -249,7 +249,8 @@ public final class Window {
 
         AppContext.shared.restoreSettingsAfter({
           // Send the scene through the viewport's render pipeline.
-          viewport.pipeline.render(scene: scene, on: viewport)
+          var renderContext = RenderContext()
+          viewport.pipeline.render(scene: scene, to: viewport, in: &renderContext)
 
           // Prepare the OpenGL context to draw UI elements.
           glStencilMask(0)

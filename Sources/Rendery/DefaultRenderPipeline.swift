@@ -3,6 +3,35 @@ import CGLFW
 /// Rendery's built-in default pipeline.
 public struct DefaultRenderPipeline: RenderPipeline {
 
+  public func render(scene: Scene, to viewport: Viewport, in context: inout RenderContext) {
+    // Compute the view-projection matrix.
+    guard let viewProjMatrix = viewport.viewProjMatrix
+      else { return }
+
+    // Assign some global properties.
+    context.ambientLight = scene.ambientLight
+    context.viewProjMatrix = viewProjMatrix
+
+    // Define a function that sorts light nodes inby their distance to a specified target.
+    func lightNodes(affecting target: Node) -> [Node] {
+      return scene.lighteners.sorted(by: { (a, b) -> Bool in
+        let ta = a.sceneTranslation.squaredDistance(to: target.sceneTranslation)
+        let tb = b.sceneTranslation.squaredDistance(to: target.sceneTranslation)
+        return ta < tb
+      })
+    }
+
+    // Clear the scene's background.
+    scene.backgroundColor.map(context.clear(color:))
+
+    // Enable depth testing.
+    context.isDepthTestingEnabled = true
+    glStencilMask(0)
+
+    // Render all model nodes.
+    context.draw(modelNodes: scene.renderable, lightNodes: lightNodes)
+  }
+
   public func render(scene: Scene, on viewport: Viewport) {
     // Clear the scene's background.
     if let color = scene.backgroundColor {
@@ -14,7 +43,7 @@ public struct DefaultRenderPipeline: RenderPipeline {
     AppContext.shared.isDepthTestingEnabled = true
 
     // Compute the view-projection matrix. This may "fail" if the viewport has no camera.
-    if let viewProjectionMatrix = viewport.viewProjectionMatrix {
+    if let viewProjectionMatrix = viewport.viewProjMatrix {
       // Compute the model-view-matrix for each object.
       var mvpMatrices: [Node: Matrix4] = [:]
       mvpMatrices.reserveCapacity(scene.renderable.count)

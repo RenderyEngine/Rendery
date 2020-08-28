@@ -1,21 +1,34 @@
 /// A driver that orchestrates the series of operation necessary to render the contents of a scene.
 ///
-/// A render pipeline typically consists of a sequence of render passes, each of them representing
-/// a specific task that contributes to transforming the contents of a scene into the image which
-/// is displayed on a viewport.
+/// A render pipeline defines the steps that Rendery should do to render a scene. It is essentially
+/// a driver that interacts with Rendery's low-level graphics API to update the state of the render
+/// system and issue drawing commands.
+///
+/// Conforming to `RenderPipeline` requires the implementation of a method `render(scene:to:in:)`.
+/// This method will be called once per frame, for each viewport attached to an active window, and
+/// will be responsible to perform all the tasks required to transform the contents of a scene into
+/// the image that is displayed on the viewport.
 public protocol RenderPipeline {
 
+  /// Renders the specified scene to the specified viewport.
+  ///
+  /// This method is called once per frame, for each rendering viewport, and is responsible to
+  /// perform all the tasks required to transform `scene` into an image. It does so by interacting
+  /// with Rendery's low-level graphics API, through the `context` parameter.
+  ///
+  /// An implementation typically consists of multiple sequences of configuration steps, such as
+  /// enabling/disabling capabilities on the render system, updating shader uniforms, changing
+  /// render targets, etc., followed by a call to `RenderContext.draw(modelNodes:lightNodes:)`.
+  ///
+  /// - Parameters:
+  ///   - scene: The scene to render.
+  ///   - viewport: The viewport to which the scene should be rendered.
+  ///   - context: An interface to Rendery's low-level graphics API.
+  func render(scene: Scene, to viewport: Viewport, in context: inout RenderContext)
+
   /// Renders the specified scene on the specified viewport.
+  ///
+  /// This method is called once per frame for each rendering viewport.
   func render(scene: Scene, on viewport: Viewport)
-
-}
-
-/// An abstraction over a set of operations that contribute to rendering the contents of a scene.
-///
-/// There are essentially three main categories of render passes:
-/// - Culling, which consists of filtering the contents of a scene.
-/// - Scene rendering, which consists of drawing the renderable objects of the scene.
-/// - Post-processing, which consists if applying global effect on a rendered scene.
-public protocol RenderPass {
 
 }

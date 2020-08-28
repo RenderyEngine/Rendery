@@ -80,7 +80,7 @@ public final class Viewport {
   }
 
   /// The viewport's view-projection matrix.
-  public var viewProjectionMatrix: Matrix4? {
+  public var viewProjMatrix: Matrix4? {
     guard let pov = pointOfView, let camera = pov.camera
       else { return nil }
 
@@ -125,7 +125,7 @@ public final class Viewport {
   /// - Returns: A ray or `nil` if the viewport has no point of view.
   public func ray(fromScreenPoint screenPoint: Vector2) -> Ray? {
     // Compute the inverted view-projection matrix, that unprojects NDCs back to the scene space.
-    guard let ivp = viewProjectionMatrix?.inverted
+    guard let ivp = viewProjMatrix?.inverted
       else { return nil }
 
     // Compute the screen point in NDCs.
