@@ -9,7 +9,7 @@ extension Material.Property {
   public func assign(to location: String, textureUnit: Int, in program: GLSLProgram) {
     switch self {
     case .color(let color):
-      program.assign(color: color.linear(), at: "\(location).color", discardingAlpha: false)
+      program.assign(color: color, at: "\(location).color", discardingAlpha: false)
       program.assign(texture: .default, to: "\(location).texture", at: textureUnit)
 
     case .texture(let texture):

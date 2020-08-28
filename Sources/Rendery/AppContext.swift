@@ -236,6 +236,9 @@ public final class AppContext {
 
   }
 
+  /// The gamma of the monitor.
+  public var gamma = 2.2
+
   /// The width of the lines that are drawn as `Mesh.PrimitiveType.lines`.
   ///
   /// This property should be used for debugging purposes only. The actual range of widths that can

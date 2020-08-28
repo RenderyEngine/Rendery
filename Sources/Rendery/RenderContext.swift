@@ -23,7 +23,7 @@ public struct RenderContext {
 
   /// Clears the color buffer of the render target.
   public func clear(color: Color) {
-    glClearColor(color)
+    glClearColor(color.linear(gamma: AppContext.shared.gamma))
     glClear(GL.COLOR_BUFFER_BIT)
   }
 
@@ -73,7 +73,7 @@ public struct RenderContext {
           // Install and set up the material shader.
           try! m.shader.load()
           m.shader.install()
-          m.shader.assign(color: ambientLight.linear(), at: "u_ambientLight")
+          m.shader.assign(color: ambientLight, at: "u_ambientLight")
         }
 
         // Compute the transformation matrices.
@@ -109,7 +109,7 @@ public struct RenderContext {
             else { continue }
 
           let prefix = "u_pointLights[\(i)]"
-          m.shader.assign(color: lightNode.light!.color.linear(), at: prefix + ".color")
+          m.shader.assign(color: lightNode.light!.color, at: prefix + ".color")
           m.shader.assign(vector3: lightNode.sceneTranslation, at: prefix + ".position")
           i += 1
         }
