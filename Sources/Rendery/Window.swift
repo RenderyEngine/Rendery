@@ -220,7 +220,7 @@ public final class Window {
 
     // Clear the screen buffers. Note that default values have to be explicitly reset for `glClear`
     // to have an effect (see https://stackoverflow.com/questions/58640953).
-    glClearColor(backgroundColor)
+    glClearColor(backgroundColor.linear())
     glStencilMask(0xff)
     glClear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
 
@@ -268,7 +268,7 @@ public final class Window {
           if viewport.showsFrameRate {
             viewRenderer.penPosition = Vector2(x: 16.0, y: 16.0)
             TextView(verbatim: "\(frameRate)", face: AppContext.shared.defaultFontFace)
-              .setting(color: .red)
+              .setting(color: Color.red.linear())
               .draw(in: &viewRenderer)
           }
         })

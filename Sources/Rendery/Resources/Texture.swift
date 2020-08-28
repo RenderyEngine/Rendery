@@ -40,8 +40,7 @@ public final class Texture: GraphicsResource {
   /// The method that should be used to wrap the texture on a mesh.
   ///
   /// Texture coordinates are typically given within the range `0.0 ... 1.0` on both axes. This
-  /// property specifies how a renderer should behave for pairs of coordinates that are outside
-  /// this range on each axis.
+  /// property specifies how a map coordinates that are outside this range on each axis.
   public let wrappingMethod: (u: WrappingMethod, v: WrappingMethod)
 
   /// A method of texture wrapping.
@@ -125,17 +124,27 @@ public final class Texture: GraphicsResource {
 //        }
 //      }
 
-      // Load the texture data into GPU memory.
-      let format = source!.format.glValue
-      if format == GL.RED {
+      // Setup the texture format.
+      let format: GL.Enum
+      let internalFormat: GL.Int
+      switch source!.format {
+      case .gray:
+        format = GL.RED
+        internalFormat = GL.Int(bitPattern: GL.RED)
+
         // Disable OpenGL's byte-alignment restriction, since there's only one channel.
         glPixelStorei(GL.UNPACK_ALIGNMENT, 1)
+
+      case .rgba:
+        format = GL.RGBA
+        internalFormat = GL.Int(bitPattern: GL.SRGB_ALPHA)
       }
 
+      // Load the texture data into GPU memory.
       glTexImage2D(
         GL.TEXTURE_2D,                 // Texture target
         0,                             // Mipmap level
-        GL.Int(bitPattern: format),    // Format in GPU memory
+        internalFormat,                // Internal format in GPU memory
         GL.Size(width),                // Source width
         GL.Size(height),               // Source height
         0,                             // Legacy

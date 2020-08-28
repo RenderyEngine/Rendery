@@ -1,3 +1,5 @@
+import Numerics
+
 /// A structure that stores a 32-bit RGBA color value.
 public struct Color: Hashable {
 
@@ -56,6 +58,39 @@ public struct Color: Hashable {
 
   /// The color's alpha component.
   public var alpha: UInt8
+
+  /// Converts the color into sRGB space, assuming it is encoded in linear RGB space.
+  ///
+  /// - Parameter gamma: The monitor's gamma value.
+  public func srgb(gamma: Double = 2.2) -> Color {
+    let i = 1.0 / gamma
+    func lin2srgb(_ lin: Double) -> Double {
+      return lin > 0.0031308
+        ? 1.055 * Double.pow(lin, i) - 0.055
+        : 12.92 * lin
+    }
+
+    return Color(
+      red  : UInt8(lin2srgb(Double(red) / 255.0) * 255.0),
+      green: UInt8(lin2srgb(Double(green) / 255.0) * 255.0),
+      blue : UInt8(lin2srgb(Double(blue) / 255.0) * 255.0),
+      alpha: alpha)
+  }
+
+  /// Converts the color into linear RGB space, assuming it is encoded in sRGB space.
+  public func linear(gamma: Double = 2.2) -> Color {
+    func srgb2lin(_ s: Double) -> Double {
+      return s <= 0.0404482362771082
+        ? s / 12.92
+        : Double.pow(((s + 0.055) / 1.055), gamma)
+    }
+
+    return Color(
+      red  : UInt8(srgb2lin(Double(red) / 255.0) * 255.0),
+      green: UInt8(srgb2lin(Double(green) / 255.0) * 255.0),
+      blue : UInt8(srgb2lin(Double(blue) / 255.0) * 255.0),
+      alpha: alpha)
+  }
 
   /// The HSLA representation of the color.
   public var hsla: (hue: Double, saturation: Double, lightness: Double, alpha: Double) {

@@ -89,6 +89,9 @@ public final class AppContext {
     // Enable face culling.
     glEnable(GL.CULL_FACE)
 
+    // Configure OpenGL so that it performs gamma correction when writing to a sRGB target.
+    glEnable(GL.FRAMEBUFFER_SRGB)
+
     return mainWindow
   }
 
@@ -192,7 +195,7 @@ public final class AppContext {
   /// A structure that keeps track of the user inputs.
   public var inputs: InputState = InputState()
 
-  // MARK: Renderer settings
+  // MARK: Render system settings
 
   /// The number of frames per second Rendery should try to render.
   ///
@@ -205,7 +208,7 @@ public final class AppContext {
   /// should use the `currentTime` argument that is provided to frame listeners.
   public var targetFrameRate: Int?
 
-  /// The renderer's polygon rasterization mode.
+  /// The render system's polygon rasterization mode.
   ///
   /// By default, polygons are interpreted as faces when rasterized. This behavior can be modified
   /// to only render their edges (a.k.a. wireframes) or points.
@@ -264,17 +267,6 @@ public final class AppContext {
     }
   }
 
-  /// A flag that indicates whether transparent textures have their alpha-channel premultiplied.
-  internal var isAlphaPremultiplied: Bool = true {
-    didSet {
-      if isAlphaPremultiplied {
-        glBlendFunc(GL.ONE, GL.ONE_MINUS_SRC_ALPHA)
-      } else {
-        glBlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
-      }
-    }
-  }
-
   /// A flag that indicates whether depth testing is enabled.
   internal var isDepthTestingEnabled: Bool = true {
     didSet {
@@ -282,6 +274,17 @@ public final class AppContext {
         glEnable(GL.DEPTH_TEST)
       } else {
         glDisable(GL.DEPTH_TEST)
+      }
+    }
+  }
+
+  /// A flag that indicates whether transparent textures have their alpha-channel premultiplied.
+  internal var isAlphaPremultiplied: Bool = true {
+    didSet {
+      if isAlphaPremultiplied {
+        glBlendFunc(GL.ONE, GL.ONE_MINUS_SRC_ALPHA)
+      } else {
+        glBlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
       }
     }
   }

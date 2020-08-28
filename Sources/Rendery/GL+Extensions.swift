@@ -38,6 +38,7 @@ internal enum GL {
   static var ELEMENT_ARRAY_BUFFER : Enum { Enum(GL_ELEMENT_ARRAY_BUFFER) }
   static var FILL                 : Enum { Enum(GL_FILL) }
   static var FLOAT                : Enum { Enum(GL_FLOAT) }
+  static var FRAMEBUFFER_SRGB     : Enum { Enum(GL_FRAMEBUFFER_SRGB) }
   static var FRONT_AND_BACK       : Enum { Enum(GL_FRONT_AND_BACK) }
   static var FRAGMENT_SHADER      : Enum { Enum(GL_FRAGMENT_SHADER) }
   static var INFO_LOG_LENGTH      : Enum { Enum(GL_INFO_LOG_LENGTH) }
@@ -62,6 +63,7 @@ internal enum GL {
   static var RGBA                 : Enum { Enum(GL_RGBA) }
   static var SHORT                : Enum { Enum(GL_SHORT) }
   static var SRC_ALPHA            : Enum { Enum(GL_SRC_ALPHA) }
+  static var SRGB_ALPHA           : Enum { Enum(GL_SRGB_ALPHA) }
   static var STENCIL_TEST         : Enum { Enum(GL_STENCIL_TEST) }
   static var TEXTURE_2D           : Enum { Enum(GL_TEXTURE_2D) }
   static var TEXTURE_HEIGHT       : Enum { Enum(GL_TEXTURE_HEIGHT) }
