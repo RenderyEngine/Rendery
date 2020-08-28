@@ -149,6 +149,15 @@ public final class GLSLProgram: GraphicsResource {
     assign(integer: location, at: sampler)
   }
 
+  /// Assigns a value at the specified location.
+  ///
+  /// - Parameters:
+  ///   - value: The value to assign.
+  ///   - location: The name of the variable to which the value should be assigned.
+  public func assign<T>(_ value: T, to location: String) where T: GLSLAssignable {
+    value.assign(to: location, in: self)
+  }
+
   /// Handles the setup if the program’s parameters.
   ///
   /// - Parameter context: The program's binding context.
