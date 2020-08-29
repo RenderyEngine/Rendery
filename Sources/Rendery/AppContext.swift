@@ -56,7 +56,7 @@ public final class AppContext {
     // Create the main window.
     guard let mainWindow = createWindow(width: width, height: height, title: title) else {
       LogManager.main.log("Failed to create a main window.", level: .error)
-      clear()
+      reset()
       return nil
     }
     activeWindow = mainWindow
@@ -74,8 +74,8 @@ public final class AppContext {
     return mainWindow
   }
 
-  /// Clears the application context.
-  public func clear() {
+  /// Resets the application context.
+  public func reset() {
     // Reset the singleton, causing its deinitializer to execute and dropping all held references.
     AppContext.shared = AppContext()
   }
@@ -267,7 +267,7 @@ public final class AppContext {
         guard glfwWindowShouldClose(window.handle) == GLFW_FALSE else {
           // If the window is main, immediately clear the context and drop out of the loop.
           if window === mainWindow {
-            clear()
+            reset()
             return
           }
 
