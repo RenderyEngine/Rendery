@@ -23,9 +23,6 @@ public final class Viewport {
     self.region = region
   }
 
-  /// The viewport's delegate.
-  public weak var delegate: ViewportDelegate?
-
   /// The viewport's target.
   public unowned let target: Window
 
@@ -149,6 +146,18 @@ public final class Viewport {
     return ray(fromScreenPoint: target.cursorPosition)
   }
 
+  /// A callback that is called when the viewport recieved a key press event.
+  public var didKeyPress: ((KeyEvent) -> Void)?
+
+  /// A callback that is called when the viewport recieved a key release event.
+  public var didKeyRelease: ((KeyEvent) -> Void)?
+
+  /// A callback that is called when the viewport recieved a mouse press event.
+  public var didMousePress: ((MouseEvent) -> Void)?
+
+  /// A callback that is called when the viewport recieved a mouse release event.
+  public var didMouseRelease: ((MouseEvent) -> Void)?
+
 }
 
 extension Viewport: InputResponder {
@@ -160,32 +169,32 @@ extension Viewport: InputResponder {
   }
 
   public func respondToKeyPress(with event: KeyEvent) {
-    if let delegate = self.delegate {
-      delegate.didKeyPress(viewport: self, event: event)
+    if let didKeyPress = self.didKeyPress {
+      didKeyPress(event)
     } else {
       nextResponder?.respondToKeyPress(with: event)
     }
   }
 
   public func respondToKeyRelease(with event: KeyEvent) {
-    if let delegate = self.delegate {
-      delegate.didKeyRelease(viewport: self, event: event)
+    if let didKeyRelease = self.didKeyRelease {
+      didKeyRelease(event)
     } else {
       nextResponder?.respondToKeyRelease(with: event)
     }
   }
 
   public func respondToMousePress(with event: MouseEvent) {
-    if let delegate = self.delegate {
-      delegate.didMousePress(viewport: self, event: event)
+    if let didMousePress = self.didMousePress {
+      didMousePress(event)
     } else {
       nextResponder?.respondToMousePress(with: event)
     }
   }
 
   public func respondToMouseRelease(with event: MouseEvent) {
-    if let delegate = self.delegate {
-      delegate.didMouseRelease(viewport: self, event: event)
+    if let didMouseRelease = self.didMouseRelease {
+      didMouseRelease(event)
     } else {
       nextResponder?.respondToMouseRelease(with: event)
     }

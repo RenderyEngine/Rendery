@@ -7,9 +7,6 @@ public final class Window {
   /// The pointer to the GLFW's window.
   internal let handle: OpaquePointer?
 
-  /// The window's delegate.
-  public weak var delegate: WindowDelegate?
-
   /// A flag that indicates whether the window is the main window.
   public var isMain: Bool { AppContext.shared.mainWindow === self }
 
@@ -72,8 +69,8 @@ public final class Window {
 
   /// A flag that indicates whether the window should close before the next frame is rendered.
   ///
-  /// Setting this flag to `true` will immediately notify the window's delegate, which may decide
-  /// to cancel the close request by setting it back to `false`.
+  /// Setting this flag to `true` will immediately call `willClose`, which may decide to cancel the
+  /// close request by setting it back to `false`.
   public var shouldClose: Bool {
     get {
       return isClosed || (glfwWindowShouldClose(handle) == GLFW_FALSE)
@@ -175,6 +172,35 @@ public final class Window {
 
     AppContext.shared.subscribe(frameListener: frameRateObserver)
   }
+
+  // MARK: Event handling
+
+  /// A callback that is called when the window is about to close.
+  public var willClose: (() -> Void)?
+
+  /// A callback that is called when the window closed.
+  public var didClose: (() -> Void)?
+
+  /// A callback that is called when the window has been resized.
+  public var didResize: (() -> Void)?
+
+  /// A callback that is called when the window received focus.
+  public var didReceiveFocus: (() -> Void)?
+
+  /// A callback that is called when the window lost focus.
+  public var didLoseFocus: (() -> Void)?
+
+  /// A callback that is called when the window recieved a key press event.
+  public var didKeyPress: ((KeyEvent) -> Void)?
+
+  /// A callback that is called when the window recieved a key release event.
+  public var didKeyRelease: ((KeyEvent) -> Void)?
+
+  /// A callback that is called when the window recieved a mouse press event.
+  public var didMousePress: ((MouseEvent) -> Void)?
+
+  /// A callback that is called when the window recieved a mouse release event.
+  public var didMouseRelease: ((MouseEvent) -> Void)?
 
   // MARK: Debugging
 
@@ -296,7 +322,7 @@ public final class Window {
     guard !isClosed
       else { return }
 
-    delegate?.didClose(window: self)
+    didClose?()
     glfwDestroyWindow(handle)
     isClosed = true
   }
@@ -315,19 +341,19 @@ extension Window: InputResponder {
   public var nextResponder: InputResponder? { nil }
 
   public func respondToKeyPress(with event: KeyEvent) {
-    delegate?.didKeyPress(window: self, event: event)
+    didKeyPress?(event)
   }
 
   public func respondToKeyRelease(with event: KeyEvent) {
-    delegate?.didKeyRelease(window: self, event: event)
+    didKeyRelease?(event)
   }
 
   public func respondToMousePress(with event: MouseEvent) {
-    delegate?.didMousePress(window: self, event: event)
+    didMousePress?(event)
   }
 
   public func respondToMouseRelease(with event: MouseEvent) {
-    delegate?.didMouseRelease(window: self, event: event)
+    didMouseRelease?(event)
   }
 
 }
@@ -344,7 +370,7 @@ private func windowFrom(handle: OpaquePointer?) -> Window? {
 private func windowCloseCallback(handle: OpaquePointer?) {
   guard let window = windowFrom(handle: handle)
     else { return }
-  window.delegate?.willClose(window: window)
+  window.willClose?()
 }
 
 private func windowSizeCallback(handle: OpaquePointer?, width: Int32, height: Int32) {
@@ -360,7 +386,7 @@ private func windowSizeCallback(handle: OpaquePointer?, width: Int32, height: In
 
   window.width = Int(actualWidth)
   window.height = Int(actualHeight)
-  window.delegate?.didResize(window: window)
+  window.didResize?()
 }
 
 private func windowFocusCallback(handle: OpaquePointer?, hasFocus: Int32) {
@@ -369,12 +395,12 @@ private func windowFocusCallback(handle: OpaquePointer?, hasFocus: Int32) {
 
   if (hasFocus == GLFW_TRUE) {
     AppContext.shared.activeWindow = window
-    window.delegate?.didReceiveFocus(window: window)
+    window.didReceiveFocus?()
   } else {
     // If focus changes from one window to another, the first callback is for the window that
     // lost it and the second for the window that received it.
     AppContext.shared.activeWindow = nil
-    window.delegate?.didLoseFocus(window: window)
+    window.didLoseFocus?()
   }
 }
 
