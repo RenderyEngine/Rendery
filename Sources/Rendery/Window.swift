@@ -248,7 +248,7 @@ public final class Window {
 
     // Clear the screen buffers. Note that default values have to be explicitly reset for `glClear`
     // to have an effect (see https://stackoverflow.com/questions/58640953).
-    glClearColor(backgroundColor.linear(gamma: appContext.renderContext.gamma))
+    glClearColor(backgroundColor.linear(gamma: appContext.gamma))
     glStencilMask(0xff)
     glClear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
 

@@ -190,6 +190,37 @@ public final class AppContext {
   /// should use the `currentTime` argument that is provided to frame listeners.
   public var targetFrameRate: Int?
 
+  /// The render system's polygon rasterization mode.
+  ///
+  /// By default, polygons are interpreted as faces when rasterized. This behavior can be modified
+  /// to only render their edges (a.k.a. wireframes) or points.
+  public var polygonMode: PolygonMode = .face {
+    didSet {
+      switch polygonMode {
+      case .face      : glPolygonMode(GL.FRONT_AND_BACK, GL.FILL)
+      case .wireframe : glPolygonMode(GL.FRONT_AND_BACK, GL.LINE)
+      case .vertex    : glPolygonMode(GL.FRONT_AND_BACK, GL.POINT)
+      }
+    }
+  }
+
+  /// A mode of polygon rasterization.
+  public enum PolygonMode {
+
+    /// Polygons are interpreted as faces.
+    case face
+
+    /// Polygons are interpreted as sets of edges.
+    case wireframe
+
+    /// Polygons are interpreted as sets of vertices.
+    case vertex
+
+  }
+
+  /// The the gamma of the monitor, used for color correction.
+  public var gamma = 2.2
+
   /// Starts Rendery's rendering loop.
   ///
   /// The method starts the rendering loop and does not return until it is halted. Any subscribed

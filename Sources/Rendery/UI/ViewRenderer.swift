@@ -45,7 +45,7 @@ public struct ViewRenderer: ViewDrawingContext {
     program.assign(projection * transform, to: "mvp")
     program.assign(Texture.default, to: "texture", textureUnit: 0)
     program.assign(false, to: "shouldSampleQuadTexture")
-    program.assign(color, to: "multiply", discardingAlpha: false)
+    program.assign(color.linear(), to: "multiply", discardingAlpha: false)
 
     ViewRenderer.quad.load()
     ViewRenderer.quad.update(rectangle)
@@ -72,7 +72,7 @@ public struct ViewRenderer: ViewDrawingContext {
 
     program.assign(projection * transform, to: "mvp")
     program.assign(true, to: "shouldSampleQuadTexture")
-    program.assign(color, to: "multiply", discardingAlpha: false)
+    program.assign(color.linear(), to: "multiply", discardingAlpha: false)
 
     glActiveTexture(GL.TEXTURE0)
 
