@@ -220,18 +220,13 @@ public final class GLSLProgram: GraphicsResource {
     handle = try link(vertexShaderID, fragmentShaderID)
     state = .loaded
     assert(handle != 0)
-    LogManager.main.log("GLSL program '\(handle)' successfully loaded.", level: .debug)
 
     locations = [:]
-
-    // Bind the program's lifetime to the app context.
-    AppContext.shared.graphicsResourceManager.store(self)
   }
 
   public func unload() {
     if handle > 0 {
       glDeleteProgram(handle)
-      LogManager.main.log("GLSL program '\(handle)' successfully unloaded.", level: .debug)
       handle = 0
     }
 
@@ -316,7 +311,6 @@ public final class GLSLProgram: GraphicsResource {
 
   deinit {
     unload()
-    AppContext.shared.graphicsResourceManager.remove(self)
   }
 
 }

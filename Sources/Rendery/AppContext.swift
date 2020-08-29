@@ -266,6 +266,8 @@ public final class AppContext {
         }
       }
     }
+
+    LogManager.main.log("Rendering loop exited.", level: .debug)
   }
 
   // MARK: Internal API
@@ -284,17 +286,11 @@ public final class AppContext {
       window.close()
     }
 
-    // Unload all managed resources.
-    graphicsResourceManager.unloadAllResources()
-
     // Terminate GLFW.
     glfwTerminate()
   }
 
   /// The context of the render system.
   internal var renderContext = RenderContext()
-
-  /// The application context's graphics resource manager.
-  internal let graphicsResourceManager = GraphicsResourceManager()
 
 }

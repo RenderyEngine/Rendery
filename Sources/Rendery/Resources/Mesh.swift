@@ -181,19 +181,12 @@ public final class Mesh: GraphicsResource {
     }
 
     state = .loaded
-    LogManager.main.log(
-      "Mesh '\(address(of: self))' successfully loaded (\(vertexCount) vertices).",
-      level: .debug)
-
-    // Bind the mesh's lifetime to the app context.
-    AppContext.shared.graphicsResourceManager.store(self)
   }
 
   internal func unload() {
     if vaoID > 0 {
       glDeleteBuffers(2, [vboID, eboID])
       glDeleteVertexArrays(1, &vaoID)
-      LogManager.main.log("Mesh '\(address(of: self))' successfully unloaded.", level: .debug)
 
       vaoID = 0
       vboID = 0
@@ -208,7 +201,6 @@ public final class Mesh: GraphicsResource {
   deinit {
     // Delete the mesh's buffers from the GPU memory.
     glDeleteBuffers(2, [vboID, eboID])
-    // glDeleteBuffers(1, &eboID)
     glDeleteVertexArrays(1, &vaoID)
   }
 

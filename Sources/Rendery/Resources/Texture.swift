@@ -179,16 +179,11 @@ public final class Texture: GraphicsResource {
 
     state = .loaded
     assert(handle != 0)
-    LogManager.main.log("Texture '\(handle)' successfully loaded.", level: .debug)
-
-    // Bind the texture's lifetime to the app context.
-    AppContext.shared.graphicsResourceManager.store(self)
   }
 
   func unload() {
     if handle > 0 {
       glDeleteTextures(1, &handle)
-      LogManager.main.log("Texture '\(handle)' successfully unloaded.", level: .debug)
       handle = 0
     }
 
@@ -197,7 +192,6 @@ public final class Texture: GraphicsResource {
 
   deinit {
     unload()
-    AppContext.shared.graphicsResourceManager.remove(self)
   }
 
 }

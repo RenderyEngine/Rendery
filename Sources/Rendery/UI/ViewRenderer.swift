@@ -171,16 +171,11 @@ private final class Quad: GraphicsResource {
     glBindVertexArray(0)
 
     state = .loaded
-    LogManager.main.log("Quad '\(address(of: self))' successfully loaded.", level: .debug)
-
-    // Bind the quad's lifetime to the app context.
-    AppContext.shared.graphicsResourceManager.store(self)
   }
 
   internal func unload() {
     glDeleteBuffers(1, &vboID)
     glDeleteVertexArrays(1, &vaoID)
-    LogManager.main.log("Quad '\(address(of: self))' successfully unloaded.", level: .debug)
 
     vaoID = 0
     vboID = 0

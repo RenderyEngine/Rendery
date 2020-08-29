@@ -1,8 +1,8 @@
 /// A graphics resource that must be loaded into GPU memory.
 ///
 /// This protocol provides an abstraction layer to deal with the lifecycle of data objects that
-/// must be loaded into GPU memory (e.g., a texture). It defines the interface of a state automaton
-/// that describes this lifecycle.
+/// must be loaded into GPU memory (e.g., a texture). It essentially defines the interface of a
+/// state automaton describing the object's loading state.
 internal protocol GraphicsResource: AnyObject {
 
   /// The resource's current state.
