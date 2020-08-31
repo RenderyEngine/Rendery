@@ -1,3 +1,5 @@
+import Numerics
+
 /// A structure that represents a 3-dimensional vector.
 ///
 /// 3D vectors are represented as distances along three orthogonal axes (x, y and z). They are used
@@ -74,6 +76,37 @@ public struct Vector3: Hashable {
   /// - Parameter other: The vector with which calculate the distance.
   public func squaredDistance(to other: Vector3) -> Double {
     return (other - self).squaredMagnitude
+  }
+
+  /// Computes the Euclidean distance between this vector and the closest face of an axis-aligned
+  /// box.
+  ///
+  /// - Parameter box: The box with which calculate the distance.
+  public func distance(to box: AxisAlignedBox) -> Double {
+    return Double.sqrt(squaredDistance(to: box))
+  }
+
+  /// Computes the squared Euclidean distance between this vector and the closest face of an
+  /// axis-aligned box.
+  ///
+  /// - Parameter box: The box with which calculate the distance.
+  public func squaredDistance(to box: AxisAlignedBox) -> Double {
+    func check(p: Double, bmin: Double, bmax: Double) -> Double {
+      if p < bmin {
+        let v = bmin - p
+        return v * v
+      } else if p > bmax {
+        let v = p - bmax
+        return v * v
+      } else {
+        return 0.0
+      }
+    }
+
+    var d = check(p: x, bmin: box.minX, bmax: box.maxX)
+    d = d + check(p: y, bmin: box.minY, bmax: box.maxY)
+    d = d + check(p: z, bmin: box.minZ, bmax: box.maxZ)
+    return d
   }
 
   /// Returns the component-wise addition of two vectors.
