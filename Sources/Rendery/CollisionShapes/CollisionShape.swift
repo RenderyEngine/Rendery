@@ -13,9 +13,8 @@ public protocol CollisionShape {
   ///   - translation: The translation required to project the shape into the ray's spacce.
   ///   - rotation: The rotation required to project the shape into the ray's space.
   ///   - scale: The scale required to project the shape into the ray's space.
-  ///   - isCullingEnabled: A flag that indicates whether face culling is enabled. On side-shapes,
-  ///     this parameter specifies whether face culling is enabled, in which case a collision will
-  ///     not be detected unless the ray hits the front of the shape.
+  ///   - isCullingEnabled: A flag that indicates whether face culling is enabled. On sided shapes,
+  ///     this parameter specifies whether collisions that hit back faces should be reported.
   func collisionDistance(
     with ray: Ray,
     translation: Vector3,
