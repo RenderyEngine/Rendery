@@ -28,4 +28,11 @@ extension Sphere: CollisionShape {
     }
   }
 
+  /// Returns whether the sphere intersects with the specified axis-aligned box.
+  ///
+  /// - Parameter box: The box with which intersection will be tested.
+  public func intersects(with box: AxisAlignedBox) -> Bool {
+    return origin.squaredDistance(to: box) < radius * radius
+  }
+
 }
