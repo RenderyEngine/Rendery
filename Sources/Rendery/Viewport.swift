@@ -1,22 +1,23 @@
 /// The abstraction of a viewport.
 ///
-/// A viewport designates a region of a rendering surface (e.g., a window) that displays a scene's
+/// A viewport designates a region within a render target (e.g., a window) that displays a scene's
 /// contents, as observed from a node holding a camera (a.k.a. a point of view). If two viewports
 /// overlap, the order in which they are registered in the window is used to determine the one that
 /// obscures the other.
 ///
 /// The region of a viewport is measured in normalized coordinates, so that it can be resized along
-/// the rendering surface. It is used after the scene coordinates have been projected by the camera
-/// to obtain an object's the final position on the rendering surface. The actual dimensions of the
-/// viewport define an aspect ratio. Cameras maintain their own aspect ratio, that should typically
-/// matches that of the viewport to avoid any kind of distortion.
+/// the render target. It is used after the scene coordinates have been projected by the camera to
+/// obtain an object's the final position on the render target.
+///
+/// The dimensions of a viewport define an aspect ratio. Cameras maintain their own aspect ratio,
+/// that should typically matches that of the viewport to avoid any kind of distortion.
 public final class Viewport {
 
-  /// Initializes a viewport with the region of the rendering surface it designates.
+  /// Initializes a viewport with the region of the rendre target it designates.
   ///
   /// - Parameters:
-  ///   - target: The rendering surface that is the target for the rendering.
-  ///   - region: The region of the rendering surface designated by the viewport, in normalized
+  ///   - target: The target for the rendering operations.
+  ///   - region: The region of the render target designated by the viewport, in normalized
   ///     coordinates (i.e., expressed in values between `0` and `1`).
   internal init(target: Window, region: Rectangle) {
     self.target = target
@@ -29,9 +30,6 @@ public final class Viewport {
   /// The viewport's region.
   public var region: Rectangle
 
-  /// The viewport's render pipeline.
-  public var renderPipeline: RenderPipeline = DefaultRenderPipeline()
-
   /// The scene currently presented by the viewport.
   public private(set) var scene: Scene?
 
@@ -43,6 +41,18 @@ public final class Viewport {
   ///
   /// The scene will not be rendered if `pointOfView` is `nil`, or if it has no camera attached.
   public weak var pointOfView: Node?
+
+  /// The viewport's view-projection matrix.
+  public var viewProjMatrix: Matrix4? {
+    guard let pov = pointOfView, let camera = pov.camera
+      else { return nil }
+
+    let scaledRegion = region.scaled(x: Double(target.width), y: Double(target.height))
+    let projection = camera.projection(onto: scaledRegion)
+
+    let view = pov.sceneTransform.inverted
+    return projection * view
+  }
 
   /// The root view of the viewport's heads-up display (HUD).
   public lazy var hud = ViewportRootView(viewport: self)
@@ -76,17 +86,63 @@ public final class Viewport {
     scene = nil
   }
 
-  /// The viewport's view-projection matrix.
-  public var viewProjMatrix: Matrix4? {
-    guard let pov = pointOfView, let camera = pov.camera
-      else { return nil }
+  /// Updates the viewport's contents in its render target.
+  ///
+  /// This method is called by the viewport's render target when it wishes to update.
+  ///
+  /// - Parameter pipeline: The render pipeline that's used to render the viewport's scene.
+  internal func update(through pipeline: RenderPipeline) {
+    guard let scene = self.scene
+      else { return }
 
+    let renderContext = AppContext.shared.renderContext
+
+    // Update the scene's arrays of model and light nodes if necessary.
+    if scene.shoudUpdateModelAndLightNodeCache {
+      scene.updateModelAndLightNodeCache()
+    }
+
+    // Update transform constraints.
+    for node in scene.constraintCache.keys {
+      scene.updateConstraints(on: node, generation: renderContext.generation)
+    }
+
+    // Compute the actual region of the render target designated by the viewport.
     let scaledRegion = region.scaled(x: Double(target.width), y: Double(target.height))
-    let projection = camera.projection(onto: scaledRegion)
+    renderContext.setViewport(region: scaledRegion)
 
-    let view = pov.sceneTransform.inverted
-    return projection * view
+    // Enable the scissor test so that rendering can only occur in the viewport's region.
+    renderContext.setScissor(region: scaledRegion)
+    defer { renderContext.disableScissor() }
+
+    // Clear the render context's cache.
+    renderContext.modelViewProjMatrices.removeAll(keepingCapacity: true)
+    renderContext.normalMatrices.removeAll(keepingCapacity: true)
+
+    // Send the scene through the render pipeline.
+    pipeline.render(viewport: self, in: renderContext)
+
+    // Prepare the render context to draw UI elements.
+    renderContext.isBlendingEnabled = true
+    renderContext.isDepthTestEnabled = false
+
+    // Configure the UI view renderer.
+    viewRenderer.dimensions = scaledRegion.dimensions
+    viewRenderer.penPosition = .zero
+    viewRenderer.defaultFontFace = AppContext.shared.defaultFontFace
+
+    // Draw the scene's HUD.
+    hud.draw(in: &viewRenderer)
+
+    if showsFrameRate {
+      viewRenderer.penPosition = Vector2(x: 16.0, y: 16.0)
+      TextView(verbatim: "\(target.frameRate)", face: AppContext.shared.defaultFontFace)
+        .setting(color: Color.red)
+        .draw(in: &viewRenderer)
+    }
   }
+
+  private var viewRenderer = ViewRenderer()
 
   /// Unprojects the specified normalized device coordinates into the scene space.
   public func unproject(ndc: Vector3, with ivp: Matrix4) -> Vector3 {
@@ -114,7 +170,7 @@ public final class Viewport {
   /// unprojection on the camera's near plane, while the direction is determined by the position
   /// of the screen point on the far plane.
   ///
-  /// If the viewport does not cover the entire rendering Area, the specified screen point is
+  /// If the viewport does not cover the entire render target, the specified screen point is first
   /// projected to viewport space (a.k.a. clip space) before computing scene coordinates.
   ///
   /// - Parameter screenPoint: The screen point from which the ray should shoot.

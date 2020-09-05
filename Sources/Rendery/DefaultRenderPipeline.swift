@@ -3,7 +3,11 @@ import CGLFW
 /// Rendery's built-in default pipeline.
 public struct DefaultRenderPipeline: RenderPipeline {
 
-  public func render(scene: Scene, to viewport: Viewport, in context: RenderContext) {
+  public func render(viewport: Viewport, in context: RenderContext) {
+    // Make sure there's a scene to render.
+    guard let scene = viewport.scene
+      else { return }
+
     // Compute the view-projection matrix.
     guard let viewProjMatrix = viewport.viewProjMatrix
       else { return }
@@ -24,7 +28,7 @@ public struct DefaultRenderPipeline: RenderPipeline {
       })
     }
 
-    // Clear the scene's background.
+    // Clear the scene's background (if any).
     scene.backgroundColor.map(context.clear(color:))
 
     // Render all model nodes.

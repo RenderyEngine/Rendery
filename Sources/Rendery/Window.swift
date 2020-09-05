@@ -2,7 +2,7 @@ import CGLFW
 import Dispatch
 
 /// A Rendery window.
-public final class Window {
+public final class Window: RenderTarget {
 
   /// The pointer to the GLFW's window.
   internal let handle: OpaquePointer?
@@ -233,77 +233,21 @@ public final class Window {
 
   // MARK: Rendering
 
-  /// Renders this window.
-  ///
-  /// This method executes the last step of the rendering cycle by rendering the viewports. It is
-  /// called by the application context after the frame listeners have been notified.
-  ///
-  /// - Parameter generation: The generation number of the rendering loop. This number serves to
-  ///   invalidate some internal caches.
-  internal func render(generation: UInt64) {
+  public var renderPipeline: RenderPipeline = DefaultRenderPipeline()
+
+  public func update() {
     // Set the window as the current OpenGL context.
     glfwMakeContextCurrent(handle)
 
-    let appContext = AppContext.shared
-
     // Clear the screen buffers. Note that default values have to be explicitly reset for `glClear`
     // to have an effect (see https://stackoverflow.com/questions/58640953).
-    glClearColor(backgroundColor.linear(gamma: appContext.gamma))
+    glClearColor(backgroundColor.linear(gamma: AppContext.shared.gamma))
     glStencilMask(0xff)
     glClear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
 
     // Render the viewports.
     for viewport in viewports {
-      // Draw the scene (if any) in each defined viewport.
-      if let scene = viewport.scene {
-        // Update the scene's arrays of model and light nodes if necessary.
-        if scene.shoudUpdateModelAndLightNodeCache {
-          scene.updateModelAndLightNodeCache()
-        }
-
-        // Update transform constraints.
-        for node in scene.constraintCache.keys {
-          scene.updateConstraints(on: node, generation: generation)
-        }
-
-        // Compute the actual region of the rendering area designated by the viewport.
-        let region = viewport.region.scaled(x: Double(width), y: Double(height))
-        glViewport(region: region)
-
-        // Enable the scissor test so that rendering can only occur in the viewport's region.
-        glScissor(region: region)
-        glEnable(GL.SCISSOR_TEST)
-        defer { glDisable(GL.SCISSOR_TEST) }
-
-        // Clear the render context's cache.
-        appContext.renderContext.modelViewProjMatrices.removeAll(keepingCapacity: true)
-        appContext.renderContext.normalMatrices.removeAll(keepingCapacity: true)
-
-        // Send the scene through the viewport's render pipeline.
-        viewport.renderPipeline.render(
-          scene: scene,
-          to: viewport,
-          in: appContext.renderContext)
-
-        // Prepare the render state to draw UI elements.
-        appContext.renderContext.isBlendingEnabled = true
-        appContext.renderContext.isDepthTestEnabled = false
-
-        // Configure the UI view renderer.
-        viewRenderer.dimensions = region.dimensions
-        viewRenderer.penPosition = .zero
-        viewRenderer.defaultFontFace = appContext.defaultFontFace
-
-        // Draw the scene's HUD.
-        viewport.hud.draw(in: &viewRenderer)
-
-        if viewport.showsFrameRate {
-          viewRenderer.penPosition = Vector2(x: 16.0, y: 16.0)
-          TextView(verbatim: "\(frameRate)", face: appContext.defaultFontFace)
-            .setting(color: Color.red)
-            .draw(in: &viewRenderer)
-        }
-      }
+      viewport.update(through: renderPipeline)
     }
 
     // Restore the default viewport.
@@ -312,8 +256,6 @@ public final class Window {
     // Swap the front and back buffers.
     glfwSwapBuffers(handle)
   }
-
-  private var viewRenderer = ViewRenderer()
 
   // MARK: Deinitialization
 

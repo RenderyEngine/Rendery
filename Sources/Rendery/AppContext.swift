@@ -247,6 +247,7 @@ public final class AppContext {
     while(!shouldStopRendering && (condition == nil || condition!())) {
       // Save the time at which the render cycle started.
       let renderCycleStart = DispatchTime.now().uptimeNanoseconds / 1_000_000
+      renderContext.generation += 1
 
       // Poll user inputs (must be called on the main thread).
       glfwPollEvents()
@@ -258,7 +259,7 @@ public final class AppContext {
       }
       lastUpdateTime = now
 
-      // Render each window.
+      // Render each active target.
       var windowIndex = 0
       while windowIndex < windows.count {
         let window = windows[windowIndex]
@@ -281,7 +282,7 @@ public final class AppContext {
         // rather than rendering them in sequence. However, this also means that any user code that
         // gets executed in response to the rendering should by thread-aware.
 
-        window.render(generation: renderCycleStart)
+        window.update()
         windowIndex = windowIndex + 1
       }
 

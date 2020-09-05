@@ -30,6 +30,12 @@ public final class RenderContext {
     glEnable(GL.FRAMEBUFFER_SRGB)
   }
 
+  /// The generation number of the next frame to render.
+  ///
+  /// This number uniquely identifies a frame and can be used to invalidate cache between two
+  /// render cycles.
+  public internal(set) var generation: UInt64 = 0
+
   /// A flag that indicates whether transparent textures have their alpha-channel premultiplied.
   public var isAlphaPremultiplied = true {
     didSet {
@@ -79,6 +85,22 @@ public final class RenderContext {
   public func clear(color: Color) {
     glClearColor(color.linear(gamma: AppContext.shared.gamma))
     glClear(GL.COLOR_BUFFER_BIT)
+  }
+
+  /// Sets the rendering viewport.
+  public func setViewport(region: Rectangle) {
+    glViewport(region: region)
+  }
+
+  /// Enables the scissor test for the specified region.
+  public func setScissor(region: Rectangle) {
+    glScissor(region: region)
+    glEnable(GL.SCISSOR_TEST)
+  }
+
+  /// Disables the scissor test-
+  public func disableScissor() {
+    glDisable(GL.SCISSOR_TEST)
   }
 
   /// Draws the given models.
