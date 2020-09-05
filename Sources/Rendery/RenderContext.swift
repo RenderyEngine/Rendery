@@ -82,18 +82,24 @@ public final class RenderContext {
   // MARK: Graphics commands
 
   /// Clears the color buffer of the render target.
+  ///
+  /// - Parameter color: The color with which the render target should be cleared.
   public func clear(color: Color) {
     glClearColor(color.linear(gamma: AppContext.shared.gamma))
     glClear(GL.COLOR_BUFFER_BIT)
   }
 
   /// Sets the rendering viewport.
-  public func setViewport(region: Rectangle) {
+  ///
+  /// - Parameter region: The viewport's region, in pixels.
+  public func set(viewportRegion region: Rectangle) {
     glViewport(region: region)
   }
 
   /// Enables the scissor test for the specified region.
-  public func setScissor(region: Rectangle) {
+  ///
+  /// - Parameter region: The region of the scissor test, in pixels.
+  public func set(scissorRegion region: Rectangle) {
     glScissor(region: region)
     glEnable(GL.SCISSOR_TEST)
   }
