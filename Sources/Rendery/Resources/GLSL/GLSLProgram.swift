@@ -149,9 +149,6 @@ public final class GLSLProgram: GraphicsResource {
   ///   - sampler: The name of the sampler to which the texture should be assigned.
   ///   - textureUnit: The unit to which the texture should be assigned.
   public func assign(_ texture: Texture, to sampler: String, textureUnit: Int) {
-    // Make sure the texture has been loaded in GPU memory.
-    texture.load()
-
     // Activate the texture unit.
     glActiveTexture(GL.TEXTURE0 + UInt32(textureUnit))
     glBindTexture(GL.TEXTURE_2D, texture.handle)

@@ -15,7 +15,7 @@ public class FontFace {
 
   public func glyph(for character: Character) -> Glyph? {
     if let glyph = cache[character] {
-      if glyph.texture == nil || glyph.texture!.state != .gone {
+      if glyph.texture != nil {
         return glyph
       }
     }
@@ -43,10 +43,10 @@ public class FontFace {
         width: width,
         height: height,
         format: .gray)
-      texture = Texture(
-        source: image,
-        wrappingMethod: (u: .clampedToEdge, v: .clampedToEdge),
-        usesMipmaps: false)
+      texture = ImageTexture(
+        image: image,
+        wrapMethod: (u: .clampedToEdge, v: .clampedToEdge),
+        generateMipmaps: false)
     }
 
     // Create the glyph.

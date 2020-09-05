@@ -1,5 +1,3 @@
-import CGLFW
-
 /// Rendery's built-in default pipeline.
 public struct DefaultRenderPipeline: RenderPipeline {
 

@@ -126,17 +126,17 @@ public final class GLTFFile: InitializableFromFile {
     }
 
     // Extract the sampler's settings, if any.
-    var uWrap = Texture.WrappingMethod.repeat
-    var vWrap = Texture.WrappingMethod.repeat
+    var uWrap = Texture.WrapMethod.repeat
+    var vWrap = Texture.WrapMethod.repeat
 
     if let sampler = gltfTexture.sampler?.pointee {
-      if let method = Texture.WrappingMethod(glValue: GL.Enum(sampler.wrap_s)) {
+      if let method = Texture.WrapMethod(glValue: GL.Enum(sampler.wrap_s)) {
         uWrap = method
       } else {
         LogManager.main.log("Unsupported wrapping method '\(sampler.wrap_s)'.", level: .warning)
       }
 
-      if let method = Texture.WrappingMethod(glValue: GL.Enum(sampler.wrap_t)) {
+      if let method = Texture.WrapMethod(glValue: GL.Enum(sampler.wrap_t)) {
         vWrap = method
       } else {
         LogManager.main.log("Unsupported wrapping method '\(sampler.wrap_t)'.", level: .warning)
@@ -145,7 +145,7 @@ public final class GLTFFile: InitializableFromFile {
       // TODO: Handle texture filtering parameters (e.g., `mag_filter` and `min_filter`).
     }
 
-    return Texture(source: image!, wrappingMethod: (uWrap, vWrap), usesMipmaps: false)
+    return ImageTexture(image: image!, wrapMethod: (uWrap, vWrap), generateMipmaps: false)
   }
 
   private static func extractMesh(from gltfPrimitive: cgltf_primitive) -> Mesh? {

@@ -96,7 +96,6 @@ public struct ViewRenderer: ViewDrawingContext {
 
       // Bind the glyph texture.
       if let texture = glyph.texture {
-        texture.load()
         glBindTexture(GL.TEXTURE_2D, texture.handle)
       }
 

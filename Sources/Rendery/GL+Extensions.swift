@@ -156,7 +156,7 @@ extension Mesh.PrimitiveType {
 
 }
 
-extension Texture.WrappingMethod {
+extension Texture.WrapMethod {
 
   internal init?(glValue: GL.Enum) {
     switch glValue {

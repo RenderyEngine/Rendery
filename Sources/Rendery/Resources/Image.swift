@@ -2,7 +2,7 @@ import CSTBImage
 import Foundation
 
 /// A 2D bitmap image, stored in CPU memory.
-public final class Image: TextureSource, InitializableFromFile {
+public final class Image: InitializableFromFile {
 
   /// Initializes an image with a matrix of pixel data.
   ///
