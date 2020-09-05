@@ -1,7 +1,7 @@
 /// An object that can receive the result of rendering operations.
 ///
 /// A render target is a sort of "canvas" onto which one can draw any kind of content.
-public protocol RenderTarget {
+public protocol RenderTarget: AnyObject {
 
   /// The target's width, in pixels.
   var width: Int { get }

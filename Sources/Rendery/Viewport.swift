@@ -19,13 +19,13 @@ public final class Viewport {
   ///   - target: The target for the rendering operations.
   ///   - region: The region of the render target designated by the viewport, in normalized
   ///     coordinates (i.e., expressed in values between `0` and `1`).
-  internal init(target: Window, region: Rectangle) {
+  internal init(target: RenderTarget, region: Rectangle) {
     self.target = target
     self.region = region
   }
 
   /// The viewport's target.
-  public unowned let target: Window
+  public unowned let target: RenderTarget
 
   /// The viewport's region.
   public var region: Rectangle
@@ -109,10 +109,10 @@ public final class Viewport {
 
     // Compute the actual region of the render target designated by the viewport.
     let scaledRegion = region.scaled(x: Double(target.width), y: Double(target.height))
-    renderContext.setViewport(region: scaledRegion)
+    renderContext.set(viewportRegion: scaledRegion)
 
     // Enable the scissor test so that rendering can only occur in the viewport's region.
-    renderContext.setScissor(region: scaledRegion)
+    renderContext.set(scissorRegion: scaledRegion)
     defer { renderContext.disableScissor() }
 
     // Clear the render context's cache.
@@ -135,8 +135,9 @@ public final class Viewport {
     hud.draw(in: &viewRenderer)
 
     if showsFrameRate {
+      let rate = (target as? Window)?.frameRate ?? 0
       viewRenderer.penPosition = Vector2(x: 16.0, y: 16.0)
-      TextView(verbatim: "\(target.frameRate)", face: AppContext.shared.defaultFontFace)
+      TextView(verbatim: "\(rate)", face: AppContext.shared.defaultFontFace)
         .setting(color: Color.red)
         .draw(in: &viewRenderer)
     }
@@ -196,12 +197,6 @@ public final class Viewport {
     return Ray(origin: np, direction: (fp - np).normalized)
   }
 
-  /// Returns a ray that starts at the camera's position and is oriented so that it intersects the
-  /// back of the viewport's frustrum at the cursor's position.
-  public func mouseRay() -> Ray? {
-    return ray(fromScreenPoint: target.cursorPosition)
-  }
-
   /// A callback that is called when the viewport recieved a key press event.
   public var didKeyPress: ((KeyEvent) -> Void)?
 
@@ -221,7 +216,7 @@ extension Viewport: InputResponder {
   public var nextResponder: InputResponder? {
     // Note that for mouse events, returning `target` as the next responder discards any obscured
     // viewport to which the event could have been dispatched.
-    return target
+    return target as? InputResponder
   }
 
   public func respondToKeyPress(with event: KeyEvent) {
