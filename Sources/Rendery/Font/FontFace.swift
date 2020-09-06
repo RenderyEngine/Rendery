@@ -43,10 +43,7 @@ public class FontFace {
         width: width,
         height: height,
         format: .gray)
-      texture = ImageTexture(
-        image: image,
-        wrapMethod: (u: .clampedToEdge, v: .clampedToEdge),
-        generateMipmaps: false)
+      texture = ImageTexture(image: image, wrapMethod: .clampedToEdge)
     }
 
     // Create the glyph.

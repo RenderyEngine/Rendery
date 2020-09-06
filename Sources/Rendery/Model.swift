@@ -108,22 +108,31 @@ public struct Model {
   /// box mesh without any depth) that's skinned by a texture. It is typically used to approximate
   /// 3D objects by keeping it perpendicular to the camera, to conceal the absence of depth.
   public static func sprite(fromImage image: Image) -> Model {
-    // Creates the model's mesh.
-    let rectangle = Rectangle(
-      centeredAt: .zero,
-      dimensions: Vector2(x: Double(image.width), y: Double(image.height)))
-    let mesh = Mesh.rectangle(rectangle)
+    // Create the model's mesh.
+    var model = sprite(dimensions: Vector2(x: Double(image.width), y: Double(image.height)))
 
-    // Creates the model's material. The texture is clamped to avoid any artifacts at the texture's
+    // Create the model's material. The texture is clamped to avoid any artifacts at the texture's
     // edges, caused by interpolated border values.
-    var material = Material(program: .default)
-    material.diffuse = .texture(ImageTexture(
+    model.materials[0].diffuse = .texture(ImageTexture(
       image: image,
-      wrapMethod: (u: .clampedToBorder, v: .clampedToBorder),
+      wrapMethod: .clampedToBorder,
       generateMipmaps: true))
 
     // Creates the model's material
-    return Model(meshes: [mesh],  materials: [material])
+    return model
+  }
+
+  /// Initializes a model composed of a flat quad and an empty black material.
+  ///
+  /// In Rendery, the term "sprite" is used to denote a model composed of a single quad (i.e., a
+  /// box mesh without any depth) that's skinned by a texture. It is typically used to approximate
+  /// 3D objects by keeping it perpendicular to the camera, to conceal the absence of depth.
+  public static func sprite(dimensions: Vector2) -> Model {
+    // Create the model's mesh.
+    let mesh = Mesh.rectangle(Rectangle(centeredAt: .zero, dimensions: dimensions))
+
+    // Create a model from a quad and an empty material.
+    return Model(meshes: [mesh], materials: [Material()])
   }
 
 }

@@ -1,3 +1,5 @@
+import CGLFW
+
 /// A 2D texture, stored in GPU memory.
 ///
 /// A texture is essentially an image that is stored in the GPU memory to be used in a material.
@@ -8,6 +10,13 @@ public class Texture {
   /// - Parameter wrapMethod: The texture's wrapping behavior.
   internal init(wrapMethod: (u: WrapMethod, v: WrapMethod)) {
     self.wrapMethod = wrapMethod
+  }
+
+  deinit {
+    if handle > 0 {
+      glDeleteTextures(1, &handle)
+      handle = 0
+    }
   }
 
   /// A handle to the underlying texture object in GPU memory.

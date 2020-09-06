@@ -145,7 +145,11 @@ public final class GLTFFile: InitializableFromFile {
       // TODO: Handle texture filtering parameters (e.g., `mag_filter` and `min_filter`).
     }
 
-    return ImageTexture(image: image!, wrapMethod: (uWrap, vWrap), generateMipmaps: false)
+    return ImageTexture(
+      image: image!,
+      wrapMethod: (uWrap, vWrap),
+      generateMipmaps: false,
+      requiresFlipping: false)
   }
 
   private static func extractMesh(from gltfPrimitive: cgltf_primitive) -> Mesh? {

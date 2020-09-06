@@ -9,13 +9,17 @@ public final class ImageTexture: Texture {
   ///   - image: The texture's image source.
   ///   - wrapMethod: The texture's wrapping behavior.
   ///   - generateMipmaps: Indicates whether the texture should be generated with mipmaps.
+  ///   - requiresFlipping: Indicates whether the image should be flipped vertically before being
+  ///     loaded into GPU memory.
   public init(
     image: Image,
     wrapMethod: (u: WrapMethod, v: WrapMethod),
-    generateMipmaps: Bool
+    generateMipmaps: Bool,
+    requiresFlipping: Bool
   ) {
     self.image = image
     self.generateMipmaps = generateMipmaps
+    self.requiresFlipping = requiresFlipping
     super.init(wrapMethod: wrapMethod)
   }
 
@@ -25,15 +29,19 @@ public final class ImageTexture: Texture {
   ///   - image: The texture's image source.
   ///   - wrappingMethod: The texture's wrapping behavior.
   ///   - generateMipmaps: Indicates whether the texture should be generated with mipmaps.
+  ///   - requiresFlipping: Indicates whether the image should be flipped vertically before being
+  ///     loaded into GPU memory.
   public convenience init(
     image: Image,
     wrapMethod: WrapMethod = .repeat,
-    generateMipmaps: Bool = false
+    generateMipmaps: Bool = false,
+    requiresFlipping: Bool = false
   ) {
     self.init(
       image: image,
       wrapMethod: (wrapMethod, wrapMethod),
-      generateMipmaps: generateMipmaps)
+      generateMipmaps: generateMipmaps,
+      requiresFlipping: requiresFlipping)
   }
 
   internal override var handle: GL.UInt {
@@ -58,6 +66,10 @@ public final class ImageTexture: Texture {
   ///
   /// Mimaps can be generated only if the texture's dimensions are a power of two.
   private let generateMipmaps: Bool
+
+  /// A flag that indicates whether the image data should be flipped vertically before being loaded
+  /// into GPU memory.
+  private let requiresFlipping: Bool
 
   /// The image source for this texture.
   private var image: Image?
@@ -91,6 +103,21 @@ public final class ImageTexture: Texture {
         glPixelStorei(GL.UNPACK_ALIGNMENT, 4)
       }
 
+      // Flip the image data if necessary.
+      let pixels: UnsafePointer<UInt8>
+      if requiresFlipping {
+        let stride = image!.format.componentCountPerPixel
+        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: stride * width * height)
+        for row in 0 ..< height {
+          buffer
+            .advanced(by: row * stride)
+            .assign(from: data.advanced(by: (height - 1 - row) * stride), count: stride)
+        }
+        pixels = UnsafePointer(buffer)
+      } else {
+        pixels = data
+      }
+
       // Load the texture data into GPU memory.
       glTexImage2D(
         GL.TEXTURE_2D,                 // Texture target
@@ -102,6 +129,10 @@ public final class ImageTexture: Texture {
         format,                        // Source format
         glTypeSymbol(of: UInt8.self)!, // Source type (per channel)
         data)                          // Source data
+
+      if requiresFlipping {
+        pixels.deallocate()
+      }
     })
 
     // Generate mipmaps, if requested.
@@ -128,13 +159,6 @@ public final class ImageTexture: Texture {
     // Dispose of the data source.
     image = nil
     isLoaded = true
-  }
-
-  deinit {
-    if handle > 0 {
-      glDeleteTextures(1, &handle)
-      handle = 0
-    }
   }
 
 }
