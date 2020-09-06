@@ -17,7 +17,7 @@ public final class FrameBuffer: RenderTarget {
     defer { glBindFramebuffer(GL.FRAMEBUFFER, 0) }
 
     // Create the buffer's color attachment.
-    colorAttachment = RenderTexture(width: width, height: height)
+    colorAttachment = MutableTexture(width: width, height: height, wrapMethod: (.repeat, .repeat))
     glFramebufferTexture2D(
       GL.FRAMEBUFFER,
       GL.COLOR_ATTACHMENT0,
@@ -30,6 +30,7 @@ public final class FrameBuffer: RenderTarget {
       break
 
     default:
+      LogManager.main.log("Incomplete frame buffer.", level: .error)
       return nil
     }
   }
@@ -49,7 +50,7 @@ public final class FrameBuffer: RenderTarget {
   }
 
   /// The buffer's color attachment.
-  public let colorAttachment: RenderTexture
+  public let colorAttachment: MutableTexture
 
   /// The buffer's depth and stencil attachment.
   public var depthAndStencilAttachment: RenderBuffer? {
