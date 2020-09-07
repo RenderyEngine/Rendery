@@ -6,13 +6,13 @@ public final class RenderBuffer {
   /// Initializes a render buffer.
   ///
   /// - Parameter:
-  ///   - width: The target’s width, in pixels.
-  ///   - height: The target’s height, in pixels.
-  ///   - internalFormat: The texture's internal format.
-  public init(width: Int, height: Int) {
+  ///   - width: The buffer’s width, in pixels.
+  ///   - height: The buffer’s height, in pixels.
+  ///   - format: The buffer's internal format.
+  public init(width: Int, height: Int, format: Texture.InternalFormat) {
     glGenRenderbuffers(1, &rbo)
     glBindRenderbuffer(GL.RENDERBUFFER, rbo)
-    glRenderbufferStorage(GL.RENDERBUFFER, GL.DEPTH24_STENCIL8, GL.Size(width), GL.Size(height))
+    glRenderbufferStorage(GL.RENDERBUFFER, format.glValue, GL.Size(width), GL.Size(height))
   }
 
   deinit {

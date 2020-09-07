@@ -70,9 +70,12 @@ internal enum GL {
   static var LINE                     : Enum { Enum(GL_LINE) }
   static var LINES                    : Enum { Enum(GL_LINES) }
   static var LINK_STATUS              : Enum { Enum(GL_LINK_STATUS) }
+  static var MAX_COLOR_ATTACHMENTS    : Enum { Enum(GL_MAX_COLOR_ATTACHMENTS) }
   static var MIRRORED_REPEAT          : Enum { Enum(GL_MIRRORED_REPEAT) }
   static var NEAREST                  : Enum { Enum(GL_NEAREST) }
   static var NEVER                    : Enum { Enum(GL_NEVER) }
+  static var NO_ERROR                 : Enum { Enum(GL_NO_ERROR) }
+  static var NONE                     : Enum { Enum(GL_NONE) }
   static var NOTEQUAL                 : Enum { Enum(GL_NOTEQUAL) }
   static var ONE                      : Enum { Enum(GL_ONE) }
   static var ONE_MINUS_SRC_ALPHA      : Enum { Enum(GL_ONE_MINUS_SRC_ALPHA) }
@@ -221,4 +224,13 @@ internal func glTypeSymbol(of type: Any.Type) -> GL.Enum? {
   if type == Double.self { return GL.Enum(GL_DOUBLE) }
 
   return nil
+}
+
+// MARK: Helpers
+
+internal func glWarnError() {
+  let error = glGetError()
+  if error != GL.NO_ERROR {
+    LogManager.main.log("OpenGL Error '\(error)'", level: .warning)
+  }
 }
