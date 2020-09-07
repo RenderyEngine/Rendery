@@ -20,7 +20,16 @@ public final class ImageTexture: Texture {
     self.image = image
     self.generateMipmaps = generateMipmaps
     self.requiresFlipping = requiresFlipping
-    super.init(wrapMethod: wrapMethod)
+
+    let format: InternalFormat
+    switch image.format {
+    case .gray:
+      format = .red
+    case .rgba:
+      format = .srgba
+    }
+
+    super.init(format: format, wrapMethod: wrapMethod)
   }
 
   /// Initializes a texture from a texture source.
@@ -86,23 +95,6 @@ public final class ImageTexture: Texture {
 
     glBindTexture(GL.TEXTURE_2D, super.handle)
     image!.withUnsafePointer({ data in
-      // Setup the texture format.
-      let format: GL.Enum
-      let internalFormat: GL.Int
-      switch image!.format {
-      case .gray:
-        format = GL.RED
-        internalFormat = GL.Int(bitPattern: GL.RED)
-
-        // Disable OpenGL's byte-alignment restriction, since there's only one channel.
-        glPixelStorei(GL.UNPACK_ALIGNMENT, 1)
-
-      case .rgba:
-        format = GL.RGBA
-        internalFormat = GL.Int(bitPattern: GL.SRGB_ALPHA)
-        glPixelStorei(GL.UNPACK_ALIGNMENT, 4)
-      }
-
       // Flip the image data if necessary.
       let pixels: UnsafePointer<UInt8>
       if requiresFlipping {
@@ -118,18 +110,24 @@ public final class ImageTexture: Texture {
         pixels = data
       }
 
+      let transfer = format.glTransferFormat
+      if image!.format == .gray {
+        glPixelStorei(GL.UNPACK_ALIGNMENT, 1)
+      }
+
       // Load the texture data into GPU memory.
       glTexImage2D(
-        GL.TEXTURE_2D,                 // Texture target
-        0,                             // Mipmap level
-        internalFormat,                // Internal format in GPU memory
-        GL.Size(width),                // Source width
-        GL.Size(height),               // Source height
-        0,                             // Legacy
-        format,                        // Source format
-        glTypeSymbol(of: UInt8.self)!, // Source type (per channel)
-        data)                          // Source data
+        GL.TEXTURE_2D,                      // Texture target
+        0,                                  // Mipmap level
+        GL.Int(bitPattern: format.glValue), // Internal format in GPU memory
+        GL.Size(width),                     // Source width
+        GL.Size(height),                    // Source height
+        0,                                  // Legacy
+        transfer.format,                    // Source format
+        transfer.type,                      // Source type (per channel)
+        data)                               // Source data
 
+      glPixelStorei(GL.UNPACK_ALIGNMENT, 4)
       if requiresFlipping {
         pixels.deallocate()
       }

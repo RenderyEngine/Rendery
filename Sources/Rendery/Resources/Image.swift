@@ -90,7 +90,7 @@ public final class Image: InitializableFromFile {
   /// The image's pixel data format.
   public var format: PixelFormat
 
-  /// A pixel data format.
+  /// An image pixel data format.
   public enum PixelFormat {
 
     case gray

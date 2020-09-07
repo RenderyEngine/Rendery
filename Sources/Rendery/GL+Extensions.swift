@@ -36,9 +36,13 @@ internal enum GL {
   static var CULL_FACE                : Enum { Enum(GL_CULL_FACE) }
   static var DECR                     : Enum { Enum(GL_DECR) }
   static var DECR_WRAP                : Enum { Enum(GL_DECR_WRAP) }
-  static var DEPTH24_STENCIL8         : Enum { Enum(GL_DEPTH24_STENCIL8) }
+  static var DEPTH_ATTACHMENT         : Enum { Enum(GL_DEPTH_ATTACHMENT) }
+  static var DEPTH_COMPONENT          : Enum { Enum(GL_DEPTH_COMPONENT) }
+  static var DEPTH_COMPONENT32F       : Enum { Enum(GL_DEPTH_COMPONENT32F) }
   static var DEPTH_STENCIL_ATTACHMENT : Enum { Enum(GL_DEPTH_STENCIL_ATTACHMENT) }
   static var DEPTH_TEST               : Enum { Enum(GL_DEPTH_TEST) }
+  static var DEPTH24_STENCIL8         : Enum { Enum(GL_DEPTH24_STENCIL8) }
+  static var DEPTH_STENCIL            : Enum { Enum(GL_DEPTH_STENCIL) }
   static var DOUBLE                   : Enum { Enum(GL_DOUBLE) }
   static var DYNAMIC_DRAW             : Enum { Enum(GL_DYNAMIC_DRAW) }
   static var ELEMENT_ARRAY_BUFFER     : Enum { Enum(GL_ELEMENT_ARRAY_BUFFER) }
@@ -48,6 +52,7 @@ internal enum GL {
   static var FRAMEBUFFER              : Enum { Enum(GL_FRAMEBUFFER) }
   static var FRAMEBUFFER_COMPLETE     : Enum { Enum(GL_FRAMEBUFFER_COMPLETE) }
   static var FRAMEBUFFER_SRGB         : Enum { Enum(GL_FRAMEBUFFER_SRGB) }
+  static var FRAMEBUFFER_UNSUPPORTED  : Enum { Enum(GL_FRAMEBUFFER_UNSUPPORTED) }
   static var FRONT                    : Enum { Enum(GL_FRONT) }
   static var FRONT_AND_BACK           : Enum { Enum(GL_FRONT_AND_BACK) }
   static var FRAGMENT_SHADER          : Enum { Enum(GL_FRAGMENT_SHADER) }
@@ -82,6 +87,7 @@ internal enum GL {
   static var SHORT                    : Enum { Enum(GL_SHORT) }
   static var SRC_ALPHA                : Enum { Enum(GL_SRC_ALPHA) }
   static var SRGB_ALPHA               : Enum { Enum(GL_SRGB_ALPHA) }
+  static var STENCIL_ATTACHMENT       : Enum { Enum(GL_STENCIL_ATTACHMENT) }
   static var STENCIL_TEST             : Enum { Enum(GL_STENCIL_TEST) }
   static var TEXTURE_2D               : Enum { Enum(GL_TEXTURE_2D) }
   static var TEXTURE_HEIGHT           : Enum { Enum(GL_TEXTURE_HEIGHT) }
@@ -95,6 +101,7 @@ internal enum GL {
   static var UNPACK_ALIGNMENT         : Enum { Enum(GL_UNPACK_ALIGNMENT) }
   static var UNSIGNED_BYTE            : Enum { Enum(GL_UNSIGNED_BYTE) }
   static var UNSIGNED_INT             : Enum { Enum(GL_UNSIGNED_INT) }
+  static var UNSIGNED_INT_24_8        : Enum { Enum(GL_UNSIGNED_INT_24_8) }
   static var UNSIGNED_SHORT           : Enum { Enum(GL_UNSIGNED_SHORT) }
   static var VERTEX_SHADER            : Enum { Enum(GL_VERTEX_SHADER) }
   static var ZERO                     : Enum { Enum(GL_ZERO) }
@@ -137,8 +144,8 @@ extension Image.PixelFormat {
 
   internal var glValue: GL.Enum {
     switch self {
-    case .gray: return GL.RED
-    case .rgba: return GL.RGBA
+    case .gray              : return GL.RED
+    case .rgba              : return GL.RGBA
     }
   }
 
@@ -148,9 +155,33 @@ extension Mesh.PrimitiveType {
 
   internal var glValue: GL.Enum {
     switch self {
-    case .triangles: return GL.TRIANGLES
-    case .lines    : return GL.LINES
-    case .points   : return GL.POINTS
+    case .triangles         : return GL.TRIANGLES
+    case .lines             : return GL.LINES
+    case .points            : return GL.POINTS
+    }
+  }
+
+}
+
+extension Texture.InternalFormat {
+
+  internal var glValue: GL.Enum {
+    switch self {
+    case .red               : return GL.RED
+    case .rgba              : return GL.RGBA
+    case .srgba             : return GL.SRGB_ALPHA
+    case .depth32F          : return GL.DEPTH_COMPONENT32F
+    case .depth24Stencil8   : return GL.DEPTH24_STENCIL8
+    }
+  }
+
+  internal var glTransferFormat: (format: GL.Enum, type: GL.Enum) {
+    switch self {
+    case .red               : return (GL.RED            , GL.UNSIGNED_BYTE)
+    case .rgba              : return (GL.RGBA           , GL.UNSIGNED_BYTE)
+    case .srgba             : return (GL.RGBA           , GL.UNSIGNED_BYTE)
+    case .depth32F          : return (GL.DEPTH_COMPONENT, GL.FLOAT)
+    case .depth24Stencil8   : return (GL.DEPTH_STENCIL  , GL.UNSIGNED_INT_24_8)
     }
   }
 
@@ -170,10 +201,10 @@ extension Texture.WrapMethod {
 
   internal var glValue: GL.Enum {
     switch self {
-    case .clampedToBorder : return GL.CLAMP_TO_BORDER
-    case .clampedToEdge   : return GL.CLAMP_TO_EDGE
-    case .mirroredRepeat  : return GL.MIRRORED_REPEAT
-    case .repeat          : return GL.REPEAT
+    case .clampedToBorder   : return GL.CLAMP_TO_BORDER
+    case .clampedToEdge     : return GL.CLAMP_TO_EDGE
+    case .mirroredRepeat    : return GL.MIRRORED_REPEAT
+    case .repeat            : return GL.REPEAT
     }
   }
 

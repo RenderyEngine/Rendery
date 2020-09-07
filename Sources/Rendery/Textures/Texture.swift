@@ -7,8 +7,11 @@ public class Texture {
 
   /// Initializes an empty texture.
   ///
-  /// - Parameter wrapMethod: The texture's wrapping behavior.
-  internal init(wrapMethod: (u: WrapMethod, v: WrapMethod)) {
+  /// - Parameters:
+  ///   - format: The texture's internal data format.
+  ///   - wrapMethod: The texture's wrapping behavior.
+  internal init(format: InternalFormat, wrapMethod: (u: WrapMethod, v: WrapMethod)) {
+    self.format = format
     self.wrapMethod = wrapMethod
   }
 
@@ -22,10 +25,34 @@ public class Texture {
   /// A handle to the underlying texture object in GPU memory.
   internal var handle: GL.UInt = 0
 
-  /// The method that should be used to wrap the texture on a mesh.
+  /// The texture's data format in GPU memory.
+  public final let format: InternalFormat
+
+  /// A texture's internal data format.
+  public enum InternalFormat {
+
+    /// One single red component.
+    case red
+
+    /// 4 components in linear RGB color space.
+    case rgba
+
+    /// 4 components in standard RGB color space.
+    case srgba
+
+    /// 32-bit depth buffers with floating point precision.
+    case depth32F
+
+    /// 24-bit depth and 8-bit stencil packed buffers.
+    case depth24Stencil8
+
+  }
+
+  /// A method of texture wrapping.
   ///
-  /// Texture coordinates are typically given within the range `0.0 ... 1.0` on both axes. This
-  /// property specifies how a map coordinates that are outside this range on each axis.
+  /// Texture coordinates are typically given within the range `[0.0, 1.0]` on both axes. This
+  /// enumeration describes the different methods that can be used to map coordinates that are
+  /// outside this range on each axis.
   public final let wrapMethod: (u: WrapMethod, v: WrapMethod)
 
   /// A method of texture wrapping.

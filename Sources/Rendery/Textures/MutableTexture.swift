@@ -6,22 +6,29 @@ import CGLFW
 /// dynamically, typically by using it as an attachment to a frame buffer.
 public final class MutableTexture: Texture {
 
-  public init(width: Int, height: Int, wrapMethod: (u: WrapMethod, v: WrapMethod)) {
+  public init(
+    width: Int,
+    height: Int,
+    format: InternalFormat,
+    wrapMethod: (u: WrapMethod, v: WrapMethod)
+  ) {
     self.width = width
     self.height = height
-    super.init(wrapMethod: wrapMethod)
+    super.init(format: format, wrapMethod: wrapMethod)
+
+    let transfer = format.glTransferFormat
 
     glGenTextures(1, &handle)
     glBindTexture(GL.TEXTURE_2D, handle)
     glTexImage2D(
       GL.TEXTURE_2D,
       0,
-      GL.Int(bitPattern: GL.RGBA),
+      GL.Int(bitPattern: format.glValue),
       GL.Size(width),
       GL.Size(height),
       0,
-      GL.RGBA,
-      GL.UNSIGNED_BYTE,
+      transfer.format,
+      transfer.type,
       nil)
 
     glTexParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.Int(bitPattern: GL.NEAREST))
@@ -31,8 +38,13 @@ public final class MutableTexture: Texture {
     glTexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.Int(wrapMethod.v.glValue))
   }
 
-  public convenience init(width: Int, height: Int, wrapMethod: WrapMethod = .repeat) {
-    self.init(width: width, height: height, wrapMethod: (wrapMethod, wrapMethod))
+  public convenience init(
+    width: Int,
+    height: Int,
+    format: InternalFormat = .srgba,
+    wrapMethod: WrapMethod = .repeat
+  ) {
+    self.init(width: width, height: height, format: format, wrapMethod: (wrapMethod, wrapMethod))
   }
 
   /// The texture's width, in pixels.
