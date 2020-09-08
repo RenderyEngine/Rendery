@@ -11,8 +11,8 @@ public final class RenderContext {
     isBlendingEnabled = true
     isAlphaPremultiplied = true
 
-    // Enable face culling.
-    isCullingEnabled = true
+    // Enable back face culling.
+    culling = .back
 
     // Enable depth test.
     isDepthTestEnabled = true
@@ -52,9 +52,43 @@ public final class RenderContext {
     didSet { glToggle(capability: GL.BLEND, isEnabled: isBlendingEnabled) }
   }
 
-  /// A flat that indicates whether face culling is enabled.
-  public var isCullingEnabled = true {
-    didSet { glToggle(capability: GL.CULL_FACE, isEnabled: isCullingEnabled) }
+  /// The culling mode of the render system.
+  public var culling = CullingMode.back {
+    didSet {
+      switch culling {
+      case .none:
+        glDisable(GL.CULL_FACE)
+
+      case .front:
+        glEnable(GL.CULL_FACE)
+        glCullFace(GL.FRONT)
+
+      case .back:
+        glEnable(GL.CULL_FACE)
+        glCullFace(GL.BACK)
+
+      case .both:
+        glEnable(GL.CULL_FACE)
+        glCullFace(GL.FRONT_AND_BACK)
+      }
+    }
+  }
+
+  /// A face culling mode.
+  public enum CullingMode {
+
+    /// No culling is applied.
+    case none
+
+    /// Culling is applied on front faces.
+    case front
+
+    /// Culling is applied on back faces.
+    case back
+
+    /// Culling is applied on both front and back faces.
+    case both
+
   }
 
   // A flag that indicates whether depth testing is enabled.
