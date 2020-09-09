@@ -59,8 +59,7 @@ public struct Camera {
   ///
   /// The distance between the near clipping plane, together with the camera's field of view and an
   /// aspect ratio, determines the dimensions of the frustum within which a scene is viewed (in the
-  /// the scene's coordinate system). A frustum viewport should have the same aspect ratio as the
-  /// screen viewport that renders it.
+  /// the scene's coordinate system).
   public var nearDistance: Double = 1.0
 
   /// The distance between the camera and the far clipping plane.
@@ -78,10 +77,11 @@ public struct Camera {
 
   /// Returns the camera's matrix projection matrix.
   ///
-  /// The camera projection matrix transforms coordinates from a scene coordinate system (a.k.a.
-  /// world coordinate space) onto a 2D clip space.
+  /// A projection matrix transforms coordinates from the camera's coordinate system (i.e., the
+  /// view space) into normalized coordinates (i.e., the clip space).
   ///
-  /// - Parameter region: The viewport onto which coordinates should be projected.
+  /// - Parameter region: The (scaled) region of the camera's viewport that ratio between the
+  ///   frustum's width and height when `aspectRatio` is set to `auto`.
   public func projection(onto region: Rectangle) -> Matrix4 {
     var ratio: Double
     if case .fixed(let value) = aspectRatio {
@@ -90,14 +90,13 @@ public struct Camera {
       ratio = region.width / region.height
     }
 
-    // Compute screen coordinates.
-    let top = Double.tan(fovY.radians / 2.0) * nearDistance
-    let bottom = -top
-    let right = top * ratio
-    let left = -right
-
     switch projectionType {
     case .perspective:
+      let top = Double.tan(fovY.radians * 0.5) * nearDistance
+      let bottom = -top
+      let right = top * ratio
+      let left = -right
+
       return Matrix4.perspective(
         top   : top,
         bottom: bottom,
@@ -107,6 +106,11 @@ public struct Camera {
         near  : nearDistance)
 
     case .orthographic:
+      let top = Double.tan(fovY.radians * 0.5) * focusDistance
+      let bottom = -top
+      let right = top * ratio
+      let left = -right
+
       return Matrix4.orthographic(
         top   : top,
         bottom: bottom,

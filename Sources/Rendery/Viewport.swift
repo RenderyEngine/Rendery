@@ -54,6 +54,61 @@ public final class Viewport {
     return projection * view
   }
 
+  /// Computes the viewport's frustum.
+  ///
+  /// - Parameters:
+  ///   - up: A normalized vector pointing to the "up" direction.
+  ///   - right: A normalized vector pointing to the "right" direction.
+  ///
+  /// - Returns: The frustum defining the portion of the scene that is visible from this viewport,
+  ///   or `nil` if the viewport has no camera.
+  public func frustum(up: Vector3 = .unitY, right: Vector3 = .unitX) -> Frustum? {
+    guard let pov = pointOfView, let camera = pov.camera
+      else { return nil }
+
+    // Compute the aspect ratio.
+    let ratio: Double
+    if case .fixed(let value) = camera.aspectRatio {
+      ratio = value
+    } else {
+      let scaled = region.scaled(x: Double(target.width), y: Double(target.height))
+      ratio = scaled.width / scaled.height
+    }
+
+    // Compute the center position of the near and far clipping planes.
+    let direction = (pov.sceneRotation * up.cross(right))
+    let nc = pov.sceneTranslation + direction * camera.nearDistance
+    let fc = pov.sceneTranslation + direction * camera.farDistance
+
+    // Compute (half) the height of the near and far clipping planes.
+    let nh, fh: Double
+    switch camera.projectionType {
+    case .perspective:
+      nh = Double.tan(camera.fovY.radians * 0.5) * camera.nearDistance
+      fh = Double.tan(camera.fovY.radians * 0.5) * camera.farDistance
+
+    case .orthographic:
+      nh = Double.tan(camera.fovY.radians * 0.5) * camera.focusDistance
+      fh = nh
+    }
+
+    // Compute (half) the width of the near and far clipping planes.
+    let nw = nh * ratio
+    let fw = fh * ratio
+
+    // Extract the frustum's corners. Note that this should be equivalent the projection of each
+    // corner expressed in NDC using the inverted view-projection matrix.
+    return Frustum(
+      nearTopLeft     : nc + (up * nh) - (right * nw),
+      nearBottomLeft  : nc - (up * nh) - (right * nw),
+      nearBottomRight : nc - (up * nh) + (right * nw),
+      nearTopRight    : nc + (up * nh) + (right * nw),
+      farTopLeft      : fc + (up * fh) - (right * fw),
+      farBottomLeft   : fc - (up * fh) - (right * fw),
+      farBottomRight  : fc - (up * fh) + (right * fw),
+      farTopRight     : fc + (up * fh) + (right * fw))
+  }
+
   /// The root view of the viewport's heads-up display (HUD).
   public lazy var hud = ViewportRootView(viewport: self)
 
