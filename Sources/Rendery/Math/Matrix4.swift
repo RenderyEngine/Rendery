@@ -363,12 +363,12 @@ public struct Matrix4: Hashable {
   /// Initializes a perspective projection matrix.
   ///
   /// - Parameters:
-  ///   - top: The top screen coordinate.
-  ///   - bottom: The bottom screen coordinate.
-  ///   - right: The right screen coordinate.
-  ///   - left: The left screen coordinate.
-  ///   - far: The distance to the far plane.
-  ///   - near: The distance to the near plane.
+  ///   - top: The coordinate of the top clipping plane.
+  ///   - bottom: The coordinate of the bottom clipping plane.
+  ///   - right: The coordinate of the right clipping plane.
+  ///   - left: The coordinate of the left clipping plane.
+  ///   - far: The distance to the far plane. This parameter must be greater than `0`.
+  ///   - near: The distance to the near plane. This parameter must be greater than `far`.
   public static func perspective(
     top   : Double,
     bottom: Double,
@@ -393,10 +393,10 @@ public struct Matrix4: Hashable {
   /// Initializes an orthographic projection matrix.
   ///
   /// - Parameters:
-  ///   - top: The top screen coordinate.
-  ///   - bottom: The bottom screen coordinate.
-  ///   - right: The right screen coordinate.
-  ///   - left: The left screen coordinate.
+  ///   - top: The coordinate of the top clipping plane.
+  ///   - bottom: The coordinate of the bottom clipping plane.
+  ///   - right: The coordinate of the right clipping plane.
+  ///   - left: The coordinate of left clipping plane.
   ///   - far: The distance to the far plane.
   ///   - near: The distance to the near plane.
   public static func orthographic(
