@@ -38,6 +38,39 @@ public struct AxisAlignedBox: Hashable {
     self.dimensions = dimensions
   }
 
+  /// Initializes the minimum box that contains the specified coordinates.
+  ///
+  /// - Parameters:
+  ///   - coordinates: The coordinates that the box should contain.
+  public init?<S>(bounding coordinates: S) where S: Sequence, S.Element == Vector3 {
+    var it = coordinates.makeIterator()
+    guard var minPoint = it.next()
+      else { return nil }
+    var maxPoint = minPoint
+
+    while let point = it.next() {
+      if point.x < minPoint.x {
+        minPoint.x = point.x
+      } else if point.x > maxPoint.x {
+        maxPoint.x = point.x
+      }
+
+      if point.y < minPoint.y {
+        minPoint.y = point.y
+      } else if point.y > maxPoint.y {
+        maxPoint.y = point.y
+      }
+
+      if point.z < minPoint.z {
+        minPoint.z = point.z
+      } else if point.z > maxPoint.z {
+        maxPoint.z = point.z
+      }
+    }
+
+    self.init(origin: minPoint, dimensions: maxPoint - minPoint)
+  }
+
   /// The box' origin (e.g., its front-bottom-left corner).
   public var origin: Vector3
 
