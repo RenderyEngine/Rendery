@@ -144,7 +144,7 @@ public struct Frustum {
 
     // Compute the light's view matrix, which moves scene coordinates into light space.
     let translation = obbCenter - z * hDepth
-    let view = Matrix4.lookAt(from: translation, to: obbCenter).inverted
+    let view = Matrix4(translation: translation, rotation: rotation, scale: .unitScale).inverted
 
     // Compute the light's view-projection matrix.
     return proj * view
