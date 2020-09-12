@@ -1,6 +1,10 @@
 import Numerics
 
 /// A camera from which a scene will be rendered.
+///
+/// Cameras look toward their local negative y-axis. In other words, if a camera is attached to a
+/// node without any (scene) rotation nor (scene) translation, then it will only see objects with
+/// negative coordinates along the scene's z-axis.
 public struct Camera {
 
   /// Initializes a camera.
