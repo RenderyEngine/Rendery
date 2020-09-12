@@ -9,6 +9,8 @@ public struct GLSLStandardProgram: GLSLProgramDelegate {
 
 }
 
+private let maxLightCount = 3
+
 private let _vertexSource = """
 #version 330 core
 layout (location = 0) in vec3 i_position;
@@ -42,47 +44,110 @@ in VertexData {
   vec2 texcoords;
 } i;
 
-struct Light {
-  bool enabled;
+struct PointLight {
   vec3 color;
   vec3 position;
 };
 
-uniform vec3 u_ambientLight;
-uniform Light u_pointLights[1];
-uniform int u_pointLightCount;
-
-struct MaterialProperty {
-  vec4 color;
-  sampler2D texture;
+struct DirectionalLight {
+  vec3      color;
+  vec3      direction;
+  sampler2D shadowMap;
+  mat4      viewProjMatrix;
+  bool      isCastingShadow;
 };
 
-uniform MaterialProperty u_diffuse;
-uniform MaterialProperty u_multiply;
+struct Material {
+  vec4      diffuseColor;
+  sampler2D diffuseTexture;
+  vec4      multiplyColor;
+  sampler2D multiplyTexture;
+};
+
+uniform vec3              u_ambientLight;
+uniform PointLight        u_pointLights[\(maxLightCount)];
+uniform int               u_pointLightCount;
+uniform DirectionalLight  u_directionalLights[\(maxLightCount)];
+uniform int               u_directionalLightCount;
+uniform Material          u_material;
 
 out vec4 finalColor;
 
+float shadowFactor(mat4 lightViewProjMatrix, sampler2D shadowMap, vec3 fPosition) {
+  // Apply perspective divide (only usefull for perspective projections).
+  vec4 fLightSpacePosition = lightViewProjMatrix * vec4(fPosition, 1.0);
+  vec3 coords = fLightSpacePosition.xyz / fLightSpacePosition.w;
+
+  // Sample the shadow map.
+  coords = coords * 0.5 + 0.5;
+  float closestDepth = texture(shadowMap, coords.xy).r;
+  float currentDepth = coords.z;
+
+  float bias = 0.002;
+  // bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.002);
+  float shadow = 0.0;
+
+  vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+  for(int x = -1; x <= 1; ++x) {
+    for(int y = -1; y <= 1; ++y) {
+      float pcfDepth = texture(shadowMap, coords.xy + vec2(x, y) * texelSize).r;
+      shadow += (currentDepth - bias) > pcfDepth ? 1.0 : 0.0;
+    }
+  }
+  shadow /= 9.0;
+
+  return (coords.z > 1.0) ? 0.0 : shadow;
+}
+
+vec3 applyDirectionalLight(
+  DirectionalLight light,
+  vec3 fNormal,
+  vec3 fDiffuse
+) {
+  vec3 direction = normalize(-light.direction);
+  float diffuseFactor = max(dot(fNormal, direction), 0.0);
+
+  if (light.isCastingShadow) {
+    float shadow = shadowFactor(light.viewProjMatrix, light.shadowMap, i.position);
+    return (1.0 - shadow) * diffuseFactor * fDiffuse;
+  } else {
+    return diffuseFactor * fDiffuse;
+  }
+}
+
+vec3 applyPointLight(PointLight light, vec3 fNormal, vec3 fPosition, vec3 fDiffuse) {
+  vec3 direction = normalize(light.position - fPosition);
+  float diffuseFactor = max(dot(fNormal, direction), 0.0);
+
+  return diffuseFactor * fDiffuse;
+}
+
 void main() {
-  // Compute the contribution of each material property.
-  vec4 diffuseColor = u_diffuse.color * texture(u_diffuse.texture, i.texcoords);
-  if (diffuseColor.a < 0.1) {
+  // Extract the fragment's diffuse color from the material's `diffuse` map.
+  vec4 fDiffuse = u_material.diffuseColor * texture(u_material.diffuseTexture, i.texcoords);
+  if (fDiffuse.a < 0.1) {
     discard;
   }
 
-  vec4 multiplyColor = u_multiply.color * texture(u_multiply.texture, i.texcoords);
+  // Add light contributions.
+  finalColor = vec4(fDiffuse.rgb * u_ambientLight, fDiffuse.a);
 
-  // Compute lighting.
-  vec3 lightColor = vec3(0.0, 0.0, 0.0);
-
-  for (int index = 0; index < u_pointLightCount; ++index) {
-    vec3 direction = normalize(u_pointLights[index].position - i.position);
-    float diff = max(dot(i.normal, direction), 0.0);
-    lightColor = lightColor + diff * u_pointLights[index].color;
+  for (int index = 0; index < u_directionalLightCount; ++index) {
+    finalColor.rgb += applyDirectionalLight(
+      u_directionalLights[index],
+      i.normal,
+      finalColor.rgb);
   }
 
-  lightColor = lightColor + u_ambientLight;
+  for (int index = 0; index < u_pointLightCount; ++index) {
+    finalColor.rgb += applyPointLight(
+      u_pointLights[index],
+      i.normal,
+      i.position,
+      finalColor.rgb);
+  }
 
-  // Compute the final color.
-  finalColor = diffuseColor * multiplyColor * vec4(lightColor, 1.0);
+  // Multiply the color by the material's `multiply` map.
+  finalColor *= u_material.multiplyColor * texture(u_material.multiplyTexture, i.texcoords);
 }
 """

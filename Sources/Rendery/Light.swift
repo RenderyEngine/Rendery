@@ -55,4 +55,7 @@ public struct Light {
   /// the area being lit.
   public var angle: Angle = .deg(45.0)
 
+  /// A flag that indicates whether this light casts shadows.
+  public var isCastingShadow = false
+
 }

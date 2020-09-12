@@ -140,7 +140,7 @@ public final class GLSLProgram: GraphicsResource {
     glUniformMatrix4fv(loc, 1, 0, data)
   }
 
-  /// Assigns a texture at the specified location (or texture unit).
+  /// Assigns a texture at the specified location.
   ///
   /// This method is intended to be used by the program's delegate to setup its variables.
   ///
@@ -153,6 +153,42 @@ public final class GLSLProgram: GraphicsResource {
     glActiveTexture(GL.TEXTURE0 + UInt32(textureUnit))
     glBindTexture(GL.TEXTURE_2D, texture.handle)
     assign(textureUnit, to: sampler)
+  }
+
+  /// Assigns a meterial at the specified location.
+  ///
+  /// - Parameters:
+  ///   - material: The material to assign.
+  ///   - location: The name of the variable to which the material should be assigned.
+  ///   - firstTextureUnit: The first of the units to which the material's textures should be
+  ///     assigned.
+  public func assign(_ material: Material, to location: String, firstTextureUnit: Int) {
+    assign(material.diffuse, to: location + ".diffuse", textureUnit: 0)
+    assign(material.multiply, to: location + ".multiply", textureUnit: 1)
+  }
+
+  /// Assigns a material property at the specified location.
+  ///
+  /// This method assigns both a color and a texture uniform. The value of each uniform depends on
+  /// the material property's value. When the property's value is a color, it is assigned to the
+  /// color uniform while the texture uniform is assigned to a default 1x1 white texture. When the
+  /// property's value is a texture, it is assigned to the texture uniform while the color uniform
+  /// is assigned to white.
+  ///
+  /// - Parameters:
+  ///   - property: The property to assign.
+  ///   - location: The prefix of the material property in a material uniform.
+  ///   - textureUnit: The unit to which the texture should be assigned.
+  private func assign(_ property: Material.Property, to location: String, textureUnit: Int) {
+    switch property {
+    case .color(let color):
+      assign(color, to: "\(location)Color", discardingAlpha: false)
+      assign(Texture.default, to: "\(location)Texture", textureUnit: textureUnit)
+
+    case .texture(let texture):
+      assign(Color.white, to: "\(location)Color", discardingAlpha: false)
+      assign(texture, to: "\(location)Texture", textureUnit: textureUnit)
+    }
   }
 
   /// Assigns a value at the specified location.

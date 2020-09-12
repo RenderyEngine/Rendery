@@ -6,15 +6,9 @@ public struct DefaultRenderPipeline: RenderPipeline {
     guard let scene = viewport.scene
       else { return }
 
-    // Compute the view-projection matrix.
+    // Assign the camera's view-projection matrix.
     guard let viewProjMatrix = viewport.viewProjMatrix
       else { return }
-
-    // Enable depth test.
-    context.isDepthTestEnabled = true
-
-    // Assign some global properties.
-    context.ambientLight = scene.ambientLight
     context.viewProjMatrix = viewProjMatrix
 
     // Define a function that sorts light nodes inby their distance to a specified target.
@@ -29,8 +23,14 @@ public struct DefaultRenderPipeline: RenderPipeline {
     // Clear the scene's background (if any).
     scene.backgroundColor.map(context.clear(color:))
 
+    // Enable depth test.
+    context.isDepthTestEnabled = true
+
     // Render all model nodes.
-    context.draw(modelNodes: scene.modelNodes, lightNodes: lightNodes)
+    let lightSettings = LightSettings(
+      ambient: scene.ambientLight,
+      lightEntities: scene.lightNodes.compactMap({ LightEntity(node: $0) }))
+    context.draw(modelNodes: scene.modelNodes, lightSettings: lightSettings)
   }
 
 }
