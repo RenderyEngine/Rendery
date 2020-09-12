@@ -59,6 +59,12 @@ public struct Frustum {
     return p * 0.125
   }
 
+  /// The frustrum's normalized direction.
+  public var direction: Vector3 {
+    let nearCenter = (nearTopLeft + nearBottomLeft + nearBottomRight + nearTopRight) * 0.25
+    return -(nearCenter).normalized
+  }
+
   /// A collection with all corners of the frustrum.
   public var corners: [Vector3] {
     return [
