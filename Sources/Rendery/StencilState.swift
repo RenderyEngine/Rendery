@@ -30,50 +30,6 @@ public class StencilState {
 
 }
 
-/// The behavior of the stencil testing for a particular direction.
-public struct StencilBehavior {
-
-  /// The face affected by this behavior configuration.
-  fileprivate let face: GL.Enum
-
-  /// The function that is used to test polygons facing this direction.
-  public var comparison: StencilCompareFunction {
-    didSet { comparison.assign(for: face) }
-  }
-
-  /// The action to take when the stencil test fails.
-  public var onStencilFailure: StencilAction {
-    didSet { updateActions() }
-  }
-
-  /// The action to take when the stencil test passes, but the depth test fails.
-  public var onStencilSuccessAndDepthFailure: StencilAction {
-     didSet { updateActions() }
-   }
-
-  /// The action to take when the stencil test passes and the depth test passes or is disabled.
-  public var onStencilAndDepthSuccess: StencilAction {
-     didSet { updateActions() }
-   }
-
-  private func updateActions() {
-    glStencilOpSeparate(
-      face,
-      onStencilFailure.glValue,
-      onStencilSuccessAndDepthFailure.glValue,
-      onStencilAndDepthSuccess.glValue)
-  }
-
-  /// The mask that is used when writing to the buffer.
-  ///
-  /// For each individual bit, a value of `1` indicates that the corresponding position can be
-  /// modified, whereas a value of `0` precents the corresponding value from being overwritten.
-  public var mask: UInt8 = 0xff {
-    didSet { glStencilMaskSeparate(face, GL.UInt(mask)) }
-  }
-
-}
-
 /// The configuration of a stencil compare function.
 public enum StencilCompareFunction {
 
