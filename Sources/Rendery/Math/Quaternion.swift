@@ -416,7 +416,7 @@ public struct Quaternion: Hashable {
 extension Quaternion: CustomStringConvertible {
 
   public var description: String {
-    return "(x: \(roll.degrees), y: \(pitch.degrees), z: \(yaw.degrees))"
+    return "Rotation(roll: \(roll.degrees), pitch: \(pitch.degrees), yaw: \(yaw.degrees))"
   }
 
 }

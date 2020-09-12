@@ -256,7 +256,7 @@ public struct Vector3: Hashable {
 extension Vector3: CustomStringConvertible {
 
   public var description: String {
-    return "(\(x), \(y), \(z))"
+    return "Vector3(x: \(x), y: \(y), z: \(z))"
   }
 
 }

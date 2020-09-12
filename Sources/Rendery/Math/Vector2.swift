@@ -210,7 +210,7 @@ public struct Vector2: Hashable {
 extension Vector2: CustomStringConvertible {
 
   public var description: String {
-    return "(\(x), \(y))"
+    return "Vector2(x: \(x), y: \(y))"
   }
 
 }
