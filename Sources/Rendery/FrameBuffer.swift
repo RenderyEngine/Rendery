@@ -194,17 +194,6 @@ public final class FrameBuffer: RenderTarget {
     /// A buffer attachment.
     case buffer(RenderBuffer)
 
-    public static func === (lhs: Attachment, rhs: Attachment) -> Bool {
-      switch (lhs, rhs) {
-      case (.texture(let l), .texture(let r)):
-        return l === r
-      case (.buffer(let l), .buffer(let r)):
-        return l === r
-      default:
-        return false
-      }
-    }
-
   }
 
   public let width: Int
