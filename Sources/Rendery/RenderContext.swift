@@ -174,6 +174,20 @@ public final class RenderContext {
   }
 
   /// Sets the target of subsequent rendering operations.
+  public func set(renderTarget target: RenderTarget) {
+    switch target {
+    case let window as Window:
+      set(renderTarget: window)
+    case let buffer as FrameBuffer:
+      set(renderTarget: buffer)
+    default:
+      LogManager.main.log(
+        "Cannot set render target instance of type '\(type(of: target))'.",
+        level: .error)
+    }
+  }
+
+  /// Sets the target of subsequent rendering operations.
   ///
   /// - Parameter window: The target of subsequent rendering operations.
   public func set(renderTarget window: Window) {
