@@ -16,7 +16,7 @@ public protocol RenderTarget: AnyObject {
   var viewports: [Viewport] { get }
 
   /// The target's render pipeline.
-  var renderPipeline: RenderPipeline { get set }
+  var renderPipeline: RenderPipeline? { get set }
 
   /// Updates the target's content.
   func update()

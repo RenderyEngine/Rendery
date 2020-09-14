@@ -1,18 +1,18 @@
 /// A driver that orchestrates the series of operation necessary to render a viewport.
 ///
 /// A render pipeline defines the steps that Rendery should render graphics contents. It is
-/// essentially a a driver that interacts with Rendery's low-level graphics API to update the state
+/// essentially a driver that interacts with Rendery's low-level graphics API to update the state
 /// of the render system and issue drawing commands.
 ///
 /// Conforming to `RenderPipeline` requires the implementation of a method `render(viewport:in:)`.
-/// This method is called once per frame, for each viewport attached to an active render target
-/// (typically, the application's window), and is responsible to perform all the tasks required to
-/// transform the viewport's contents into the image that is displayed the render target.
+/// This method is called once per frame, for each viewport attached to the application's output
+/// render targets (typically, windows), and is responsible to perform all the tasks required to
+/// transform the viewport's contents into the image.
 public protocol RenderPipeline {
 
   /// Renders the contents of the specified viewport.
   ///
-  /// This method is called once per frame, for each viewport attached to an active render target,
+  /// This method is called once per frame, for each viewport attached to an output render target,
   /// and is responsible to perform all the tasks required to transform the viewport's content into
   /// an image. It does so by interacting with Rendery's low-level graphics API.
   ///

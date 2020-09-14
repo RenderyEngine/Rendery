@@ -233,8 +233,10 @@ public final class Window: RenderTarget {
 
   // MARK: Rendering
 
-  public var renderPipeline: RenderPipeline = DefaultRenderPipeline()
+  /// The window's render pipeline.
+  public var renderPipeline: RenderPipeline? = DefaultRenderPipeline()
 
+  /// Renders all the window's viewports to update its contents.
   public func update() {
     // Set the window as the current OpenGL context.
     glfwMakeContextCurrent(handle)
@@ -246,8 +248,10 @@ public final class Window: RenderTarget {
     glClear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
 
     // Render the viewports.
+    guard let pipeline = renderPipeline
+      else { return }
     for viewport in viewports {
-      viewport.update(through: renderPipeline)
+      viewport.update(through: pipeline)
     }
 
     // Restore the default viewport.

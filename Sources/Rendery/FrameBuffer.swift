@@ -171,10 +171,13 @@ public final class FrameBuffer: RenderTarget {
   /// A handle to the frame buffer object in GPU memory.
   internal private(set) var fbo: GL.UInt
 
-  /// Binds this frame buffer as the active target for rendering operations.
-  internal func bind() {
-    glBindFramebuffer(GL.FRAMEBUFFER, fbo)
-  }
+  public let width: Int
+
+  public let height: Int
+
+  public private(set) var viewports: [Viewport] = []
+
+  public var renderPipeline: RenderPipeline?
 
   /// The buffer's color attachments.
   public let colors: [Int: MutableTexture]
@@ -214,15 +217,12 @@ public final class FrameBuffer: RenderTarget {
 
   }
 
-  public let width: Int
-
-  public let height: Int
-
-  public private(set) var viewports: [Viewport] = []
-
-  public var renderPipeline: RenderPipeline = DefaultRenderPipeline()
-
   public func update() {
+    guard let pipeline = renderPipeline
+      else { return }
+    for viewport in viewports {
+      viewport.update(through: pipeline)
+    }
   }
 
 }
