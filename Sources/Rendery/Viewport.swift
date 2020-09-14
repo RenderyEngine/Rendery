@@ -171,6 +171,7 @@ public final class Viewport {
     defer { renderContext.disableScissor() }
 
     // Clear the render context's cache.
+    renderContext.modelMatrices.removeAll(keepingCapacity: true)
     renderContext.modelViewProjMatrices.removeAll(keepingCapacity: true)
     renderContext.normalMatrices.removeAll(keepingCapacity: true)
 
