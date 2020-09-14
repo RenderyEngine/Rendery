@@ -13,20 +13,6 @@ public final class Window: RenderTarget {
   /// A flag that indicates whether the window is a secondary window.
   public var isSecondary: Bool { !isMain }
 
-  /// The window's width, in pixels.
-  ///
-  /// This property relates to the width of the window's frame buffer and denotes the number of
-  /// distinct pixels that can be displayed on the window, horizontally. On some devices, such as
-  /// retina displays, it may be larger than the window's `screenWidth`.
-  public fileprivate(set) var width: Int
-
-  /// The window's height, in pixels.
-  ///
-  /// This property relates to the width of the window's frame buffer and denotes the number of
-  /// distinct pixels that can be displayed on the window, vertically. On some devices, such as
-  /// retina displays, it may be larger than the window's `screenHeight`.
-  public fileprivate(set) var height: Int
-
   /// The window's width, in screen coordinates.
   public fileprivate(set) var screenWidth: Int
 
@@ -38,31 +24,6 @@ public final class Window: RenderTarget {
 
   /// The color of the window's background.
   public var backgroundColor: Color = .blue
-
-  /// The window's viewports.
-  public private(set) var viewports: [Viewport] = []
-
-  /// Adds a new viewport to the window.
-  ///
-  /// - Parameter region: The region of the window designated by the viewport, in normalized
-  ///   coordinates (i.e., expressed in values between `0` and `1`).
-  @discardableResult
-  public func createViewport(
-    region: Rectangle = Rectangle(origin: .zero, dimensions: .unitScale)
-  ) -> Viewport {
-    let viewport = Viewport(target: self, region: region)
-    viewports.append(viewport)
-    return viewport
-  }
-
-  /// Removes the specified viewport from the window.
-  ///
-  /// This method has no effect if the specified viewport is not attached to the window.
-  ///
-  /// - Parameter viewport: The viewport to remove.
-  public func removeViewport(_ viewport: Viewport) {
-    viewports.removeAll(where: { $0 === viewport })
-  }
 
   /// A flag that indicates whether the window is closed.
   public private(set) var isClosed = false
@@ -151,11 +112,11 @@ public final class Window: RenderTarget {
     var actualWidth: Int32 = 0
     var actualHeight: Int32 = 0
     glfwGetFramebufferSize(self.handle, &actualWidth, &actualHeight)
-    self.width = Int(actualWidth)
-    self.height = Int(actualHeight)
+    super.init(width: Int(actualWidth), height: Int(actualHeight))
 
     // Create a default viewport covering the entire window.
     self.createViewport()
+    self.renderPipeline = DefaultRenderPipeline()
 
     // Register callbacks.
     glfwSetWindowCloseCallback(handle, windowCloseCallback)
@@ -233,11 +194,8 @@ public final class Window: RenderTarget {
 
   // MARK: Rendering
 
-  /// The window's render pipeline.
-  public var renderPipeline: RenderPipeline? = DefaultRenderPipeline()
-
   /// Renders all the window's viewports to update its contents.
-  public func update() {
+  public override func update() {
     // Set the window as the current OpenGL context.
     glfwMakeContextCurrent(handle)
 
@@ -248,11 +206,7 @@ public final class Window: RenderTarget {
     glClear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)
 
     // Render the viewports.
-    guard let pipeline = renderPipeline
-      else { return }
-    for viewport in viewports {
-      viewport.update(through: pipeline)
-    }
+    super.update()
 
     // Restore the default viewport.
     glViewport(0, 0, Int32(width), Int32(height))

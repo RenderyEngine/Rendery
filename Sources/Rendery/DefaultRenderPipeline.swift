@@ -1,7 +1,7 @@
 /// Rendery's built-in default pipeline.
 public final class DefaultRenderPipeline: RenderPipeline {
 
-  /// Initializes a render pipeline instance.
+  /// Initializes a default render pipeline instance.
   public init() {
   }
 

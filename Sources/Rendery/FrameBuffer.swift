@@ -116,11 +116,10 @@ public final class FrameBuffer: RenderTarget {
       throw InitializationError.incomplete
     }
 
-    self.width   = width
-    self.height  = height
     self.colors  = colors
     self.depth   = depth
     self.stencil = stencil
+    super.init(width: width, height: height)
   }
 
   /// Initializes new frame buffer.
@@ -171,14 +170,6 @@ public final class FrameBuffer: RenderTarget {
   /// A handle to the frame buffer object in GPU memory.
   internal private(set) var fbo: GL.UInt
 
-  public let width: Int
-
-  public let height: Int
-
-  public private(set) var viewports: [Viewport] = []
-
-  public var renderPipeline: RenderPipeline?
-
   /// The buffer's color attachments.
   public let colors: [Int: MutableTexture]
 
@@ -215,14 +206,6 @@ public final class FrameBuffer: RenderTarget {
       }
     }
 
-  }
-
-  public func update() {
-    guard let pipeline = renderPipeline
-      else { return }
-    for viewport in viewports {
-      viewport.update(through: pipeline)
-    }
   }
 
 }
