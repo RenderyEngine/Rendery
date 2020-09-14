@@ -26,3 +26,46 @@ The main design goals of Rendery are the following:
   Using Rendery should as easy as adding `import Rendery` at the top of your file.
 * __Portable__:
   Rendery aims to provide a cross-platform alternative to Apple's [SpriteKit](https://developer.apple.com/documentation/spritekit)/[SceneKit](https://developer.apple.com/documentation/scenekit) frameworks.
+
+## Installation
+
+Rendery is distributed in the form of a Swift package and can be installed via the [Swift Package Manager](https://swift.org/package-manager/) (SPM).
+Start by creating a new package (unless you already have one):
+
+```bash
+mkdir MyAwesomeProject
+cd MyAwesomeProject
+swift package init --type executable
+```
+
+Then, add Rendery as a dependency to your package, from your `Package.swift` file:
+
+```swift
+import PackageDescription
+
+let package = Package(
+  name: "MyAwesomeProject",
+  dependencies: [
+    .package(url: "https://github.com/RenderyEngine/Rendery", .branch("master")),
+  ],
+  targets: [
+    .target(name: "MyAwesomeProject", dependencies: ["Rendery"]),
+  ]
+)
+```
+
+> Rendery is still under active development and hasn't reached a release yet.
+> In the meantime, referring to the master branch guarantees that you'll always pull the latest version.
+
+Rendery has two system dependencies that need to be installed on your system:
+* [GLFW](https://www.glfw.org), which is used to manage windows and handle input events.
+* [FreeType](https://www.freetype.org), which is used to render fonts.
+
+SPM should be able to locate both of them using pgk-config.
+If everything goes well, you should be able to import Rendery in your own project:
+
+```swift
+import Rendery
+
+// Your amazing code goes here
+```
