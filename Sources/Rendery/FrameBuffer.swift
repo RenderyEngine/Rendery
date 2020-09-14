@@ -194,6 +194,24 @@ public final class FrameBuffer: RenderTarget {
     /// A buffer attachment.
     case buffer(RenderBuffer)
 
+    /// Returns the underlying texture, or `nil` if the attachment is not a texture.
+    public var asTexture: MutableTexture? {
+      if case .texture(let value) = self {
+        return value
+      } else {
+        return nil
+      }
+    }
+
+    /// Returns the underlying buffer, or `nil` if the attachment is not a buffer.
+    public var asBuffer: RenderBuffer? {
+      if case .buffer(let value) = self {
+        return value
+      } else {
+        return nil
+      }
+    }
+
   }
 
   public let width: Int
