@@ -97,6 +97,94 @@ extension Mesh {
     return generate(vertexData: vertexData, vertexIndices: vertexIndices)
   }
 
+  /// Creates the mesh of a sphere with the specified dimensions.
+  ///
+  /// - Parameters:
+  ///   - segments: The number of vertical lines composing the sphere.
+  ///   - rings: The number of horizontal lines composing the sphere.
+  ///   - radius: The sphere's radius.
+  public static func sphere(segments: Int = 8, rings: Int = 8, radius: Double = 1.0) -> Mesh {
+    precondition(segments >= 3 && rings >= 3)
+
+    func point(_ h: Int, _ v: Int) -> Vector3 {
+      let parallel = Double.pi * Double(h) / Double(rings)
+      let meridian = 2.0 * Double.pi * Double(v) / Double(segments)
+
+      return Vector3(
+        x: Double(radius) * sin(parallel) * cos(meridian),
+        y: Double(radius) * cos(parallel),
+        z: Double(radius) * sin(parallel) * sin(meridian))
+    }
+
+    var attributes: [Float] = []
+    var indices: [UInt32] = []
+
+    for v in 0 ..< segments {
+      let a = Vector3(x: 0.0, y: radius, z: 0.0)
+      let b = point(1, v + 1)
+      let c = point(1, v)
+
+      let nv = ((a + b + c) / 3.0).normalized
+      let n = [Float(nv.x), Float(nv.y), Float(nv.z)]
+
+      attributes.append(contentsOf: [Float(a.x), Float(a.y), Float(a.z)] + n)
+      attributes.append(contentsOf: [Float(b.x), Float(b.y), Float(b.z)] + n)
+      attributes.append(contentsOf: [Float(c.x), Float(c.y), Float(c.z)] + n)
+
+      let i = UInt32(attributes.count / 6 - 3)
+      indices.append(contentsOf: [i, i + 1, i + 2])
+    }
+
+    for v in 0 ..< segments {
+      let a = point(rings - 1, v + 1)
+      let b = Vector3(x: 0.0, y: -radius, z: 0.0)
+      let c = point(rings - 1, v)
+
+      let nv = ((a + b + c) / 3.0).normalized
+      let n = [Float(nv.x), Float(nv.y), Float(nv.z)]
+
+      attributes.append(contentsOf: [Float(a.x), Float(a.y), Float(a.z)] + n)
+      attributes.append(contentsOf: [Float(b.x), Float(b.y), Float(b.z)] + n)
+      attributes.append(contentsOf: [Float(c.x), Float(c.y), Float(c.z)] + n)
+
+      let i = UInt32(attributes.count / 6 - 3)
+      indices.append(contentsOf: [i, i + 1, i + 2])
+    }
+
+    for h in 1 ..< (rings - 1) {
+      for v in 0 ..< segments {
+        let a = point(h, v + 1)
+        let b = point(h + 1, v + 1)
+        let c = point(h + 1, v)
+        let d = point(h, v)
+
+        let nv = ((a + b + c + d) / 4.0).normalized
+        let n = [Float(nv.x), Float(nv.y), Float(nv.z)]
+
+        attributes.append(contentsOf: [Float(a.x), Float(a.y), Float(a.z)] + n)
+        attributes.append(contentsOf: [Float(b.x), Float(b.y), Float(b.z)] + n)
+        attributes.append(contentsOf: [Float(c.x), Float(c.y), Float(c.z)] + n)
+        attributes.append(contentsOf: [Float(d.x), Float(d.y), Float(d.z)] + n)
+
+        let i = UInt32(attributes.count / 6 - 4)
+        indices.append(contentsOf: [i, i + 1, i + 2, i, i + 2, i + 3])
+      }
+    }
+
+    let stride = MemoryLayout<Float>.stride * 6
+    let source = MeshData(
+      vertexData: attributes,
+      vertexCount: attributes.count / 6,
+      vertexIndices: indices,
+      attributeDescriptors: [
+        .position(offset: 0, stride: stride),
+        .normal(offset: 3 * MemoryLayout<Float>.stride, stride: stride),
+      ])
+
+    // Create and return the mesh.
+    return Mesh(source: source)
+  }
+
   /// Creates the mesh that consists of multiple segments connecting the two specified points.
   ///
   /// - Parameters:
