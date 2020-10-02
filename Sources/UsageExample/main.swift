@@ -1,3 +1,3 @@
 import Rendery
 
-platformer2D()
+print("Hello, World!")
