@@ -1,4 +1,6 @@
+import GL
 import CGLFW
+import CGlad
 
 /// A 2D texture based on a static image.
 public final class ImageTexture: Texture {
@@ -93,7 +95,7 @@ public final class ImageTexture: Texture {
     glGenTextures(1, &super.handle)
     assert(super.handle != 0)
 
-    glBindTexture(GL.TEXTURE_2D, super.handle)
+    glBindTexture(Int32(GL.TEXTURE_2D), super.handle)
     image!.withUnsafePointer({ data in
       // Flip the image data if necessary.
       let pixels: UnsafePointer<UInt8>
@@ -112,22 +114,22 @@ public final class ImageTexture: Texture {
 
       let transfer = format.glTransferFormat
       if image!.format == .gray {
-        glPixelStorei(GL.UNPACK_ALIGNMENT, 1)
+        glPixelStorei(Int32(GL.UNPACK_ALIGNMENT), 1)
       }
 
       // Load the texture data into GPU memory.
       glTexImage2D(
-        GL.TEXTURE_2D,                      // Texture target
+        Int32(GL.TEXTURE_2D),                      // Texture target
         0,                                  // Mipmap level
         GL.Int(bitPattern: format.glValue), // Internal format in GPU memory
         GL.Size(width),                     // Source width
         GL.Size(height),                    // Source height
         0,                                  // Legacy
-        transfer.format,                    // Source format
-        transfer.type,                      // Source type (per channel)
+        Int32(transfer.format),                    // Source format
+        Int32(transfer.type),                      // Source type (per channel)
         data)                               // Source data
 
-      glPixelStorei(GL.UNPACK_ALIGNMENT, 4)
+      glPixelStorei(Int32(GL.UNPACK_ALIGNMENT), 4)
       if requiresFlipping {
         pixels.deallocate()
       }
@@ -141,18 +143,18 @@ public final class ImageTexture: Texture {
           "Texture's dimensions are not a power of two, ignoring mipmaps generation.",
           level: .warning)
       } else {
-        glGenerateMipmap(GL.TEXTURE_2D)
+        glGenerateMipmap(Int32(GL.TEXTURE_2D))
       }
     } else {
       // Setup nearest neighbor filtering.
       // Required if mipmaps are disabled (https://stackoverflow.com/questions/8064420)
-      glTexParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.Int(bitPattern: GL.NEAREST))
-      glTexParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.Int(bitPattern: GL.NEAREST))
+      glTexParameteri(Int32(GL.TEXTURE_2D), Int32(GL.TEXTURE_MIN_FILTER), GL.Int(bitPattern: GL.NEAREST))
+      glTexParameteri(Int32(GL.TEXTURE_2D), Int32(GL.TEXTURE_MAG_FILTER), GL.Int(bitPattern: GL.NEAREST))
     }
 
     // Setup the texture's wrapping method.
-    glTexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.Int(wrapMethod.u.glValue))
-    glTexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.Int(wrapMethod.v.glValue))
+    glTexParameteri(Int32(GL.TEXTURE_2D), Int32(GL.TEXTURE_WRAP_S), GL.Int(wrapMethod.u.glValue))
+    glTexParameteri(Int32(GL.TEXTURE_2D), Int32(GL.TEXTURE_WRAP_T), GL.Int(wrapMethod.v.glValue))
 
     // Dispose of the data source.
     image = nil

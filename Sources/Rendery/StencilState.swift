@@ -1,4 +1,8 @@
+import GL
 import CGLFW
+import CGlad
+
+import func GL.glStencilFuncSeparate
 
 /// The configuration of the stencil state of a render system.
 public class StencilState {
@@ -22,10 +26,10 @@ public class StencilState {
     onStencilAndDepthSuccess: StencilAction
   ) {
     glStencilOpSeparate(
-      GL.FRONT_AND_BACK,
-      onStencilFailure.glValue,
-      onStencilSuccessAndDepthFailure.glValue,
-      onStencilAndDepthSuccess.glValue)
+      Int32(GL.FRONT_AND_BACK),
+      Int32(onStencilFailure.glValue),
+      Int32(onStencilSuccessAndDepthFailure.glValue),
+      Int32(onStencilAndDepthSuccess.glValue))
   }
 
 }
@@ -60,28 +64,28 @@ public enum StencilCompareFunction {
   fileprivate func assign(for face: GL.Enum) {
     switch self {
     case .always(let reference, let mask):
-      glStencilFuncSeparate(face, GL.ALWAYS, GL.Int(reference), GL.UInt(mask))
+      glStencilFuncSeparate(Int32(face), Int32(GL.ALWAYS), GL.Int(reference), GL.UInt(mask))
 
     case .never(let reference, let mask):
-      glStencilFuncSeparate(face, GL.NEVER, GL.Int(reference), GL.UInt(mask))
+      glStencilFuncSeparate(Int32(face), Int32(GL.NEVER), GL.Int(reference), GL.UInt(mask))
 
     case .lesser(let reference, let mask):
-      glStencilFuncSeparate(face, GL.LESS, GL.Int(reference), GL.UInt(mask))
+      glStencilFuncSeparate(Int32(face), Int32(GL.LESS), GL.Int(reference), GL.UInt(mask))
 
     case .lesserOrEqual(let reference, let mask):
-      glStencilFuncSeparate(face, GL.LEQUAL, GL.Int(reference), GL.UInt(mask))
+      glStencilFuncSeparate(Int32(face), Int32(GL.LEQUAL), GL.Int(reference), GL.UInt(mask))
 
     case .greater(let reference, let mask):
-      glStencilFuncSeparate(face, GL.GREATER, GL.Int(reference), GL.UInt(mask))
+      glStencilFuncSeparate(Int32(face), Int32(GL.GREATER), GL.Int(reference), GL.UInt(mask))
 
     case .greaterOrEqual(let reference, let mask):
-      glStencilFuncSeparate(face, GL.GEQUAL, GL.Int(reference), GL.UInt(mask))
+      glStencilFuncSeparate(Int32(face), Int32(GL.GEQUAL), GL.Int(reference), GL.UInt(mask))
 
     case .equal(let reference, let mask):
-      glStencilFuncSeparate(face, GL.EQUAL, GL.Int(reference), GL.UInt(mask))
+      glStencilFuncSeparate(Int32(face), Int32(GL.EQUAL), GL.Int(reference), GL.UInt(mask))
 
     case .notEqual(let reference, let mask):
-      glStencilFuncSeparate(face, GL.NOTEQUAL, GL.Int(reference), GL.UInt(mask))
+      glStencilFuncSeparate(Int32(face), Int32(GL.NOTEQUAL), GL.Int(reference), GL.UInt(mask))
     }
   }
 

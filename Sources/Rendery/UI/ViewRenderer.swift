@@ -1,4 +1,6 @@
+import GL
 import CGLFW
+import CGlad
 
 /// A drawing environment to render view elements.
 public struct ViewRenderer: ViewDrawingContext {
@@ -74,7 +76,7 @@ public struct ViewRenderer: ViewDrawingContext {
     program.assign(true, to: "shouldSampleQuadTexture")
     program.assign(color.linear(), to: "multiply", discardingAlpha: false)
 
-    glActiveTexture(GL.TEXTURE0)
+    glActiveTexture(Int32(GL.TEXTURE0))
 
     let wasAlphaPremultiplied = AppContext.shared.renderContext.isAlphaPremultiplied
     AppContext.shared.renderContext.isAlphaPremultiplied = false
@@ -96,7 +98,7 @@ public struct ViewRenderer: ViewDrawingContext {
 
       // Bind the glyph texture.
       if let texture = glyph.texture {
-        glBindTexture(GL.TEXTURE_2D, texture.handle)
+        glBindTexture(Int32(GL.TEXTURE_2D), texture.handle)
       }
 
       // Draw the glyph.
@@ -131,8 +133,8 @@ private final class Quad: GraphicsResource {
       gx, gy,       1.0, 0.0, // top right
     ]
 
-    glBindBuffer(GL.ARRAY_BUFFER, vboID)
-    glBufferSubData(GL.ARRAY_BUFFER, 0, MemoryLayout<Float>.stride * data.count, data)
+    glBindBuffer(Int32(GL.ARRAY_BUFFER), vboID)
+    glBufferSubData(Int32(GL.ARRAY_BUFFER), 0, MemoryLayout<Float>.stride * data.count, data)
     glBindBuffer(0, vboID)
   }
 
@@ -140,7 +142,7 @@ private final class Quad: GraphicsResource {
     assert(state == .loaded)
 
     glBindVertexArray(vaoID)
-    glDrawArrays(GL.TRIANGLES, 0, 6)
+    glDrawArrays(Int32(GL.TRIANGLES), 0, 6)
     glBindVertexArray(0)
   }
 
@@ -160,13 +162,13 @@ private final class Quad: GraphicsResource {
 
     glGenBuffers(1, &vboID)
     assert(vboID != 0)
-    glBindBuffer(GL.ARRAY_BUFFER, vboID)
-    glBufferData(GL.ARRAY_BUFFER, MemoryLayout<Float>.stride * 6 * 4, nil, GL.DYNAMIC_DRAW)
+    glBindBuffer(Int32(GL.ARRAY_BUFFER), vboID)
+    glBufferData(Int32(GL.ARRAY_BUFFER), MemoryLayout<Float>.stride * 6 * 4, nil, Int32(GL.DYNAMIC_DRAW))
 
     glEnableVertexAttribArray(0)
-    glVertexAttribPointer(0, 4, GL.FLOAT, 0, GL.Size(4 * MemoryLayout<Float>.stride), nil)
+    glVertexAttribPointer(0, 4, Int32(GL.FLOAT), false, GL.Size(4 * MemoryLayout<Float>.stride), nil)
 
-    glBindBuffer(GL.ARRAY_BUFFER, 0)
+    glBindBuffer(Int32(GL.ARRAY_BUFFER), 0)
     glBindVertexArray(0)
 
     state = .loaded

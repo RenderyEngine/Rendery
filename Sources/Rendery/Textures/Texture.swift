@@ -1,4 +1,6 @@
+import GL
 import CGLFW
+import CGlad
 
 /// A 2D texture, stored in GPU memory.
 ///

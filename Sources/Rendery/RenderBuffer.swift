@@ -1,4 +1,6 @@
+import GL
 import CGLFW
+import CGlad
 
 /// A render buffer object that can be used as a frame buffer's attachment.
 public final class RenderBuffer {
@@ -11,8 +13,8 @@ public final class RenderBuffer {
   ///   - format: The buffer's internal format.
   public init(width: Int, height: Int, format: Texture.InternalFormat) {
     glGenRenderbuffers(1, &rbo)
-    glBindRenderbuffer(GL.RENDERBUFFER, rbo)
-    glRenderbufferStorage(GL.RENDERBUFFER, format.glValue, GL.Size(width), GL.Size(height))
+    glBindRenderbuffer(Int32(GL.RENDERBUFFER), rbo)
+    glRenderbufferStorage(Int32(GL.RENDERBUFFER), Int32(format.glValue), GL.Size(width), GL.Size(height))
   }
 
   deinit {

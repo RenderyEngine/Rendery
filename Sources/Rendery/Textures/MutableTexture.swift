@@ -1,4 +1,6 @@
+import GL
 import CGLFW
+import CGlad
 
 /// A 2D texture whose contents can be modified.
 ///
@@ -19,23 +21,23 @@ public final class MutableTexture: Texture {
     let transfer = format.glTransferFormat
 
     glGenTextures(1, &handle)
-    glBindTexture(GL.TEXTURE_2D, handle)
+    glBindTexture(Int32(GL.TEXTURE_2D), handle)
     glTexImage2D(
-      GL.TEXTURE_2D,
+      Int32(GL.TEXTURE_2D),
       0,
       GL.Int(bitPattern: format.glValue),
       GL.Size(width),
       GL.Size(height),
       0,
-      transfer.format,
-      transfer.type,
+      Int32(transfer.format),
+      Int32(transfer.type),
       nil)
 
-    glTexParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.Int(bitPattern: GL.NEAREST))
-    glTexParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.Int(bitPattern: GL.NEAREST))
+    glTexParameteri(Int32(GL.TEXTURE_2D), Int32(GL.TEXTURE_MIN_FILTER), GL.Int(bitPattern: GL.NEAREST))
+    glTexParameteri(Int32(GL.TEXTURE_2D), Int32(GL.TEXTURE_MAG_FILTER), GL.Int(bitPattern: GL.NEAREST))
 
-    glTexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.Int(wrapMethod.u.glValue))
-    glTexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.Int(wrapMethod.v.glValue))
+    glTexParameteri(Int32(GL.TEXTURE_2D), Int32(GL.TEXTURE_WRAP_S), GL.Int(wrapMethod.u.glValue))
+    glTexParameteri(Int32(GL.TEXTURE_2D), Int32(GL.TEXTURE_WRAP_T), GL.Int(wrapMethod.v.glValue))
   }
 
   public convenience init(

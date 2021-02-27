@@ -1,4 +1,6 @@
+import GL
 import CGLFW
+import CGlad
 
 /// An object that can be used to interact with Rendery's low level graphics API.
 public final class RenderContext {
@@ -27,7 +29,7 @@ public final class RenderContext {
       onStencilAndDepthSuccess: .keep)
 
     // Configure OpenGL so that it performs gamma correction when writing to a sRGB target.
-    glEnable(GL.FRAMEBUFFER_SRGB)
+    glEnable(Int32(GL.FRAMEBUFFER_SRGB))
   }
 
   /// The generation number of the next frame to render.
@@ -40,9 +42,9 @@ public final class RenderContext {
   public var isAlphaPremultiplied = true {
     didSet {
       if isAlphaPremultiplied {
-        glBlendFunc(GL.ONE, GL.ONE_MINUS_SRC_ALPHA)
+        glBlendFunc(Int32(GL.ONE), Int32(GL.ONE_MINUS_SRC_ALPHA))
       } else {
-        glBlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
+        glBlendFunc(Int32(GL.SRC_ALPHA), Int32(GL.ONE_MINUS_SRC_ALPHA))
       }
     }
   }
@@ -57,19 +59,19 @@ public final class RenderContext {
     didSet {
       switch culling {
       case .none:
-        glDisable(GL.CULL_FACE)
+        glDisable(Int32(GL.CULL_FACE))
 
       case .front:
-        glEnable(GL.CULL_FACE)
-        glCullFace(GL.FRONT)
+        glEnable(Int32(GL.CULL_FACE))
+        glCullFace(Int32(GL.FRONT))
 
       case .back:
-        glEnable(GL.CULL_FACE)
-        glCullFace(GL.BACK)
+        glEnable(Int32(GL.CULL_FACE))
+        glCullFace(Int32(GL.BACK))
 
       case .both:
-        glEnable(GL.CULL_FACE)
-        glCullFace(GL.FRONT_AND_BACK)
+        glEnable(Int32(GL.CULL_FACE))
+        glCullFace(Int32(GL.FRONT_AND_BACK))
       }
     }
   }
@@ -165,12 +167,12 @@ public final class RenderContext {
   /// - Parameter region: The region of the scissor test, in pixels.
   public func set(scissorRegion region: Rectangle) {
     glScissor(region: region)
-    glEnable(GL.SCISSOR_TEST)
+    glEnable(Int32(GL.SCISSOR_TEST))
   }
 
   /// Disables the scissor test-
   public func disableScissor() {
-    glDisable(GL.SCISSOR_TEST)
+    glDisable(Int32(GL.SCISSOR_TEST))
   }
 
   /// Sets the target of subsequent rendering operations.
@@ -196,14 +198,14 @@ public final class RenderContext {
       return
     }
 
-    glBindFramebuffer(GL.FRAMEBUFFER, 0)
+    glBindFramebuffer(Int32(GL.FRAMEBUFFER), 0)
   }
 
   /// Sets the target of subsequent rendering operations.
   ///
   /// - Parameter frameBuffer: The target of subsequent rendering operations.
   public func set(renderTarget frameBuffer: FrameBuffer) {
-    glBindFramebuffer(GL.FRAMEBUFFER, frameBuffer.fbo)
+    glBindFramebuffer(Int32(GL.FRAMEBUFFER), frameBuffer.fbo)
   }
 
   /// Draws the meshes composing the model of each node in the specified node list.

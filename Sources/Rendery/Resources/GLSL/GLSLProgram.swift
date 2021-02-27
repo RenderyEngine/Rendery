@@ -1,4 +1,6 @@
+import GL
 import CGLFW
+import CGlad
 
 /// A GLSL program, compiled and loaded in GPU memory.
 ///
@@ -124,7 +126,7 @@ public final class GLSLProgram: GraphicsResource {
   public func assign(_ matrix3: @autoclosure () -> Matrix3, to name: String) {
     let loc = location(of: name)
     let data = matrix3().components.map(Float.init)
-    glUniformMatrix3fv(loc, 1, 0, data)
+    glUniformMatrix3fv(loc, 1, false, data)
   }
 
   /// Assigns a 4x4 matrix at the specified location.
@@ -137,7 +139,7 @@ public final class GLSLProgram: GraphicsResource {
   public func assign(_ matrix4: @autoclosure () -> Matrix4, to name: String) {
     let loc = location(of: name)
     let data = matrix4().components.map(Float.init)
-    glUniformMatrix4fv(loc, 1, 0, data)
+    glUniformMatrix4fv(loc, 1, false, data)
   }
 
   /// Assigns a texture at the specified location.
@@ -150,8 +152,8 @@ public final class GLSLProgram: GraphicsResource {
   ///   - textureUnit: The unit to which the texture should be assigned.
   public func assign(_ texture: Texture, to sampler: String, textureUnit: Int) {
     // Activate the texture unit.
-    glActiveTexture(GL.TEXTURE0 + UInt32(textureUnit))
-    glBindTexture(GL.TEXTURE_2D, texture.handle)
+    glActiveTexture(Int32(GL.TEXTURE0) + Int32(textureUnit))
+    glBindTexture(Int32(GL.TEXTURE_2D), texture.handle)
     assign(textureUnit, to: sampler)
   }
 
@@ -276,7 +278,7 @@ public final class GLSLProgram: GraphicsResource {
 
   /// Compiles a shader.
   private func compile(type: GLSLProgram.ShaderType, source: String) throws -> GL.UInt {
-    let shaderID = glCreateShader(type.glValue)
+    let shaderID = glCreateShader(Int32(type.glValue))
     source.withCString({ cSource in glShaderSource(shaderID, 1, [cSource], nil) })
     glCompileShader(shaderID)
 
@@ -284,14 +286,14 @@ public final class GLSLProgram: GraphicsResource {
     var infoLog: UnsafeMutablePointer<Int8>?
     defer { infoLog?.deallocate() }
 
-    glGetShaderiv(shaderID, GL.INFO_LOG_LENGTH, &infoLogCount)
+    glGetShaderiv(shaderID, Int32(GL.INFO_LOG_LENGTH), &infoLogCount)
     if infoLogCount > 0 {
       infoLog = .allocate(capacity: Int(infoLogCount))
       glGetShaderInfoLog(shaderID, infoLogCount, nil, infoLog)
     }
 
     var success: GL.Int = 0
-    glGetShaderiv(shaderID, GL.COMPILE_STATUS, &success)
+    glGetShaderiv(shaderID, Int32(GL.COMPILE_STATUS), &success)
     guard success == GL.TRUE else {
       glDeleteShader(shaderID)
       throw GLSLError.compilation(shader: type, message: String(cString: infoLog!))
@@ -320,14 +322,14 @@ public final class GLSLProgram: GraphicsResource {
     var infoLog: UnsafeMutablePointer<Int8>?
     defer { infoLog?.deallocate() }
 
-    glGetProgramiv(programID, GL.INFO_LOG_LENGTH, &infoLogCount)
+    glGetProgramiv(programID, Int32(GL.INFO_LOG_LENGTH), &infoLogCount)
     if infoLogCount > 0 {
       infoLog = .allocate(capacity: Int(infoLogCount))
       glGetProgramInfoLog(programID, infoLogCount, nil, infoLog)
     }
 
     var success: GL.Int = 0
-    glGetProgramiv(programID, GL.LINK_STATUS, &success)
+    glGetProgramiv(programID, Int32(GL.LINK_STATUS), &success)
     guard success == GL.TRUE else {
       glDeleteProgram(programID)
       throw GLSLError.linking(message: String(cString: infoLog!))
