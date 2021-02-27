@@ -1,4 +1,6 @@
+import GL
 import CGLFW
+import CGlad
 
 // MARK: Types and constants
 
@@ -116,9 +118,9 @@ internal enum GL {
 /// Convenience wrapper around `glEnable` and `glDisable`.
 internal func glToggle(capability: GL.Enum, isEnabled: Bool) {
   if isEnabled {
-    glEnable(capability)
+    glEnable(Int32(capability))
   } else {
-    glDisable(capability)
+    glDisable(Int32(capability))
   }
 }
 

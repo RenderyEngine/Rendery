@@ -1,4 +1,6 @@
+import GL
 import CGLFW
+import CGlad
 import Dispatch
 
 /// A centralized object that gathers the global state of a Rendery application.
@@ -197,9 +199,9 @@ public final class AppContext {
   public var polygonMode: PolygonMode = .face {
     didSet {
       switch polygonMode {
-      case .face      : glPolygonMode(GL.FRONT_AND_BACK, GL.FILL)
-      case .wireframe : glPolygonMode(GL.FRONT_AND_BACK, GL.LINE)
-      case .vertex    : glPolygonMode(GL.FRONT_AND_BACK, GL.POINT)
+      case .face      : glPolygonMode(Int32(GL.FRONT_AND_BACK), Int32(GL.FILL))
+      case .wireframe : glPolygonMode(Int32(GL.FRONT_AND_BACK), Int32(GL.LINE))
+      case .vertex    : glPolygonMode(Int32(GL.FRONT_AND_BACK), Int32(GL.POINT))
       }
     }
   }

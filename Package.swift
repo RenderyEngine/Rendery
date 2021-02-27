@@ -1,4 +1,4 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.3
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -10,26 +10,27 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-numerics", from: "0.0.5"),
+    .package(name: "GL", url:"https://github.com/kelvin13/swift-opengl.git", .branch("master"))
   ],
   targets: [
     // Swift targets.
     .target(name: "UsageExample", dependencies: ["Rendery"]),
     .target(
       name: "Rendery",
-      dependencies: ["CSTBImage", "CGLFW", "CFreeType", "Cgltf", "Numerics"],
-      linkerSettings: [
-        .linkedFramework("OpenGL"),
-      ]
+      dependencies: ["GL", "CSTBImage", "CGLFW", "CGlad", "CFreeType", "Cgltf", .product(name: "Numerics", package: "swift-numerics")]
+      // linkerSettings: [
+      //   .linkedFramework("OpenGL"),
+      // ]
     ),
 
     // C targets.
     .target(name: "CSTBImage", dependencies: []),
     .target(name: "Cgltf", dependencies: []),
+    .target(name: "CGlad", dependencies: []),
 
     // System libraries.
     .systemLibrary(name: "CFreeType", pkgConfig: "freetype2"),
     .systemLibrary(name: "CGLFW", pkgConfig: "glfw3"),
-    // .systemLibrary(name: "CGLFW"),
 
     // Test targets.
     .testTarget(name: "RenderyTests", dependencies: ["Rendery"]),

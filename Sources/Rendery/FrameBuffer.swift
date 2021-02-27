@@ -1,4 +1,6 @@
+import GL
 import CGLFW
+import CGlad
 
 /// A render target that stores its contents in an off-screen buffer.
 public final class FrameBuffer: RenderTarget {
@@ -25,29 +27,29 @@ public final class FrameBuffer: RenderTarget {
     depth: Attachment? = nil,
     stencil: Attachment? = nil
   ) throws {
-    defer { glBindFramebuffer(GL.FRAMEBUFFER, 0) }
+    defer { glBindFramebuffer(Int32(GL.FRAMEBUFFER), 0) }
 
     // Generate a frame buffer object.
     fbo = 0
     glGenFramebuffers(1, &fbo)
-    glBindFramebuffer(GL.FRAMEBUFFER, fbo)
+    glBindFramebuffer(Int32(GL.FRAMEBUFFER), fbo)
     glWarnError()
 
     // Bind the color attachments, if any.
     if colors.isEmpty {
-      glDrawBuffer(GL.NONE)
+      glDrawBuffer(Int32(GL.NONE))
     } else {
       var maxColorAttachments: GL.Int = 0
-      glGetIntegerv(GL.MAX_COLOR_ATTACHMENTS, &maxColorAttachments)
+      glGetIntegerv(Int32(GL.MAX_COLOR_ATTACHMENTS), &maxColorAttachments)
 
       for (i, texture) in colors {
         guard GL.Int(i) < maxColorAttachments
           else { throw FrameBuffer.InitializationError.attachmentOutOfBounds }
 
         glFramebufferTexture2D(
-          GL.FRAMEBUFFER,
-          GL.COLOR_ATTACHMENT0 + UInt32(i),
-          GL.TEXTURE_2D,
+          Int32(GL.FRAMEBUFFER),
+          Int32(GL.COLOR_ATTACHMENT0 + UInt32(i)),
+          Int32(GL.TEXTURE_2D),
           texture.handle,
           0)
         glWarnError()
@@ -64,7 +66,7 @@ public final class FrameBuffer: RenderTarget {
         attachment = GL.DEPTH_ATTACHMENT
       }
 
-      glFramebufferTexture2D(GL.FRAMEBUFFER, attachment, GL.TEXTURE_2D, dtex.handle, 0)
+      glFramebufferTexture2D(Int32(GL.FRAMEBUFFER), Int32(attachment), Int32(GL.TEXTURE_2D), dtex.handle, 0)
       glWarnError()
 
     case .buffer(let dbuf):
@@ -75,7 +77,7 @@ public final class FrameBuffer: RenderTarget {
         attachment = GL.DEPTH_ATTACHMENT
       }
 
-      glFramebufferRenderbuffer(GL.FRAMEBUFFER, attachment, GL.RENDERBUFFER, dbuf.rbo)
+      glFramebufferRenderbuffer(Int32(GL.FRAMEBUFFER), Int32(attachment), Int32(GL.RENDERBUFFER), dbuf.rbo)
       glWarnError()
 
     case nil:
@@ -89,7 +91,7 @@ public final class FrameBuffer: RenderTarget {
         break
       }
 
-      glFramebufferTexture2D(GL.FRAMEBUFFER, GL.STENCIL_ATTACHMENT, GL.TEXTURE_2D, stex.handle, 0)
+      glFramebufferTexture2D(Int32(GL.FRAMEBUFFER), Int32(GL.STENCIL_ATTACHMENT), Int32(GL.TEXTURE_2D), stex.handle, 0)
       glWarnError()
 
     case .buffer(let sbuf):
@@ -97,7 +99,7 @@ public final class FrameBuffer: RenderTarget {
         break
       }
 
-      glFramebufferRenderbuffer(GL.FRAMEBUFFER, GL.STENCIL_ATTACHMENT, GL.RENDERBUFFER, sbuf.rbo)
+      glFramebufferRenderbuffer(Int32(GL.FRAMEBUFFER), Int32(GL.STENCIL_ATTACHMENT), Int32(GL.RENDERBUFFER), sbuf.rbo)
       glWarnError()
 
     case nil:
@@ -105,11 +107,11 @@ public final class FrameBuffer: RenderTarget {
     }
 
     // Check that the frame buffer is complete.
-    switch glCheckFramebufferStatus(GL.FRAMEBUFFER) {
-    case GL.FRAMEBUFFER_COMPLETE:
+    switch glCheckFramebufferStatus(Int32(GL.FRAMEBUFFER)) {
+    case Int32(GL.FRAMEBUFFER_COMPLETE):
       break
 
-    case GL.FRAMEBUFFER_UNSUPPORTED:
+    case Int32(GL.FRAMEBUFFER_UNSUPPORTED):
       throw InitializationError.unsupportedFormat
 
     default:

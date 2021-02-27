@@ -1,4 +1,6 @@
+import GL
 import CGLFW
+import CGlad
 
 /// A collection of vertices, edges and faces that represents a 3D geometry.
 public final class Mesh: GraphicsResource {
@@ -15,8 +17,8 @@ public final class Mesh: GraphicsResource {
     self.source = source
     self.state = .unloaded
   }
-
   /// The data source for this mesh.
+
   public var source: MeshSource?
 
   /// The number of vertices composing the mesh.
@@ -93,12 +95,12 @@ public final class Mesh: GraphicsResource {
     if let indices = vertexIndices {
       assert(eboID != 0)
       glDrawElements(
-        primitiveType.glValue,
+        Int32(primitiveType.glValue),
         GL.Size(indices.count),
-        GL.Enum(GL_UNSIGNED_INT),
+        Int32(GL.Enum(GL_UNSIGNED_INT)),
         nil)
     } else {
-      glDrawArrays(primitiveType.glValue, 0, GL.Size(vertexCount))
+      glDrawArrays(Int32(primitiveType.glValue), 0, GL.Size(vertexCount))
     }
 
     // Unbind the mesh's buffer.
@@ -125,10 +127,10 @@ public final class Mesh: GraphicsResource {
 
     glGenBuffers(1, &vboID)
     assert(vboID != 0)
-    glBindBuffer(GL.ARRAY_BUFFER, vboID)
+    glBindBuffer(Int32(GL.ARRAY_BUFFER), vboID)
 
     source!.vertexData.withUnsafeBytes({ buffer in
-      glBufferData(GL.ARRAY_BUFFER, buffer.count, buffer.baseAddress, drawHint)
+      glBufferData(Int32(GL.ARRAY_BUFFER), buffer.count, buffer.baseAddress, Int32(drawHint))
     })
 
     for descriptor in source!.attributeDescriptors {
@@ -138,8 +140,8 @@ public final class Mesh: GraphicsResource {
         glVertexAttribPointer(
           GL.UInt(descriptor.shaderLocation),
           GL.Int(descriptor.componentCountPerVertex),
-          GL.FLOAT,
-          0,
+          Int32(GL.FLOAT),
+          false,
           GL.Size(descriptor.stride),
           UnsafeRawPointer(bitPattern: descriptor.offset))
 
@@ -147,7 +149,7 @@ public final class Mesh: GraphicsResource {
         glVertexAttribLPointer(
           GL.UInt(descriptor.shaderLocation),
           GL.Int(descriptor.componentCountPerVertex),
-          GL.DOUBLE,
+          Int32(GL.DOUBLE),
           GL.Size(descriptor.stride),
           UnsafeRawPointer(bitPattern: descriptor.offset))
 
@@ -155,7 +157,7 @@ public final class Mesh: GraphicsResource {
         glVertexAttribIPointer(
           GL.UInt(descriptor.shaderLocation),
           GL.Int(descriptor.componentCountPerVertex),
-          type!,
+          Int32(type!),
           GL.Size(descriptor.stride),
           UnsafeRawPointer(bitPattern: descriptor.offset))
 
@@ -170,13 +172,13 @@ public final class Mesh: GraphicsResource {
     if let indices = source!.vertexIndices {
       glGenBuffers(1, &eboID)
       assert(eboID != 0)
-      glBindBuffer(GL.ELEMENT_ARRAY_BUFFER, eboID)
+      glBindBuffer(Int32(GL.ELEMENT_ARRAY_BUFFER), eboID)
       indices.withUnsafeBufferPointer({ buffer in
         glBufferData(
-          GL.ELEMENT_ARRAY_BUFFER,
+          Int32(GL.ELEMENT_ARRAY_BUFFER),
           buffer.count * MemoryLayout<UInt32>.stride,
           buffer.baseAddress,
-          drawHint)
+          Int32(drawHint))
       })
     }
 

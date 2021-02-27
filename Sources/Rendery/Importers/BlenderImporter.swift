@@ -1,5 +1,8 @@
+#if os(macOS)
 import Darwin
-
+#else
+import Glibc
+#endif
 
 /// A proxy to read the contents of a `.blend` file.
 ///
@@ -695,4 +698,3 @@ private struct Stream {
   }
 
 }
-
