@@ -28,7 +28,7 @@ class SystemSolar: Scene {
     solar.model = Model(
       meshes: [.sphere(segments: 100, rings: 100, radius: solarRadius)],
       materials: [Material()])
-    // Apply a texture to each planet
+    // Apply a texture to the solar
     solar.model?.materials[0].diffuse = .texture(ImageTexture(image: Image(contentsOfFile: "Sources"+"/img/solar_tex.jpg")!, wrapMethod: .repeat))
     // Modify its color
     //solar.model?.materials[0].multiply = .color(Color(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5))
@@ -44,6 +44,7 @@ class SystemSolar: Scene {
       p.model = Model(
         meshes: [.sphere(segments: 50, rings: 50, radius: (planet[1] as! Double))],
       materials: [Material()])
+      // Apply a texture to each planet
       p.model?.materials[0].diffuse = .texture(ImageTexture(image: Image(contentsOfFile: "Sources"+(planet[5] as! String))!, wrapMethod: .repeat))
       // p.translation.z = -x because x = -z
       p.translation.z = -(self.P2C(r: (planet[2] as! Double), theta: planetAngle)).0
@@ -59,7 +60,6 @@ class SystemSolar: Scene {
 
       // Change the planets' position
       AppContext.shared.subscribe(frameListener: { _, delta in
-
         // Compute polar coordinates and compote (x,y) cartesian coordinates to update planets' position
         var newTheta = self.updatePostion(revo: (planet[4] as! Double), angle: planetAngle)
         // p.translation.z = -x because x = -z
